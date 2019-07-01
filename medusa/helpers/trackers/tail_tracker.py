@@ -1,23 +1,21 @@
-from .camera import CameraGUI
-from medusa.tracking import TailTracker
-from medusa.saving import TailSaver
+from .tracker_base import TrackerBase
 from PyQt5 import QtWidgets, QtCore
-import pyqtgraph as pg
-import collections
-import time
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+import time
+from collections import deque
 import numpy as np
-
-
-buttonWidth = 100
-buttonHeight = 20
+import math
+import cv2
 
 
 class TailInitialisation(QtWidgets.QDialog):
 
+    button_width = 100
+    button_height = 20
+
     def __init__(self, camera_thread):
-        super(TailInitialisation, self).__init__()
+        super().__init__()
         # Give window access to cameras
         self.camera_thread = camera_thread
         # Make modal (i.e. freeze main window until this one is close)
@@ -43,7 +41,7 @@ class TailInitialisation(QtWidgets.QDialog):
         layout.addLayout(button_layout)
         button_layout.setAlignment(QtCore.Qt.AlignTop)
         self.newbutton = QtWidgets.QPushButton('New image')
-        self.newbutton.setFixedSize(buttonWidth, buttonHeight)
+        self.newbutton.setFixedSize(self.button_width, self.button_height)
         self.newbutton.clicked.connect(self.get_image_from_camera)
         button_layout.addWidget(self.newbutton)
 
@@ -62,13 +60,13 @@ class TailInitialisation(QtWidgets.QDialog):
 
         # Button for accepting new points
         self.acceptbutton = QtWidgets.QPushButton('Accept')
-        self.acceptbutton.setFixedSize(buttonWidth, 2 * buttonHeight)
+        self.acceptbutton.setFixedSize(self.button_width, 2 * self.button_height)
         button_layout.addWidget(self.acceptbutton)
         self.acceptbutton.clicked.connect(self.accept)
 
         # Button for cancel
         self.cancelbutton = QtWidgets.QPushButton('Cancel')
-        self.cancelbutton.setFixedSize(buttonWidth, buttonHeight)
+        self.cancelbutton.setFixedSize(self.button_width, self.button_height)
         button_layout.addWidget(self.cancelbutton)
         self.cancelbutton.clicked.connect(self.reject)
 
@@ -123,66 +121,86 @@ class TailInitialisation(QtWidgets.QDialog):
         return points, result == QtWidgets.QDialog.Accepted
 
 
-class TailTrackerGUI(CameraGUI):
+class TailTracker(TrackerBase):
 
-    def __init__(self, *args, **kwargs):
-        super(TailTrackerGUI, self).__init__(*args, **kwargs)
-        self.setWindowTitle('Tail tracker')
-        self.resize(400, 800)
-        # Set tracking object
-        self.tracker = TailTracker
-        self.tracking_kwargs = {}
-        # Set saving object
-        self.saver = TailSaver
-        self.saving_kwargs = {}
-        # Create caches
-        self.tail_point_cache = collections.deque(maxlen=self._frame_buffer)
-        self.tail_angle_cache = collections.deque(maxlen=self._frame_buffer)
-        self.caches.append(self.tail_point_cache)
-        self.caches.append(self.tail_angle_cache)
-        # -------------
-        # Add new plots
-        # -------------
-        # Tail points
-        self.tail_points = self.img_plot.plot([], [], pen=None, symbol='o')
-        # Tail angle
-        self.tail_angle_plot = self.layout_data_plots.addPlot(row=1, col=0)
-        self.tail_angle_plot.showGrid(x=True, y=True)
-        self.tail_angle_plot.setLabel('left', 'Tail angle', 'deg')
-        self.tail_angle_plot.setRange(yRange=[-30, 30])
-        self.tail_angle_plot.setAutoPan(x=True)
-        self.tail_angle_plot.setLimits(minXRange=1000)
-        self.tail_angle = self.tail_angle_plot.plot([], [], pen=(255, 0, 0))
+    def __init__(self, parent, points_buffer, points_display_buffer, angle_display_buffer):
+        super().__init__(parent)
+        # Caches
+        self.points_cache = deque(maxlen=points_buffer)
+        self.points_display_cache = deque(maxlen=points_display_buffer)
+        self.angle_display_cache = deque(maxlen=angle_display_buffer)
+        # Tracking
+        self.tail_length = None
+        self.head = None
+        self.num_points = 9
+        # Saving
+        self.points = []
+        self.points_path = None
 
-    def tracker_init(self):
-        if not 'head' in self.tracking_kwargs.keys() or not 'tail_length' in self.tracking_kwargs.keys():
-            points, ret = TailInitialisation.get_new_points(self.camera_thread)
+    def initialise_tracking(self, from_button=False):
+        if from_button or self.head is None or self.tail_length is None:
+            points, ret = TailInitialisation.get_new_points(self.parent.camera_thread)
             if ret and len(points) == 2:
                 tail = np.asarray(points)
                 tail = np.asarray([[int(i[0]), int(i[1])] for i in tail])
-                self.tracking_kwargs['head'] = tail[0]
-                self.tracking_kwargs['tail_length'] = tail[1, 0] - tail[0, 0] + 10
+                self.head = tail[0]
+                self.tail_length = tail[1, 0] - tail[0, 0] + 10
                 return True
             else:
                 return False
         else:
             return True
 
-    def update_plots(self):
-        if self.camera_thread.acquiring:
+    def track(self, frame_number, timestamp, frame):
+        frame = np.asarray(frame / np.max(frame))
+        tail_points = [self.head]
+        width = self.tail_length
+        x = self.head[0]
+        y = self.head[1]
+        img_filt = np.zeros(frame.shape)
+        img_filt = cv2.boxFilter(frame, -1, (7, 7), img_filt)
+        lin = np.linspace(0, np.pi, 20)
+        for j in range(self.num_points):
             try:
-                # Show the new image
-                i, timestamp, laser_status, img = self.frame_cache_output[-1]
-                img = np.asarray(img/np.max(img))
-                self.img.setImage(img[::-1, :].T)
-                # Show tail points
-                tail_points = self.tail_point_cache[-1]
-                self.tail_points.setData(tail_points[:, 0], self.frameSize[1] - tail_points[:, 1])
-                # Update tail angle
-                tail_angle = np.array(self.tail_angle_cache)
-                t = np.arange(len(tail_angle))
-                self.tail_angle.setData(t, tail_angle)
-                # Update cameras and buffer info
-                self._change_camera_message()
-            except IndexError:  # No data to show
-                pass
+                # Find the x and y values of the arc
+                xs = x + width / self.num_points * np.sin(lin)
+                ys = y + width / self.num_points * np.cos(lin)
+                # Convert them to integer, because of definite pixels
+                xs, ys = xs.astype(int), ys.astype(int)
+                # ident = np.where(img_filt[ys,xs]==max(img_filt[ys,xs]))[0][0]
+                ident = np.where(img_filt[ys, xs] == min(img_filt[ys, xs]))[0][0]
+                x = xs[ident]
+                y = ys[ident]
+                lin = np.linspace(lin[ident] - np.pi / 2, lin[ident] + np.pi / 2, 20)
+                # Add point to list
+                tail_points.append([x, y])
+            except IndexError:
+                tail_points.append(tail_points[-1])
+        tailangle = float(math.atan2(np.nanmean(np.asarray(tail_points)[-3:-1, 1]) -
+                                     np.asarray(tail_points)[0, 1],
+                                     np.nanmean(np.asarray(tail_points)[-3:-1, 0]) -
+                                     np.asarray(tail_points)[0, 0]) * 180.0 / 3.1415) * (-1)
+        tail_points = np.asarray(tail_points)
+        self.points_cache.append(tail_points)
+        self.points_display_cache.append(tail_points)
+        self.angle_display_cache.append(tailangle)
+
+    def clear(self):
+        self.points_cache.clear()
+        self.points_display_cache.clear()
+        self.angle_display_cache.clear()
+
+    def initialise_saving(self, path):
+        self.points_path = path + '_points.npy'
+        return True
+
+    def extend(self, frame_data):
+        try:
+            self.saving_flag = False
+            self.points.append(self.points_cache.popleft())
+        except IndexError:
+            self.saving_flag = True
+
+    def dump(self):
+        points = np.array(self.points)
+        np.save(self.points_path, points)
