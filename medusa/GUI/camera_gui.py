@@ -16,8 +16,6 @@ class CameraGUI(QtWidgets.QMainWindow):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
-        self.parent = parent
-
         # ==============
         # SETUP TRACKERS
         # ==============
@@ -60,8 +58,8 @@ class CameraGUI(QtWidgets.QMainWindow):
         # =================
 
         # Layout sizes
-        self.main_width = 800
-        self.main_height = 600
+        self.main_width = 1000
+        self.main_height = 800
         self.button_width = 100
         self.button_height = 20
 
@@ -72,6 +70,11 @@ class CameraGUI(QtWidgets.QMainWindow):
 
         self.main_layout = QtWidgets.QVBoxLayout()
         self.w.setLayout(self.main_layout)
+
+        # ===================
+        # EXPERIMENT PROTOCOL
+        # ===================
+        self.protocol = None
 
         # ----------------------------------------------------------------------------
         # Top dock: [LIVE] [RECORD] [WORKING FOLDER] [FILENAME] [CHANGE WORKING FOLDER]
@@ -102,7 +105,7 @@ class CameraGUI(QtWidgets.QMainWindow):
         layout_dock_top.addWidget(self.record_button)
 
         # WORKING FOLDER
-        self.working_folder = 'E:\\Duncan\\'
+        self.working_folder = 'E:\\Jacopo\\'
         output_path_label = QtWidgets.QLabel('Output path:')
         layout_dock_top.addWidget(output_path_label)
         self.working_folder_label = QtWidgets.QLabel(self.working_folder)
@@ -314,6 +317,8 @@ class CameraGUI(QtWidgets.QMainWindow):
             if check2:
                 self.camera_thread.acquiring = True
                 self.recording_start_time = datetime.datetime.now()
+                if self.protocol is not None:
+                    self.protocol.start()
                 # Update GUI
                 self.record_button.setText('STOP')
                 self.record_button.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaStop')))
@@ -353,8 +358,8 @@ class CameraGUI(QtWidgets.QMainWindow):
     def _change_camera_message(self):
         try:
             if len(self.video_tracker.timestamp_cache) > 1:
-                delta = np.mean(np.diff(np.array(self.video_tracker.timestamp_cache)))
-                fps = int(1 / delta)
+                delta = self.video_tracker.timestamp_cache[-1] - self.video_tracker.timestamp_cache[0]
+                fps = int(len(self.video_tracker.timestamp_cache) / delta)
             else:
                 fps = self.frame_rate
         except (ZeroDivisionError, IndexError, ValueError):
@@ -391,12 +396,15 @@ class CameraGUI(QtWidgets.QMainWindow):
 
     def closeEvent(self, event):
         # Make sure cameras thread exits properly before closing
-        print('Exiting\n')
+        print('Exiting')
         self.camera_thread.connected = False
         self._join_tracking_thread()
+        print('Tracking thread joined')
         self._join_saving_thread()
+        print('Saving thread joined')
         self.camera_thread.wait()
-        self.parent.show()
+        print('Disconnected from camera')
+        self.parent().show()
         event.accept()
 
     def add_image_plot(self, **kwargs):

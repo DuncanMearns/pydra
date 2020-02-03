@@ -31,9 +31,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.layout_gui = QtWidgets.QHBoxLayout()
         self.optogenetics_checkbox = QtWidgets.QCheckBox('Optogenetics')
-        self.tailtrcaker_checkbox = QtWidgets.QCheckBox('Tail tracking')
+        self.tailtracker_checkbox = QtWidgets.QCheckBox('Tail tracking')
+        self.optogenetics_checkbox.setChecked(True)
+        self.tailtracker_checkbox.setChecked(True)
         self.layout_gui.addWidget(self.optogenetics_checkbox)
-        self.layout_gui.addWidget(self.tailtrcaker_checkbox)
+        self.layout_gui.addWidget(self.tailtracker_checkbox)
         self.layout.addLayout(self.layout_gui)
 
         self.start_button = QtWidgets.QPushButton('Start')
@@ -46,7 +48,7 @@ class MainWindow(QtWidgets.QMainWindow):
         gui_constructors = [CameraGUI]
         if self.optogenetics_checkbox.isChecked():
             gui_constructors.append(OptogeneticsGUI)
-        if self.tailtrcaker_checkbox.isChecked():
+        if self.tailtracker_checkbox.isChecked():
             gui_constructors.append(TailTrackerGUI)
         gui_constructors = tuple(gui_constructors[::-1])
         window = type('GUI', gui_constructors, {})(self)

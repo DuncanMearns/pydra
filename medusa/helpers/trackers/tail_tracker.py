@@ -192,6 +192,7 @@ class TailTracker(TrackerBase):
 
     def initialise_saving(self, path):
         self.points_path = path + '_points.npy'
+        self.points = []
         return True
 
     def extend(self, frame_data):

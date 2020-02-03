@@ -10,7 +10,7 @@ class TailTrackerGUI(CameraGUI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle('Tail tracker')
-        self.resize(400, 800)
+        self.resize(1000, 800)
         # ----------
         # SET HELPER
         # ----------
@@ -41,6 +41,7 @@ class TailTrackerGUI(CameraGUI):
         self.tail_angle_plot = self.layout_user_plots.addPlot(**kwargs)
         self.tail_angle_plot.showGrid(x=True, y=True)
         self.tail_angle_plot.setLabel('left', 'Tail angle', 'deg')
+        # TODO: Set up auto-pan so that it keeps up with the most recently acquired frames
         self.tail_angle_plot.setRange(yRange=[-30, 30])
         self.tail_angle_plot.setAutoPan(x=True)
         self.tail_angle_plot.setLimits(minXRange=1000)

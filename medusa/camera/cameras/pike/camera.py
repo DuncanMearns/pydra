@@ -62,14 +62,12 @@ class CameraThread(QtCore.QThread):
                     # Run the cameras acquisition
                     frame0.wait_for_capture()
                     frame0.queue_for_capture()
-                    frame = np.ndarray(buffer=frame0.buffer_data_numpy(),
-                                       dtype=np.uint8,
-                                       shape=(self.height, self.width, 1))[:, :, 0]
-                    timestamp = time.time()
+                    frame = frame0.buffer_data_numpy()
+                    timestamp = time.clock()
                     # Emit the frame number, timestamp and frame
                     self.newframe.emit((frame_counter, timestamp, frame))
                     frame_counter += 1
-
+                    time.sleep(0.002)
                 else:
                     # Wait for acquiring to change
                     frame_counter = 0
