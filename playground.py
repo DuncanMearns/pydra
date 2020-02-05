@@ -7,8 +7,9 @@ from anytree import Node
 from multiprocessing import Process, Pipe, Event, Queue
 import time
 from collections import namedtuple
-from processes import AcquisitionProcess, TrackingProcess, SavingProcess
 import multiprocessing as mp
+
+from pipeline import *
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -62,116 +63,33 @@ class MainWindow(QtWidgets.QMainWindow):
         mp.set_start_method("spawn", force=True)
 
     def start(self):
-        frame_q = Queue()
-        tracking_q = Queue()
-        self.exit_flag = Event()
-        self.grabber = CameraAcquisition(q_out=frame_q, exit_flag=self.exit_flag)
 
-        self.tracker = DummyTracker(q_in=frame_q, q_out=tracking_q, exit_flag=self.exit_flag)
-        self.saver = DummySaver(q_in=tracking_q, exit_flag=self.exit_flag)
+        grabber = WorkerConstructor(CameraAcquisition, (PikeCamera,), {})
+        tracker = WorkerConstructor(Tracker, (), {})
+        saver = WorkerConstructor(Saver, (), {})
 
-        self.saver.start()
-        self.tracker.start()
-        self.grabber.start()
+        self.pipeline = MedusaPipeline(grabber, tracker, saver)
+        self.pipeline.start()
 
-    def stop(self):
-
-        self.exit_flag.set()
-
-        self.grabber.join()
-        self.tracker.join()
-        self.saver.join()
-
-        print('All processes terminated.')
-
-
-class DummyTracker(TrackingProcess):
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    def process(self, *args):
-        print(args[0].shape)
-        return args
-
-
-class DummySaver(SavingProcess):
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-# =============================================================
-
-class Grabber(Node):
-
-    def __init__(self, name):
-        super().__init__(name, parent=None)
-
-
-class Tracker(Node):
-
-    def __init__(self, name, parent):
-        super().__init__(name, parent=parent)
-
-
-class Saver(Node):
-
-    def __init__(self, name, parent):
-        super().__init__(name, parent=parent)
-
-
-class Display(Node):
-
-    def __init__(self, name, parent):
-        super().__init__(name, parent=parent)
-
-# =============================================================
-
-class PikeGrabber(Grabber):
-
-    def __init__(self):
-        super().__init__('PikeGrabber', )
-
-    def setup(self):
-        self.camera = PikeCamera()
-        self.camera.open_camera()
-
-    def acquire(self):
-        return self.camera.read()
-
-    def cleanup(self):
-        self.camera.release()
-
-
-class MedusaPipeline:
-
-    def __init__(self):
-        pass
-
-    def start(self):
-        # frame_q = Queue()
-        # tracking_q = Queue()
-        # self.exit_flag = Event()
-        # self.grabber = CameraAcquisition(q_out=frame_q, exit_flag=self.exit_flag)
-        #
-        # self.tracker = DummyTracker(q_in=frame_q, q_out=tracking_q, exit_flag=self.exit_flag)
-        # self.saver = DummySaver(q_in=tracking_q, exit_flag=self.exit_flag)
-        #
-        # self.saver.start()
-        # self.tracker.start()
-        # self.grabber.start()
+        # # ==========================
+        # # SETUP DISPLAY UPDATE TIMER
+        # # ==========================
+        # # Create timer for handling display updates
+        # # This ensures that events sent from recording or helpers threads don't queue up waiting to be processed
+        # self.display_update_rate = 20  # fps
+        # self.timer = QtCore.QTimer()
+        # self.timer.setInterval(int(1000 / self.display_update_rate))
+        # self.timer.timeout.connect(self.update_plots)
+        # self.timer.start()
 
     def stop(self):
-        # self.exit_flag.set()
-        #
-        # self.grabber.join()
-        # self.tracker.join()
-        # self.saver.join()
-        #
-        # print('All processes terminated.')
+        self.pipeline.stop()
 
-
-
+    # def update_plots(self):
+    #     self.pipeline.display_queue.get()
+        # pass
+        # frame = self.tracking_q.get_display()
+        # print(frame)
 
 
 def main():

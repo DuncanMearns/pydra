@@ -1,77 +1,86 @@
-from multiprocessing import Process
+from multiprocessing import Process, Queue, Event
+import queue
 import time
+from collections import namedtuple, deque
+
+
+WorkerConstructor = namedtuple('WorkerConstructor', ('type', 'args', 'kwargs'))
 
 
 class _BaseProcess(Process):
 
-    def __init__(self):
+    def __init__(self, constructor: WorkerConstructor, exit_flag: Event):
         super().__init__()
+        self.constructor = constructor
+        self.exit_flag = exit_flag
+
+    def _make(self):
+        self.worker = self.constructor.type(*self.constructor.args, **self.constructor.kwargs)
 
     def setup(self):
-        return
+        self._make()
+        self.worker.setup()
 
     def cleanup(self):
+        self.worker.cleanup()
+
+    def _process(self):
         return
+
+    def run(self):
+        self.setup()
+        while not self.exit_flag.is_set():
+            self._process()
+        self.cleanup()
 
 
 class AcquisitionProcess(_BaseProcess):
 
-    def __init__(self, q_out, exit_flag):
-        super().__init__()
-        self.q_out = q_out
-        self.exit_flag = exit_flag
+    def __init__(self, constructor: WorkerConstructor, exit_flag: Event, frame_queue: Queue):
+        super().__init__(constructor, exit_flag)
+        self.frame_queue = frame_queue
 
-    def acquire(self):
-        return
+    def _process(self):
+        frame_input = self.worker.acquire()
+        self.frame_queue.put(frame_input)
 
-    def run(self):
-        self.setup()
-        while not self.exit_flag.is_set():
-            result = self.acquire()
-            self.q_out.put(result)
-        print('acquisition ended')
-        print(self.q_out.qsize())
-        self.q_out.close()
-        self.cleanup()
+    def cleanup(self):
+        self.frame_queue.close()
+        super().cleanup()
 
 
 class TrackingProcess(_BaseProcess):
 
-    def __init__(self, q_in, q_out, exit_flag):
-        super().__init__()
-        self.q_in = q_in
-        self.q_out = q_out
-        self.exit_flag = exit_flag
+    def __init__(self, constructor: WorkerConstructor, exit_flag: Event,
+                 frame_queue: Queue,
+                 tracking_queue: Queue):
+                 # display_queue: Queue):
+        super().__init__(constructor, exit_flag)
+        self.frame_queue = frame_queue
+        self.tracking_queue = tracking_queue
+        # self.display_queue = display_queue
 
-    def process(self, *args):
-        return
+    def _process(self):
+        frame_input = self.frame_queue.get()
+        tracked_frame = self.worker.process(*frame_input)
+        self.tracking_queue.put(tracked_frame)
+        # try:
+        #     self.display_queue.put_nowait(TrackingOutput(*tracked_frame))
+        # except queue.Full:
+        #     pass
 
-    def run(self):
-        self.setup()
-        while not self.exit_flag.is_set():
-            input_from_q = self.q_in.get()
-            result = self.process(input_from_q)
-            self.q_out.put(result)
-        print('tracking ended')
-        print(self.q_out.qsize())
-        self.q_out.close()
-        self.cleanup()
+    def cleanup(self):
+        self.tracking_queue.close()
+        # self.display_queue.close()
+        super().cleanup()
 
 
 class SavingProcess(_BaseProcess):
 
-    def __init__(self, q_in, exit_flag):
-        super().__init__()
-        self.q_in = q_in
-        self.exit_flag = exit_flag
+    def __init__(self, constructor: WorkerConstructor, exit_flag: Event, tracking_queue: Queue):
+        super().__init__(constructor, exit_flag)
+        self.tracking_queue = tracking_queue
 
-    def dump(self, *args):
-        return
-
-    def run(self):
-        self.setup()
-        while not self.exit_flag.is_set():
-            input_from_q = self.q_in.get()
-            self.dump(input_from_q)
-        print('saving ended')
-        self.cleanup()
+    def _process(self):
+        tracked_frame = self.tracking_queue.get()
+        self.worker.dump(*tracked_frame)

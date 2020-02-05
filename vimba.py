@@ -5,7 +5,7 @@ except ImportError:
     pass
 
 
-class PikeCamera():
+class PikeCamera:
     """Class for controlling an AVT camera.
     Uses the Vimba interface pymba
     (module documentation `here <https://github.com/morefigs/pymba>`_).
