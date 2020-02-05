@@ -64,9 +64,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def start(self):
 
-        grabber = WorkerConstructor(CameraAcquisition, (PikeCamera,), {})
-        tracker = WorkerConstructor(Tracker, (), {})
-        saver = WorkerConstructor(Saver, (), {})
+        # grabber = WorkerConstructor(CameraAcquisition, (PikeCamera,), {})
+        # tracker = WorkerConstructor(Tracker, (), {})
+        # saver = WorkerConstructor(Saver, (), {})
+        grabber = CameraAcquisition
+        tracker = Tracker
+        saver = Saver
 
         self.pipeline = MedusaPipeline(grabber, tracker, saver)
         self.pipeline.start()

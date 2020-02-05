@@ -1,5 +1,5 @@
 from processes import *
-
+from vimba import PikeCamera
 
 FrameOutput = namedtuple('FrameOutput', ('frame_number', 'timestamp', 'frame'))
 
@@ -18,9 +18,9 @@ class MedusaNode:
 
 class CameraAcquisition(MedusaNode):
 
-    def __init__(self, camera_type):
+    def __init__(self):
         super().__init__()
-        self.camera_type = camera_type
+        self.camera_type = PikeCamera
 
     def setup(self):
         self.camera = self.camera_type()
@@ -83,30 +83,47 @@ class Saver(MedusaNode):
 
 class MedusaPipeline:
 
-    def __init__(self, grabber: WorkerConstructor, tracker: WorkerConstructor, saver: WorkerConstructor):
+    def __init__(self, grabber, tracker, saver):
         self.grabber = grabber
         self.tracker = tracker
         self.saver = saver
-        self.exit_flag = Event()
+        self.exit_signal = Event()
+        self.finished_acquisition_signal = Event()
+        self.finished_tracking_signal = Event()
+        self.finished_saving_signal = Event()
         self.frame_queue = Queue()
         self.tracking_queue = Queue()
 
-    def start(self):
+    @staticmethod
+    def safe_start(process):
+        process.start()
+        if process.is_alive():
+            return True
+        else:
+            return False
 
-        self.acquisition_process = AcquisitionProcess(self.grabber, self.exit_flag, self.frame_queue)
-        self.tracking_process = TrackingProcess(self.tracker, self.exit_flag, self.frame_queue, self.tracking_queue)
-        self.saving_process = SavingProcess(self.saver, self.exit_flag, self.tracking_queue)
+    def start(self):
+        self.acquisition_process = AcquisitionProcess(self.grabber,
+                                                      self.exit_signal,
+                                                      self.finished_acquisition_signal,
+                                                      self.frame_queue)
+        self.tracking_process = TrackingProcess(self.tracker,
+                                                self.finished_acquisition_signal,
+                                                self.finished_tracking_signal,
+                                                self.frame_queue,
+                                                self.tracking_queue)
+        self.saving_process = SavingProcess(self.saver,
+                                            self.finished_tracking_signal,
+                                            self.finished_saving_signal,
+                                            self.tracking_queue)
 
         self.acquisition_process.start()
         self.tracking_process.start()
         self.saving_process.start()
 
     def stop(self):
-
-        self.exit_flag.set()
-
+        self.exit_signal.set()
         self.acquisition_process.join()
         self.tracking_process.join()
         self.saving_process.join()
-
         print('All processes terminated.')
