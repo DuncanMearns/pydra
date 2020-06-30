@@ -1,57 +1,38 @@
-"""
-Parallel processes for acquiring frames, tracking and saving output.
-All processes inherit form the _BaseProcess class which contains the run method.
-"""
-
 from multiprocessing import Process, Queue, Event
 import queue
-import time
 
 
-__all__ = ['AcquisitionProcess', 'TrackingProcess', 'SavingProcess']
+__all__ = ['MedusaWorker', 'MedusaProcess']
 
 
-class _BaseProcess(Process):
+class MedusaWorker:
+    """
+    Abstract worker class for Medusa processes.
 
-    def __init__(self, worker_cls: type, exit_signal: Event, finished_signal: Event):
-        """Abstract base process with a setup, _process and cleanup method.
+    Subclasses must implement a process method and may additionally implement a setup and cleanup method invoked at the
+    beginning and end of the process run, respectively.
+    """
 
-        Parameters
-        ----------
-        worker_cls : type
-            Any class with a setup and cleanup method.
-        exit_signal : Event
-            Signal telling the main loop of the process when to exit.
-        finished_signal : Event
-            Signal sent by the process once it has finished.
-        """
+    def __init__(self, **kwargs):
         super().__init__()
-        self.worker_cls = worker_cls
-        self.worker = None
-        self.exit_signal = exit_signal
-        self.finished_signal = finished_signal
-
-    def _make(self):
-        """Creates the worker for the process."""
-        self.worker = self.worker_cls()
 
     def setup(self):
-        """Called once when the process is started. Call to super required in subclass."""
-        self._make()
-        self.worker.setup()
+        """Method called once when a process is spawned."""
+        return
+
+    def _run(self):
+        """Method that is called within a MedusaProcess's main loop until the exit signal has been set. Must be
+        overwritten in subclasses."""
+        return
 
     def cleanup(self):
-        """Called once after the process has received an exit signal. Call to super required in subclass."""
-        self.worker.cleanup()
-
-    def process(self):
-        """Called within the main loop of the process until it received the exit signal.
-        Should be overwritten in subclass."""
+        """Method called at the end of a process after the main loop has exited. After this method is called, the
+        process's finished signal is set and the process ends."""
         return
 
     @staticmethod
     def _flush(q: Queue):
-        """Used to flush queues after the exit signal has been received."""
+        """Can be used to flush queues after an exit signal has been received."""
         while True:
             try:
                 obj = q.get_nowait()
@@ -59,87 +40,37 @@ class _BaseProcess(Process):
             except queue.Empty:
                 return
 
+
+class MedusaProcess(Process):
+
+    def __init__(self, worker_cls: type, exit_signal: Event, finished_signal: Event, worker_kwargs: dict = None):
+        """Medusa process class.
+
+        Parameters
+        ----------
+        worker_cls : MedusaWorker type
+            Any MedusaWorker class.
+        exit_signal : Event
+            Signal telling the main loop of the process when to exit.
+        finished_signal : Event
+            Signal sent by the process once it has finished.
+        worker_kwargs : dict
+            Dictionary containing keyword arguments passed to the worker's __init__ method.
+        """
+        super().__init__()
+        self.worker_cls = worker_cls
+        self.worker_kwargs = {}
+        if worker_kwargs is not None:
+            self.worker_kwargs.update(worker_kwargs)
+        self.exit_signal = exit_signal
+        self.finished_signal = finished_signal
+        self.worker = None
+
     def run(self):
-        """Code the runs when process is started."""
-        self.setup()
+        """Code that runs when process is started."""
+        self.worker = self.worker_cls(**self.worker_kwargs)
+        self.worker.setup()
         while not self.exit_signal.is_set():
-            self.process()
-        self.cleanup()
+            self.worker._run()
+        self.worker.cleanup()
         self.finished_signal.set()
-
-
-class AcquisitionProcess(_BaseProcess):
-
-    def __init__(self,
-                 worker_cls,
-                 exit_signal: Event,
-                 finished_signal: Event,
-                 frame_queue: Queue):
-        super().__init__(worker_cls, exit_signal, finished_signal)
-        self.frame_queue = frame_queue
-
-    def process(self):
-        """Acquires a frame from the worker and puts it in the frame queue."""
-        frame_input = self.worker.acquire()
-        self.frame_queue.put(frame_input)
-
-
-class TrackingProcess(_BaseProcess):
-
-    def __init__(self,
-                 worker_cls,
-                 exit_signal: Event,
-                 finished_signal: Event,
-                 frame_queue: Queue,
-                 tracking_queue: Queue):
-        # display_queue: Queue):
-        super().__init__(worker_cls, exit_signal, finished_signal)
-        self.frame_queue = frame_queue
-        self.tracking_queue = tracking_queue
-        # self.display_queue = display_queue
-
-    def process(self):
-        """Takes input from the frame queue, passes it to the worker's process method and puts the output in the
-        tracking queue."""
-        try:
-            frame_input = self.frame_queue.get_nowait()
-            tracked_frame = self.worker.process(*frame_input)
-            self.tracking_queue.put(tracked_frame)
-        except queue.Empty:
-            time.sleep(0.001)
-        # try:
-        #     self.display_queue.put_nowait(TrackingOutput(*tracked_frame))
-        # except queue.Full:
-        #     pass
-
-    def cleanup(self):
-        """Flushes the frame queue."""
-        for frame_input in self._flush(self.frame_queue):
-            tracked_frame = self.worker.process(*frame_input)
-            self.tracking_queue.put(tracked_frame)
-        super().cleanup()
-
-
-class SavingProcess(_BaseProcess):
-
-    def __init__(self,
-                 worker_cls,
-                 exit_signal: Event,
-                 finished_signal: Event,
-                 tracking_queue: Queue):
-        super().__init__(worker_cls, exit_signal, finished_signal)
-        self.tracking_queue = tracking_queue
-
-    def process(self):
-        """Takes input from the tracking queue and passes it to the worker's dump method."""
-        try:
-            tracked_frame = self.tracking_queue.get_nowait()
-            self.worker.dump(*tracked_frame)
-        except queue.Empty:
-            time.sleep(0.001)
-
-    def cleanup(self):
-        """Flushes the tracking queue"""
-        for tracked_frame in self._flush(self.tracking_queue):
-            self.worker.dump(*tracked_frame)
-        super().cleanup()

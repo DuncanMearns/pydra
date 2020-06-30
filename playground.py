@@ -67,11 +67,11 @@ class MainWindow(QtWidgets.QMainWindow):
         # grabber = WorkerConstructor(CameraAcquisition, (PikeCamera,), {})
         # tracker = WorkerConstructor(Tracker, (), {})
         # saver = WorkerConstructor(Saver, (), {})
-        grabber = CameraAcquisition
-        tracker = Tracker
-        saver = Saver
+        # grabber = CameraAcquisition
+        # tracker = Tracker
+        # saver = Saver
 
-        self.pipeline = MedusaPipeline(grabber, tracker, saver)
+        self.pipeline = MedusaPipeline()
         self.pipeline.start()
 
         # # ==========================
@@ -79,7 +79,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # # ==========================
         # # Create timer for handling display updates
         # # This ensures that events sent from recording or helpers threads don't queue up waiting to be processed
-        # self.display_update_rate = 20  # fps
+        # self.display_update_rate = 10  # fps
         # self.timer = QtCore.QTimer()
         # self.timer.setInterval(int(1000 / self.display_update_rate))
         # self.timer.timeout.connect(self.update_plots)
@@ -87,12 +87,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def stop(self):
         self.pipeline.stop()
+        # self.timer.stop()
 
     # def update_plots(self):
-    #     self.pipeline.display_queue.get()
-        # pass
-        # frame = self.tracking_q.get_display()
-        # print(frame)
+    #     display = self.pipeline.gui_queue.get()
+    #     print(display)
+    #     # pass
+    #     # frame = self.tracking_q.get_display()
+    #     # print(frame)
 
 
 def main():

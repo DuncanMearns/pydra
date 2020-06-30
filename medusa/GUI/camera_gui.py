@@ -105,7 +105,7 @@ class CameraGUI(QtWidgets.QMainWindow):
         layout_dock_top.addWidget(self.record_button)
 
         # WORKING FOLDER
-        self.working_folder = 'E:\\Jacopo\\'
+        self.working_folder = 'E:\\Duncan\\'
         output_path_label = QtWidgets.QLabel('Output path:')
         layout_dock_top.addWidget(output_path_label)
         self.working_folder_label = QtWidgets.QLabel(self.working_folder)
