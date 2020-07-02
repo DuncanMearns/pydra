@@ -3,6 +3,7 @@ from vimba import PikeCamera
 from collections import namedtuple, deque
 import time
 from multiprocessing import Event, Queue
+from multiprocessing.connection import Connection
 import queue
 
 
@@ -62,10 +63,21 @@ TrackingOutput = namedtuple('TrackingOutput', ('frame_number', 'timestamp', 'fra
 
 class TrackingWorker(MedusaWorker):
 
-    def __init__(self, input_q: Queue, output_queue: Queue, **kwargs):
+    def __init__(self,
+                 input_q: Queue,
+                 output_queue: Queue,
+                 gui_event: Event = None,
+                 gui_conn: Connection = None,
+                 **kwargs):
         super().__init__(**kwargs)
         self.input_q = input_q
         self.output_q = output_queue
+        self.gui = False
+        if (gui_event is not None) and (gui_conn is not None):
+            self.gui = True
+            self.cache = deque(maxlen=5000)
+            self.events.append((gui_event, self.send_to_gui))
+            self.gui_conn = gui_conn
 
     def track(self, *args):
         """Analyse data from the input queue and return the result. Must be implemented in subclasses."""
@@ -77,20 +89,22 @@ class TrackingWorker(MedusaWorker):
             frame_input = self.input_q.get_nowait()
             tracked_frame = self.track(*frame_input)
             self.output_q.put(tracked_frame)
-            # # TODO: DO NOT ADD EVERY FRAME! FILLS UP QUEUE!
-            # self.gui_queue.put(tracked_frame.frame.copy())
+            if self.gui:
+                self.cache.append(FrameOutput(*tracked_frame))
         except queue.Empty:
             time.sleep(0.001)
-        # try:
-        #     self.display_queue.put_nowait(TrackingOutput(*tracked_frame))
-        # except queue.Full:
-        #     pass
 
     def cleanup(self):
         """Flushes the input queue."""
         for frame_input in self._flush(self.input_q):
             tracked_frame = self.track(*frame_input)
             self.output_q.put(tracked_frame)
+
+    def send_to_gui(self):
+        while len(self.cache):
+            data = self.cache.popleft()
+            self.gui_conn.send(data)
+        self.gui_conn.send(None)
 
 
 class SavingWorker(MedusaWorker):
@@ -151,34 +165,9 @@ class MultiWorker(MedusaWorker):
             worker.cleanup()
 
 
-class GuiQueue:
-
-    def __init__(self, cache_size):
-        super().__init__()
-        self.queue = Queue()
-        self.cache = deque(maxlen=cache_size)
-
-    def _flush(self):
-        while True:
-            try:
-                self.cache.append(self.queue.get_nowait())
-            except queue.Empty:
-                break
-
-    def get(self):
-        self._flush()
-        try:
-            return self.cache.pop()
-        except IndexError:
-            return
-
-    def put(self, obj):
-        self.queue.put(obj)
-
-
 class MedusaPipeline:
 
-    def __init__(self):
+    def __init__(self, event, conn):
         """Handles multiprocessing of frame acquisition, tracking and saving.
 
         Parameters
@@ -198,12 +187,11 @@ class MedusaPipeline:
         # Queues
         self.frame_queue = Queue()  # queue filled by acquisition process and emptied by tracking process
         self.tracking_queue = Queue()  # queue filled by tracking process and emptied by saving process
-        # self.gui_queue = GuiQueue(100)
         # Workers
         self.grabber = CameraAcquisition
         self.grabber_kwargs = dict(q=self.frame_queue, camera_type=PikeCamera)
         self.tracker = TrackingWorker
-        self.tracker_kwargs = dict(input_q=self.frame_queue, output_queue=self.tracking_queue)
+        self.tracker_kwargs = dict(input_q=self.frame_queue, output_queue=self.tracking_queue, gui_event=event, gui_conn=conn)
         self.saver = SavingWorker
         self.saver_kwargs = dict(q=self.tracking_queue)
 

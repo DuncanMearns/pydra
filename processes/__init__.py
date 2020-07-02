@@ -15,6 +15,7 @@ class MedusaWorker:
 
     def __init__(self, **kwargs):
         super().__init__()
+        self.events = []
 
     def setup(self):
         """Method called once when a process is spawned."""
@@ -23,6 +24,13 @@ class MedusaWorker:
     def _run(self):
         """Method that is called within a MedusaProcess's main loop until the exit signal has been set. Must be
         overwritten in subclasses."""
+        return
+
+    def _handle_events(self):
+        for event, func in self.events:
+            if event.is_set():
+                func()
+                event.clear()
         return
 
     def cleanup(self):
@@ -72,5 +80,6 @@ class MedusaProcess(Process):
         self.worker.setup()
         while not self.exit_signal.is_set():
             self.worker._run()
+            self.worker._handle_events()
         self.worker.cleanup()
         self.finished_signal.set()
