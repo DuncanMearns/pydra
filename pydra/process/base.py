@@ -2,12 +2,12 @@ from multiprocessing import Process, Queue, Event
 import queue
 
 
-__all__ = ['MedusaWorker', 'MedusaProcess']
+__all__ = ['Worker', 'PydraProcess']
 
 
-class MedusaWorker:
+class Worker:
     """
-    Abstract worker class for Medusa processes.
+    Abstract worker class for Medusa process.
 
     Subclasses must implement a process method and may additionally implement a setup and cleanup method invoked at the
     beginning and end of the process run, respectively.
@@ -49,34 +49,39 @@ class MedusaWorker:
                 return
 
 
-class MedusaProcess(Process):
+class WorkerConstructor:
 
-    def __init__(self, worker_cls: type, exit_signal: Event, finished_signal: Event, worker_kwargs: dict = None):
+    def __init__(self, worker, **kwargs):
+        self.worker = worker
+        self.kwargs = kwargs
+
+    def __call__(self, *args, **kwargs):
+        return self.worker(**self.kwargs)
+
+
+class PydraProcess(Process):
+
+    def __init__(self, constructor: WorkerConstructor, exit_signal: Event, finished_signal: Event):
         """Medusa process class.
 
         Parameters
         ----------
-        worker_cls : MedusaWorker type
-            Any MedusaWorker class.
+        constructor : WorkerConstructor
+            A WorkerConstructor object.
         exit_signal : Event
             Signal telling the main loop of the process when to exit.
         finished_signal : Event
             Signal sent by the process once it has finished.
-        worker_kwargs : dict
-            Dictionary containing keyword arguments passed to the worker's __init__ method.
         """
         super().__init__()
-        self.worker_cls = worker_cls
-        self.worker_kwargs = {}
-        if worker_kwargs is not None:
-            self.worker_kwargs.update(worker_kwargs)
+        self.constructor = constructor
         self.exit_signal = exit_signal
         self.finished_signal = finished_signal
         self.worker = None
 
     def run(self):
         """Code that runs when process is started."""
-        self.worker = self.worker_cls(**self.worker_kwargs)
+        self.worker = self.constructor()
         self.worker.setup()
         while not self.exit_signal.is_set():
             self.worker._run()
