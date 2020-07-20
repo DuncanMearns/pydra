@@ -1,12 +1,13 @@
-from pydra.process import *
+from .process import *
 from multiprocessing import Event, Queue
 
 
-class PydraPipeline:
+class Experiment:
 
     def __init__(self, acquisition: type, acquisition_kwargs: dict,
                  tracking: type, tracking_kwargs: dict,
-                 saving: type, saving_kwargs: dict):
+                 saving: type, saving_kwargs: dict,
+                 protocol=None, protocol_kwargs=None):
         """Handles multiprocessing of frame acquisition, tracking and saving."""
         # Signalling between process
         self.exit_signal = Event()  # top-level exit signal for process
@@ -23,6 +24,11 @@ class PydraPipeline:
         self.tracking_constructor = WorkerConstructor(tracking, **tracking_kwargs)
         saving_kwargs.update(q=self.tracking_queue)
         self.saving_constructor = WorkerConstructor(saving, **saving_kwargs)
+
+        if protocol:
+            self.protocol = WorkerConstructor(protocol, **protocol_kwargs)
+        else:
+            self.protocol = None
 
     def start(self):
         # Initialise the acquisition process
@@ -41,6 +47,12 @@ class PydraPipeline:
         self.acquisition_process.start()
         self.tracking_process.start()
         self.saving_process.start()
+        if self.protocol:
+            self.protocol_process = PydraProcess(self.protocol,
+                                                 self.exit_signal,
+                                                 Event())
+            self.protocol_process.start()
+
         print('All processes started.')
 
     def stop(self):
@@ -54,3 +66,6 @@ class PydraPipeline:
         print('tracking ended')
         self.saving_process.join()
         print('All process terminated.')
+        if self.protocol:
+            self.protocol_process.join(timeout=1.)
+            print("PROTOCOL ENDED")

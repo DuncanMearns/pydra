@@ -54,7 +54,7 @@ class TrackingWorker(Worker):
 
     def track(self, *args):
         """Analyse data from the input queue and return the result. Must be implemented in subclasses."""
-        return args
+        return TrackingOutput(*args, None)
 
     def _run(self):
         """Takes input from the input queue, runs track and puts the output in the output queue."""
@@ -63,7 +63,7 @@ class TrackingWorker(Worker):
             tracked_frame = self.track(*frame_input)
             self.output_q.put(tracked_frame)
             if self.gui:
-                self.cache.append(FrameOutput(*tracked_frame))
+                self.cache.append(TrackingOutput(*tracked_frame))
         except queue.Empty:
             time.sleep(0.001)
 
@@ -103,6 +103,26 @@ class SavingWorker(Worker):
         for data_from_queue in self._flush(self.q):
             self.dump(*data_from_queue)
         super().cleanup()
+
+
+class Protocol(Worker):
+    """Top-level class for any kind of protocol to be run in a separate process.
+
+    Notes
+    -----
+    The run method must be implemented in subclasses. Additionally, a setup and cleanup method may be implemented in
+    subclasses.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def run(self):
+        """Generic run method that runs in a separate process. Can be implemented in subclass."""
+        return
+
+    def _run(self):
+        self.run()
 
 
 class MultiWorker(Worker):

@@ -1,5 +1,5 @@
-from pydra import PydraApp
+import runpy
 
 
 if __name__ == "__main__":
-    PydraApp.run()
+    runpy.run_module("pydra")
