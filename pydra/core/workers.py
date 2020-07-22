@@ -49,7 +49,7 @@ class TrackingWorker(Worker):
         if (gui_event is not None) and (gui_conn is not None):
             self.gui = True
             self.cache = deque(maxlen=5000)
-            self.events.append((gui_event, self.send_to_gui))
+            self.events['gui'] = (gui_event, self.send_to_gui)
             self.gui_conn = gui_conn
 
     def track(self, *args):

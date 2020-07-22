@@ -7,8 +7,7 @@ from .tracking import DummyTracker
 from .saving import NoSaver
 
 from .core import pipe
-from .plugins.protocols import ProtocolProcess
-from .plugins.optogenetics.optogenetics import StimulationProtocol, Optogenetics
+from .plugins.optogenetics import Optogenetics
 from threading import Event
 import pandas as pd
 
@@ -46,12 +45,12 @@ class Pydra:
         # ========
         # PROTOCOL
         # ========
-        self.protocol = Optogenetics
+        self.plugin = Optogenetics
 
     def run(self):
         self.pipeline = Pipeline(self.acquisition, self.acquisition_kw,
                                  self.tracking, self.tracking_kw,
-                                 self.saving, self.saving_kw, self.protocol)
+                                 self.saving, self.saving_kw)
         self.pipeline.run()
 
     def start_pipeline(self):

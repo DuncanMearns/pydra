@@ -15,7 +15,7 @@ class Worker:
     """
 
     def __init__(self, **kwargs):
-        self.events = []
+        self.events = {}
 
     @classmethod
     def make(cls, **kwargs):
@@ -31,7 +31,7 @@ class Worker:
         return
 
     def _handle_events(self):
-        for event, func in self.events:
+        for name, (event, func) in self.events.items():
             if event.is_set():
                 func()
                 event.clear()
@@ -152,7 +152,6 @@ class PydraProcess(Process):
             elif isinstance(message, tuple):
                 self.constructor.update(*message)
             self.worker = self.constructor()
-            self.wait_flag.clear()
         else:
             time.sleep(0.001)
 

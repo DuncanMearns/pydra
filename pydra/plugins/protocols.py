@@ -1,55 +1,41 @@
-from ..core.base import Worker, PydraProcess, pipe, WorkerConstructor
+from ..core import Worker
 from threading import Timer, Event
-
-
-class ProtocolProcess(PydraProcess):
-
-    def __init__(self, *args):
-        super().__init__(*args)
-
-    @classmethod
-    def create(cls, protocol, exit_flag, **kwargs):
-        constructor = protocol.make(**kwargs)
-        start_flag = Event()
-        stop_flag = Event()
-        finished_flag = Event()
-        sender, receiver = pipe()
-        process = cls(constructor, exit_flag, start_flag, stop_flag, finished_flag, receiver)
-        return process, sender
+import time
 
 
 class Protocol(Worker):
 
-    def __init__(self):
+    def __init__(self, messages=None, output=None):
         super().__init__()
+        self.messages = messages
+        self.output = output
 
-    # @staticmethod
-    # def make(cls, **kwargs):
-    #     constructor = WorkerConstructor(cls, **kwargs)
-    #     return constructor, kwargs
+    def _handle_events(self):
+        event_name = self.messages.recv()
+        if event_name:
+            self.events[event_name][0].set()
+        super()._handle_events()
 
 
 class StimulationProtocol(Protocol):
 
-    def __init__(self, **kwargs):
-        super().__init__()
-        self.events = [(Event(), self.turn_stimulation_off,
-                        Event(), self.turn_stimulation_on)]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.events['stimulation_on'] = (Event(), self.turn_stimulation_on)
+        self.events['stimulation_off'] = (Event(), self.turn_stimulation_off)
         self.stimulus_df = None
         self.counter = 0
         self.timers = []
 
-    # @classmethod
-    # def make(cls, **kwargs):
-    #     on_event = Event()
-    #     off_event = Event()
-    #     return super().make(cls, on_event=on_event, off_event=off_event)
-
     def turn_stimulation_off(self):
-        self.events[0][0].clear()
+        self.events['stimulation_off'][0].clear()
+        t = time.clock()
+        self.output.send((t, 'stimulation_off'))
 
     def turn_stimulation_on(self):
-        self.events[1][0].clear()
+        self.events['stimulation_on'][0].clear()
+        t = time.clock()
+        self.output.send((t, 'stimulation_on'))
 
     def setup(self):
         self.counter = 0
@@ -66,7 +52,10 @@ class StimulationProtocol(Protocol):
             self.timers[0].start()
 
     def timeout(self, i):
-        self.events[i][0].set()
+        if i == 0:
+            self.events['stimulation_off'][0].set()
+        else:
+            self.events['stimulation_on'][0].set()
         self.counter += 1
         if self.counter < len(self.timers):
             self.timers[self.counter].start()

@@ -1,11 +1,11 @@
-from ..labjack import LabJack
+from ..utilities import LabJack
 from ..protocols import StimulationProtocol
 
 
-class Optogenetics(StimulationProtocol, LabJack):
+class OptogeneticsProtocol(StimulationProtocol, LabJack):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.laser_state = 0
 
     def set_laser_state(self, state):

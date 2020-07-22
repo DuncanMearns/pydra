@@ -1,13 +1,13 @@
 from .core import *
 from multiprocessing import Event, Queue
+from .plugins.optogenetics import Optogenetics
 
 
 class Pipeline:
 
     def __init__(self, acquisition: type, acquisition_kwargs: dict,
                  tracking: type, tracking_kwargs: dict,
-                 saving: type, saving_kwargs: dict,
-                 protocol: type):
+                 saving: type, saving_kwargs: dict):
         """Handles multiprocessing of frame acquisition, tracking and saving."""
         # Flags
         self.exit_flag = Event()  # top-level exit signal for process
@@ -32,12 +32,19 @@ class Pipeline:
         saving_kwargs.update(q=self.tracking_queue)
         self.saving_constructor = saving.make(**saving_kwargs)
 
-        # Protocol
-        self.protocol_constructor = protocol.make()
-        self.start_protcol = Event()
-        self.stop_protocol = Event()
-        self.protocol_finished = Event()
-        self.send_protcol, self.protocol_conn = pipe()
+        # Plugin
+        self.plugin = Optogenetics(self)
+        self.send_messages, self.receive_messages = pipe()
+        self.send_outputs, self.receive_outputs = pipe()
+        self._constructor = self.plugin.protocol.make(messages=self.receive_messages, output=self.send_outputs)
+        self._start_protcol = Event()
+        self._stop_protocol = Event()
+        self._protocol_finished = Event()
+        self._send_protocol, self._protocol_conn = pipe()
+
+    @staticmethod
+    def start_process(process):
+        process.start()
 
     def run(self):
         # Initialize the acquisition process
@@ -62,18 +69,19 @@ class Pipeline:
                                            self.pipeline_finished,
                                            self.saving_conn)
 
-        self.protocol_process = PydraProcess(self.protocol_constructor,
-                                             self.exit_flag,
-                                             self.start_protcol,
-                                             self.stop_protocol,
-                                             self.protocol_finished, self.protocol_conn)
-        # Start all processes
-        self.protocol_process.start()
+        self._process = PydraProcess(self._constructor,
+                                     self.exit_flag,
+                                     self._start_protcol,
+                                     self._stop_protocol,
+                                     self._protocol_finished,
+                                     self._protocol_conn)
+        self._process.start()
 
         self.acquisition_process.start()
         self.tracking_process.start()
         self.saving_process.start()
         print('All processes started.')
+        # self.plugin._process.start()
 
     def start(self):
         # Reset all flags
@@ -110,4 +118,4 @@ class Pipeline:
         self.saving_process.join()
         print('Saving process ended.')
 
-        self.protocol_process.join()
+        self._process.join()
