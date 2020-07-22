@@ -78,6 +78,8 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
         self.changeLiveState.connect(self._toggle_live_state)
         self.changeRecordState.connect(self._toggle_record_state)
 
+        self.run()
+
     @property
     def _live_state_attributes(self):
         for attr_name in dir(self):
@@ -106,12 +108,12 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
 
     @QtCore.pyqtSlot()
     def start_pipeline(self):
-        super().start()
+        super().start_pipeline()
         self.timer.start(50)
 
     @QtCore.pyqtSlot()
     def stop_pipeline(self):
-        super().stop()
+        super().stop_pipeline()
         self.timer.stop()
 
     @QtCore.pyqtSlot()
@@ -146,15 +148,16 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         if self._live or self._record:
-            self.pipeline.stop()
+            self.pipeline.stop_pipeline()
             self.timer.stop()
+        self.terminate()
         a0.accept()
 
     @staticmethod
-    def run():
+    def start():
         app = QtWidgets.QApplication([])
-        window = PydraGUI()
-        window.show()
+        pydra = PydraGUI()
+        pydra.show()
         try:
             sys.exit(app.exec_())
         finally:

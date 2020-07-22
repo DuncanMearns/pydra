@@ -1,4 +1,4 @@
-from ..process import TrackingWorker, TrackingOutput
+from ..core import TrackingWorker, TrackingOutput
 
 
 class DummyTracker(TrackingWorker):

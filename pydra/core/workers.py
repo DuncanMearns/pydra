@@ -105,30 +105,10 @@ class SavingWorker(Worker):
         super().cleanup()
 
 
-class Protocol(Worker):
-    """Top-level class for any kind of protocol to be run in a separate process.
-
-    Notes
-    -----
-    The run method must be implemented in subclasses. Additionally, a setup and cleanup method may be implemented in
-    subclasses.
-    """
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    def run(self):
-        """Generic run method that runs in a separate process. Can be implemented in subclass."""
-        return
-
-    def _run(self):
-        self.run()
-
-
 class MultiWorker(Worker):
 
     def __init__(self, workers: tuple, **kwargs):
-        """Allows multiple worker classes to be run (sequentially) in the same process.
+        """Allows multiple worker classes to be run (sequentially) in the same core.
 
         Parameters
         ----------

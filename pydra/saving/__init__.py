@@ -1,4 +1,4 @@
-from ..process import SavingWorker
+from ..core import SavingWorker
 import cv2
 
 

@@ -1,71 +1,113 @@
-from .process import *
+from .core import *
 from multiprocessing import Event, Queue
 
 
-class Experiment:
+class Pipeline:
 
     def __init__(self, acquisition: type, acquisition_kwargs: dict,
                  tracking: type, tracking_kwargs: dict,
                  saving: type, saving_kwargs: dict,
-                 protocol=None, protocol_kwargs=None):
+                 protocol: type):
         """Handles multiprocessing of frame acquisition, tracking and saving."""
-        # Signalling between process
-        self.exit_signal = Event()  # top-level exit signal for process
-        self.finished_acquisition_signal = Event()  # exit signal set when frame acquisition has ended
-        self.finished_tracking_signal = Event()  # exit signal set when tracking has ended
-        self.finished_saving_signal = Event()  # exit signal set when saving has ended
+        # Flags
+        self.exit_flag = Event()  # top-level exit signal for process
+        self.start_pipeline = Event()
+        self.end_acquisition = Event()
+        self.end_tracking = Event()
+        self.end_saving = Event()
+        self.pipeline_finished = Event()
         # Queues
-        self.frame_queue = Queue()  # queue filled by acquisition process and emptied by tracking process
-        self.tracking_queue = Queue()  # queue filled by tracking process and emptied by saving process
-        # Workers
+        self.frame_queue = Queue()  # queue filled by acquisition core and emptied by tracking core
+        self.tracking_queue = Queue()  # queue filled by tracking core and emptied by saving core
+        # Acquisition
+        self.send_acquisition, self.acquisition_conn = pipe()
         acquisition_kwargs.update(q=self.frame_queue)
-        self.acquisition_constructor = WorkerConstructor(acquisition, **acquisition_kwargs)
+        self.acquisition_constructor = acquisition.make(**acquisition_kwargs)
+        # Tracking
+        self.send_tracking, self.tracking_conn = pipe()
         tracking_kwargs.update(input_q=self.frame_queue, output_queue=self.tracking_queue)
-        self.tracking_constructor = WorkerConstructor(tracking, **tracking_kwargs)
+        self.tracking_constructor = tracking.make(**tracking_kwargs)
+        # Saving
+        self.send_saving, self.saving_conn = pipe()
         saving_kwargs.update(q=self.tracking_queue)
-        self.saving_constructor = WorkerConstructor(saving, **saving_kwargs)
+        self.saving_constructor = saving.make(**saving_kwargs)
 
-        if protocol:
-            self.protocol = WorkerConstructor(protocol, **protocol_kwargs)
-        else:
-            self.protocol = None
+        # Protocol
+        self.protocol_constructor = protocol.make()
+        self.start_protcol = Event()
+        self.stop_protocol = Event()
+        self.protocol_finished = Event()
+        self.send_protcol, self.protocol_conn = pipe()
 
-    def start(self):
-        # Initialise the acquisition process
+    def run(self):
+        # Initialize the acquisition process
         self.acquisition_process = PydraProcess(self.acquisition_constructor,
-                                                self.exit_signal,
-                                                self.finished_acquisition_signal)
-        # Initialise the tracking process
+                                                self.exit_flag,
+                                                self.start_pipeline,
+                                                self.end_acquisition,
+                                                self.end_tracking,
+                                                self.acquisition_conn)
+        # Initialize the tracking process
         self.tracking_process = PydraProcess(self.tracking_constructor,
-                                             self.finished_acquisition_signal,
-                                             self.finished_tracking_signal,)
-        # Initialise the saving process
+                                             self.exit_flag,
+                                             self.start_pipeline,
+                                             self.end_tracking,
+                                             self.end_saving,
+                                             self.tracking_conn)
+        # Initialize the saving process
         self.saving_process = PydraProcess(self.saving_constructor,
-                                           self.finished_tracking_signal,
-                                           self.finished_saving_signal)
-        # Start all process
+                                           self.exit_flag,
+                                           self.start_pipeline,
+                                           self.end_saving,
+                                           self.pipeline_finished,
+                                           self.saving_conn)
+
+        self.protocol_process = PydraProcess(self.protocol_constructor,
+                                             self.exit_flag,
+                                             self.start_protcol,
+                                             self.stop_protocol,
+                                             self.protocol_finished, self.protocol_conn)
+        # Start all processes
+        self.protocol_process.start()
+
         self.acquisition_process.start()
         self.tracking_process.start()
         self.saving_process.start()
-        if self.protocol:
-            self.protocol_process = PydraProcess(self.protocol,
-                                                 self.exit_signal,
-                                                 Event())
-            self.protocol_process.start()
-
         print('All processes started.')
 
+    def start(self):
+        # Reset all flags
+        self.pipeline_finished.clear()
+        self.end_saving.clear()
+        self.end_tracking.clear()
+        self.end_acquisition.clear()
+        # Start pipeline
+        self.start_pipeline.set()
+        print('Pipeline started.')
+
     def stop(self):
-        # Set the top-level exit signal telling the acquisition process to end
-        self.exit_signal.set()
-        # Join all process
+        self.start_pipeline.clear()
+        self.end_acquisition.set()
+        self.end_tracking.wait()
+        print('Acquisition ended.')
+        self.end_saving.wait()
+        print('Tracking ended.')
+        self.pipeline_finished.wait()
+        print('Pipeline finished.')
+
+    def exit(self):
+        # Make sure processes exit the worker event loop
+        if self.start_pipeline.is_set():
+            self.stop()
+        # Set the top-level exit signal telling all processes to end
+        self.exit_flag.set()
+        # Join all processes
         self.acquisition_process.join()
-        print('acquisition ended')
+        print('Acquisition process ended.')
         # print(self.gui_queue.queue.qsize())
         self.tracking_process.join()
-        print('tracking ended')
+        print('Tracking process ended.')
         self.saving_process.join()
-        print('All process terminated.')
-        if self.protocol:
-            self.protocol_process.join(timeout=1.)
-            print("PROTOCOL ENDED")
+        print('Saving process ended.')
+
+        self.protocol_process.join()

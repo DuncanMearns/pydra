@@ -1,12 +1,15 @@
-from .pipeline import Experiment
+from .pipeline import Pipeline
 
 from .acquisition import CameraAcquisition
 from .acquisition.cameras import PikeCamera
 
 from .tracking import DummyTracker
-from .saving import VideoSaver, NoSaver
+from .saving import NoSaver
 
-from .plugins.optogenetics import Optogenetics, OptogeneticsProtocol
+from .core import pipe
+from .plugins.protocols import ProtocolProcess
+from .plugins.optogenetics.optogenetics import StimulationProtocol, Optogenetics
+from threading import Event
 import pandas as pd
 
 
@@ -40,16 +43,24 @@ class Pydra:
         self.saving = NoSaver
         self.saving_kw = {}
 
-        self.stimulus_df = pd.DataFrame(dict(t=[1, 4, 7, 10], stim=[1, 0, 1, 0]))
-        self.protocol = OptogeneticsProtocol
-        self.protocol_kw = {'stimulus_df': self.stimulus_df}
+        # ========
+        # PROTOCOL
+        # ========
+        self.protocol = Optogenetics
 
-    def start(self):
-        self.pipeline = Experiment(self.acquisition, self.acquisition_kw,
-                                   self.tracking, self.tracking_kw,
-                                   self.saving, self.saving_kw,
-                                   self.protocol, self.protocol_kw)
+    def run(self):
+        self.pipeline = Pipeline(self.acquisition, self.acquisition_kw,
+                                 self.tracking, self.tracking_kw,
+                                 self.saving, self.saving_kw, self.protocol)
+        self.pipeline.run()
+
+    def start_pipeline(self):
         self.pipeline.start()
+        # self.conn.send(stimulus_df=pd.DataFrame(dict(t=[0, 1, 2], stimulation=[0, 1, 0])))
+        # self.protocol_process.start_flag.set()
 
-    def stop(self):
+    def stop_pipeline(self):
         self.pipeline.stop()
+
+    def terminate(self):
+        self.pipeline.exit()

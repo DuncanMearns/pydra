@@ -1,4 +1,4 @@
-from ..process import AcquisitionWorker, FrameOutput
+from ..core import AcquisitionWorker, FrameOutput
 from multiprocessing import Queue
 import time
 
@@ -17,6 +17,7 @@ class CameraAcquisition(AcquisitionWorker):
     def setup(self):
         self.camera = self.camera_type(**self.camera_kwargs)
         self.camera.open_camera()
+        self.frame_number = 0
 
     def acquire(self):
         frame = self.camera.read()

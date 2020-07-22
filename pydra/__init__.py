@@ -1,1 +1,1 @@
-from .pydra import Experiment
+from .pydra import Pipeline
