@@ -55,18 +55,6 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.update_gui)
 
-        # # Acquisition
-        # self.acquisition = CameraAcquisition
-        # self.acquisition_kw = dict(camera_type=PikeCamera)
-
-        # Tracking
-        # self.tracking = DummyTracker
-        self.tracking_kw.update(gui=True)
-
-        # # Saving
-        # self.saving = VideoSaver
-        # self.saving_kw = dict()
-
         # =============================================
         # HANDLING OF "LIVE" AND "RECORD" STATE CHANGES
         # =============================================
@@ -75,7 +63,7 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
         self.changeLiveState.connect(self._toggle_live_state)
         self.changeRecordState.connect(self._toggle_record_state)
 
-        self.start_pipeline()
+        self.handler.set_param(self.tracking.name, (('gui', True),))
 
     @property
     def _live_state_attributes(self):
@@ -110,23 +98,25 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
 
     @QtCore.pyqtSlot()
     def stop(self):
-        super().stop_pipeline()
         self.timer.stop()
+        super().stop()
 
     @QtCore.pyqtSlot()
     def update_gui(self):
-        self.pipeline.tracking_event_sender.send(('send_to_gui', ()))
+        self.handler.send_event(self.tracking.name, 'send_to_gui', ())
         frames = []
-        while self.pipeline.tracking_event_receiver.poll():
-            data = self.pipeline.receive_from_tracking.recv()
-            if data is None:
-                break
+        while True:
+            ret, data = self.handler.receive_event(self.tracking.name)
+            if ret:
+                if data is None:
+                    break
+                else:
+                    frames.append(data)
             else:
-                frames.append(data)
+                break
         if len(frames):
-            print(frames[0])
-        #     frame = frames[-1].frame
-        #     self.display.image.setImage(frame[::-1, :].T)
+            frame = frames[-1].frame
+            self.display.image.setImage(frame[::-1, :].T)
 
     @QtCore.pyqtSlot(bool)
     def live_button_pressed(self, *args):
@@ -145,9 +135,8 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
         self.changeRecordState.emit()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        if self._live or self._record:
-            self.timer.stop()
-        self.stop_pipeline()
+        self.timer.stop()
+        self._join_processes()
         a0.accept()
 
     @staticmethod

@@ -5,8 +5,5 @@ from .widget import OptogeneticsWidget
 
 class Optogenetics(Plugin):
 
-    protocol = OptogeneticsProtocol
+    worker = OptogeneticsProtocol
     widget = OptogeneticsWidget
-
-    def __init__(self, pipeline):
-        super().__init__(pipeline)

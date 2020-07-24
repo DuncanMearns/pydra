@@ -1,9 +1,10 @@
-from ..core import AcquisitionWorker, FrameOutput
+from ..core import Plugin, AcquisitionWorker, FrameOutput
+from .cameras import PikeCamera as PikeCameraType
 from multiprocessing import Queue
 import time
 
 
-class CameraAcquisition(AcquisitionWorker):
+class CameraAcquisitionWorker(AcquisitionWorker):
 
     def __init__(self, q: Queue, camera_type: type, camera_kwargs: dict = None, *args, **kwargs):
         super().__init__(q, *args, **kwargs)
@@ -21,10 +22,21 @@ class CameraAcquisition(AcquisitionWorker):
 
     def acquire(self):
         frame = self.camera.read()
-        timestamp = time.clock()
+        timestamp = time.time()
         output = FrameOutput(self.frame_number, timestamp, frame)
         self.frame_number += 1
         return output
 
     def cleanup(self):
         self.camera.release()
+
+
+class PikeCamera(Plugin):
+
+    name = 'PikeCamera'
+    worker = CameraAcquisitionWorker
+    widget = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.params['camera_type'] = PikeCameraType

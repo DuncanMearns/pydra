@@ -13,7 +13,8 @@ class PydraProcess(Process):
             start_flag: Event,
             stop_flag: Event,
             finished_flag: Event,
-            connection: Connection
+            connection: Connection,
+            *args, **kwargs
     ):
         """Pydra process class.
 
@@ -26,7 +27,7 @@ class PydraProcess(Process):
         finished_flag : Event
             Signal sent by the core once it has finished.
         """
-        super().__init__()
+        super().__init__(*args, **kwargs)
         self.constructor = constructor  # worker constructor object
         self.exit_flag = exit_flag  # flag that tells process to exit
         self.start_flag = start_flag  # flag that tells process to begin the worker event loop
@@ -40,12 +41,18 @@ class PydraProcess(Process):
         if self.connection.poll():
             data = self.connection.recv()
             if isinstance(data, WorkerConstructor):
+                handles = dict(((name, self.worker.__getattribute__(name)) for name in self.worker.handles))
                 self.constructor = data
+                self.constructor.kwargs.update(handles)
             elif isinstance(data, dict):
                 self.constructor.update(**data)
             elif isinstance(data, tuple):
                 self.constructor.update(*data)
+            else:
+                self.connection.send(False)
+                return
             self.worker = self.constructor()
+            self.connection.send(True)
         else:
             time.sleep(0.001)
 
@@ -55,11 +62,10 @@ class PydraProcess(Process):
         while not self.exit_flag.is_set():  # "event loop" runs as long as exit flag is not set
             self._recv()  # receive worker arguments from the main process
             if self.start_flag.is_set():  # check if start flag is set
-                self.worker._flush_events()  # flush any events left over from last time
                 self.worker.setup()
                 while not self.stop_flag.is_set():  # run the worker event loop until stop flag is set
                     self.worker._run()
                     self.worker._handle_events()
                 self.worker.cleanup()  # cleanup worker
+                self.worker._flush_events()  # flush any remaining events
                 self.finished_flag.set()  # set the finished flag
-        self.worker._flush_events()

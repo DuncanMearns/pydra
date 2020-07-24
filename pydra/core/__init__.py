@@ -1,8 +1,3 @@
-from .process import PydraProcess
-from .workers import (AcquisitionWorker,
-                      TrackingWorker,
-                      SavingWorker,
-                      ProtocolWorker,
-                      MultiWorker,
-                      FrameOutput,
-                      TrackingOutput)
+from .plugin import *
+from .process import *
+from .workers import *

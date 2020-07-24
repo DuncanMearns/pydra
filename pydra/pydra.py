@@ -1,65 +1,44 @@
-from .pipeline import Pipeline
+from .handler import Handler
 
-from .acquisition import CameraAcquisition
-from .acquisition.cameras import PikeCamera
-
-from .tracking import DummyTracker
-from .saving import NoSaver
-
-from pydra.stimulation.optogenetics import OptogeneticsProtocol
-import pandas as pd
-import time
+from .cameras import PikeCamera
+from .tracking import NoTracking
+from .saving import VideoSaver
+from .stimulation.optogenetics import Optogenetics
 
 
 class Pydra:
 
-    # acquisition_modes = dict(
-    #     pike=(CameraAcquisition, {'camera_type': PikeCamera})
-    # )
-    #
-    # tracking_modes = dict(
-    #     none=(DummyTracker, {})
-    # )
-    #
-    # saving_modes = dict(
-    #     none=(NoSaver, {}),
-    #     video=(VideoSaver, {'video_path': r"E:\Duncan\test.avi"})
-    # )
+    config = {
+        'acquisition': PikeCamera,
+        'tracking': NoTracking,
+        'saving': VideoSaver,
+        'protocol': Optogenetics
+    }
 
     def __init__(self):
+        self.acquisition = self.config['acquisition'](self)
+        self.tracking = self.config['tracking'](self)
+        self.saving = self.config['saving'](self)
+        self.protocol = self.config['protocol'](self)
 
-        # ====================================
-        # ACQUISITION-TRACKING-SAVING PIPELINE
-        # ====================================
+        self.handler = Handler(self.acquisition.to_tuple(),
+                               self.tracking.to_tuple(),
+                               self.saving.to_tuple(),
+                               self.protocol.to_tuple())
+        self._start_processes()
 
-        self.acquisition = CameraAcquisition
-        self.acquisition_kw = {'camera_type': PikeCamera}
+    def _start_processes(self):
+        self.handler.start()
+        self.handler.set_saving(False)
 
-        self.tracking = DummyTracker
-        self.tracking_kw = {}
-
-        self.saving = NoSaver
-        self.saving_kw = {}
-
-        # ========
-        # PROTOCOL
-        # ========
-        self.protocol = OptogeneticsProtocol
-
-    def start_pipeline(self):
-        self.pipeline = Pipeline(self.acquisition, self.acquisition_kw,
-                                 self.tracking, self.tracking_kw,
-                                 self.saving, self.saving_kw, self.protocol, {})
-        self.pipeline.start()
+    def _join_processes(self):
+        self.handler.exit()
 
     def start(self):
-        self.pipeline.start_event_loop()
-        self.pipeline.protocol_sender.send(dict(stimulus_df=pd.DataFrame(dict(t=[0, 1, 2], stimulation=[0, 1, 0]))))
-        time.sleep(0.1)
-        self.pipeline.start_protocol_event_loop()
+        self.handler.start_event_loop()
+        # self.pipeline.protocol_sender.send(dict(stimulus_df=pd.DataFrame(dict(t=[0, 1, 2], stimulation=[0, 1, 0]))))
+        # time.sleep(0.1)
+        # self.handler.start_protocol_event_loop()
 
     def stop(self):
-        self.pipeline.stop_event_loop()
-
-    def stop_pipeline(self):
-        self.pipeline.exit()
+        self.handler.stop_event_loop()

@@ -1,4 +1,4 @@
-from ..core import ProtocolWorker
+from ..core import ProtocolWorker, ProtocolOutput
 from threading import Timer
 import time
 
@@ -15,11 +15,11 @@ class StimulationProtocol(ProtocolWorker):
 
     def turn_stimulation_off(self):
         t = time.clock()
-        self.sender.send(('save_to_metadata', (t, 0)))
+        self.q.put(ProtocolOutput(t, 0))
 
     def turn_stimulation_on(self):
         t = time.clock()
-        self.sender.send(('save_to_metadata', (t, 1)))
+        self.q.put(ProtocolOutput(t, 1))
 
     def setup(self):
         self.counter = 0

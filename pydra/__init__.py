@@ -1,1 +1,1 @@
-from .pydra import Pipeline
+from .pydra import Handler

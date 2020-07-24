@@ -1,4 +1,4 @@
-from ..core import TrackingWorker, TrackingOutput
+from ..core import TrackingWorker, TrackingOutput, Plugin
 
 
 class DummyTracker(TrackingWorker):
@@ -8,3 +8,10 @@ class DummyTracker(TrackingWorker):
 
     def track(self, frame_number, timestamp, frame):
         return TrackingOutput(frame_number, timestamp, frame, None)
+
+
+class NoTracking(Plugin):
+
+    name = 'DummyTracker'
+    worker = DummyTracker
+    widget = None

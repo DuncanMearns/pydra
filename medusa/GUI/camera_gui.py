@@ -318,7 +318,7 @@ class CameraGUI(QtWidgets.QMainWindow):
                 self.camera_thread.acquiring = True
                 self.recording_start_time = datetime.datetime.now()
                 if self.protocol is not None:
-                    self.protocol.start_pipeline()
+                    self.protocol._start_processes()
                 # Update GUI
                 self.record_button.setText('STOP')
                 self.record_button.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaStop')))

@@ -2,7 +2,6 @@ from collections import namedtuple, deque
 from multiprocessing import Queue
 from multiprocessing.connection import Connection
 import queue
-import time
 
 
 class Worker:
@@ -12,11 +11,9 @@ class Worker:
     Subclasses must implement a core method and may additionally implement a setup and cleanup method invoked at the
     beginning and end of the core run, respectively.
     """
+    handles = ['receiver', 'sender']
 
-    receive_events = False
-    send_events = False
-
-    def __init__(self, receiver: Connection = None, sender: Connection = None, **kwargs):
+    def __init__(self, receiver: Connection, sender: Queue, **kwargs):
         self.events = {}
         self.receiver = receiver
         self.sender = sender
@@ -35,19 +32,16 @@ class Worker:
         return
 
     def _handle_events(self):
-        if self.receive_events:
-            events = []
-            while self.receiver.poll():
-                event_name, args = self.receiver.recv()
-                events.append((event_name, args))
-            for event_name, args in events:
-                self.events[event_name](*args)
+        events = []
+        while self.receiver.poll():
+            event_name, args = self.receiver.recv()
+            events.append((event_name, args))
+        for event_name, args in events:
+            self.events[event_name](*args)
 
     def _flush_events(self):
-        if self.receive_events:
-            events = []
-            while self.receiver.poll():
-                event_name, args = self.receiver.recv()
+        while self.receiver.poll():
+            event_name, args = self.receiver.recv()
 
     def cleanup(self):
         """Method called at the end of a core after the main loop has exited. After this method is called, the
@@ -59,7 +53,7 @@ class Worker:
         """Can be used to flush queues after an exit signal has been received."""
         while True:
             try:
-                obj = q.get_nowait()
+                obj = q.get(timeout=0.01)
                 yield obj
             except queue.Empty:
                 return
@@ -72,9 +66,10 @@ class WorkerConstructor:
         self.kwargs = kwargs
 
     def update(self, *args, **kwargs):
-        for key, value in args:
-            self.kwargs[key] = value
-        self.kwargs.update(**kwargs)
+        if len(args):
+            self.kwargs.update(args)
+        elif len(kwargs):
+            self.kwargs.update(kwargs)
 
     def __call__(self, *args, **kwargs):
         return self.worker(**self.kwargs)
@@ -93,7 +88,8 @@ class AcquisitionWorker(Worker):
         q : Queue
         """
         super().__init__(*args, **kwargs)
-        self.queue = q
+        self.q = q
+        self.handles.append('q')
 
     def acquire(self):
         """Acquire data from a source. Called time _run is called. Must be implemented in subclasses."""
@@ -102,7 +98,7 @@ class AcquisitionWorker(Worker):
     def _run(self):
         """Acquires some data and puts it in the frame queue."""
         data_input = self.acquire()
-        self.queue.put(data_input)
+        self.q.put(data_input)
 
 
 TrackingOutput = namedtuple('TrackingOutput', ('frame_number', 'timestamp', 'frame', 'data'))
@@ -110,17 +106,15 @@ TrackingOutput = namedtuple('TrackingOutput', ('frame_number', 'timestamp', 'fra
 
 class TrackingWorker(Worker):
 
-    receive_events = True
-    send_events = True
-
     def __init__(self,
                  input_q: Queue,
-                 output_queue: Queue,
+                 output_q: Queue,
                  gui: bool = False,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.input_q = input_q
-        self.output_q = output_queue
+        self.output_q = output_q
+        self.handles.extend(['input_q', 'output_q'])
         self.gui = gui
         if self.gui:
             self.cache = deque(maxlen=5000)
@@ -133,13 +127,13 @@ class TrackingWorker(Worker):
     def _run(self):
         """Takes input from the input queue, runs track and puts the output in the output queue."""
         try:
-            frame_input = self.input_q.get_nowait()
+            frame_input = self.input_q.get(timeout=0.001)
             tracked_frame = self.track(*frame_input)
             self.output_q.put(tracked_frame)
             if self.gui:
                 self.cache.append(TrackingOutput(*tracked_frame))
         except queue.Empty:
-            time.sleep(0.001)
+            pass
 
     def cleanup(self):
         """Flushes the input queue."""
@@ -150,18 +144,31 @@ class TrackingWorker(Worker):
     def send_to_gui(self):
         while len(self.cache):
             data = self.cache.popleft()
-            self.sender.send(data)
-        self.sender.send(None)
+            try:
+                self.sender.put_nowait(data)
+            except queue.Full:
+                break
+        self.sender.put(None)
+
+
+ProtocolOutput = namedtuple('ProtocolOutput', ('timestamp', 'data'))
+
+
+class ProtocolWorker(Worker):
+
+    def __init__(self, q: Queue, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.q = q
+        self.handles.append(['q'])
 
 
 class SavingWorker(Worker):
 
-    receive_events = True
-
-    def __init__(self, q: Queue, *args, **kwargs):
+    def __init__(self, tracking_q: Queue, protocol_q: Queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.events['save_to_metadata'] = self.save_to_metadata
-        self.q = q
+        self.tracking_q = tracking_q
+        self.protocol_q = protocol_q
+        self.handles.extend(['tracking_q', 'protocol_q'])
         self.metadata = {}
 
     def save_to_metadata(self, *args):
@@ -174,25 +181,18 @@ class SavingWorker(Worker):
     def _run(self):
         """Takes input from a queue and dumps it somewhere."""
         try:
-            data_from_queue = self.q.get_nowait()
-            self.dump(*data_from_queue)
+            tracking_data = self.tracking_q.get(timeout=0.001)
+            self.dump(*tracking_data)
+            protocol_data = self.protocol_q.get(timeout=0.001)
+            self.save_to_metadata(protocol_data)
         except queue.Empty:
-            time.sleep(0.001)
+            pass
 
     def cleanup(self):
         """Flushes the queue"""
-        for data_from_queue in self._flush_queue(self.q):
+        for data_from_queue in self._flush_queue(self.tracking_q):
             self.dump(*data_from_queue)
         super().cleanup()
-
-
-class ProtocolWorker(Worker):
-
-    receive_events = True
-    send_events = True
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
 
 class MultiWorker(Worker):
@@ -221,6 +221,10 @@ class MultiWorker(Worker):
     def _run(self):
         for worker in self.workers:
             worker._run()
+
+    def _handle_events(self):
+        for worker in self.workers:
+            worker._handle_events()
 
     def cleanup(self):
         for worker in self.workers:

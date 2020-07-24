@@ -1,4 +1,4 @@
-from ..core import SavingWorker
+from ..core import SavingWorker, Plugin
 import cv2
 
 
@@ -7,11 +7,8 @@ class NoSaver(SavingWorker):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def dump(self, *args):
-        return
 
-
-class VideoSaver(SavingWorker):
+class VideoSavingWorker(SavingWorker):
 
     def __init__(self, video_path, fourcc: str, frame_rate: float, frame_size: tuple, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -33,3 +30,17 @@ class VideoSaver(SavingWorker):
     def cleanup(self):
         self.writer.release()
         return
+
+
+class VideoSaver(Plugin):
+
+    name = 'VideoSaver'
+    worker = VideoSavingWorker
+    widget = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.params['video_path'] = None
+        self.params['fourcc'] = 'XVID'
+        self.params['frame_rate'] = None
+        self.params['frame_size'] = None
