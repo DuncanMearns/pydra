@@ -5,8 +5,8 @@ import time
 
 class CameraAcquisition(AcquisitionWorker):
 
-    def __init__(self, q: Queue, camera_type: type, camera_kwargs: dict = None, **kwargs):
-        super().__init__(q, **kwargs)
+    def __init__(self, q: Queue, camera_type: type, camera_kwargs: dict = None, *args, **kwargs):
+        super().__init__(q, *args, **kwargs)
         self.camera_type = camera_type
         self.camera_kwargs = {}
         if camera_kwargs is not None:

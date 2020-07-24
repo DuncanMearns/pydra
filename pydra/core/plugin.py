@@ -1,10 +1,11 @@
-from ..core.base import PydraProcess, pipe
-from threading import Event
 from PyQt5 import QtCore
 
 
 class Plugin(QtCore.QObject):
 
+    acquisition = None
+    tracker = None
+    saver = None
     protocol = None
     widget = None
 

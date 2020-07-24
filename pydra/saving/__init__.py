@@ -4,8 +4,8 @@ import cv2
 
 class NoSaver(SavingWorker):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def dump(self, *args):
         return
@@ -13,8 +13,8 @@ class NoSaver(SavingWorker):
 
 class VideoSaver(SavingWorker):
 
-    def __init__(self, video_path, fourcc: str, frame_rate: float, frame_size: tuple, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, video_path, fourcc: str, frame_rate: float, frame_size: tuple, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.video_path = video_path
         self.fourcc = fourcc
         self.frame_rate = frame_rate

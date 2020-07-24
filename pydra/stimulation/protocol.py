@@ -1,41 +1,25 @@
-from ..core import Worker
-from threading import Timer, Event
+from ..core import ProtocolWorker
+from threading import Timer
 import time
 
 
-class Protocol(Worker):
-
-    def __init__(self, messages=None, output=None):
-        super().__init__()
-        self.messages = messages
-        self.output = output
-
-    def _handle_events(self):
-        event_name = self.messages.recv()
-        if event_name:
-            self.events[event_name][0].set()
-        super()._handle_events()
-
-
-class StimulationProtocol(Protocol):
+class StimulationProtocol(ProtocolWorker):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.events['stimulation_on'] = (Event(), self.turn_stimulation_on)
-        self.events['stimulation_off'] = (Event(), self.turn_stimulation_off)
-        self.stimulus_df = None
+        self.events['stimulation_on'] = self.turn_stimulation_on
+        self.events['stimulation_off'] = self.turn_stimulation_off
+        self.stimulus_df = kwargs.get('stimulus_df', None)
         self.counter = 0
         self.timers = []
 
     def turn_stimulation_off(self):
-        self.events['stimulation_off'][0].clear()
         t = time.clock()
-        self.output.send((t, 'stimulation_off'))
+        self.sender.send(('save_to_metadata', (t, 0)))
 
     def turn_stimulation_on(self):
-        self.events['stimulation_on'][0].clear()
         t = time.clock()
-        self.output.send((t, 'stimulation_on'))
+        self.sender.send(('save_to_metadata', (t, 1)))
 
     def setup(self):
         self.counter = 0
@@ -45,7 +29,7 @@ class StimulationProtocol(Protocol):
             self.stimulus_df['stimulation'] = self.stimulus_df['stimulation'].apply(lambda x: 1 if x > 0 else 0)
             dt = self.stimulus_df['t'].diff()
             t0 = self.stimulus_df.loc[0]
-            self.timers.append(Timer(t0.t, self.timeout, (t0.stim,)))
+            self.timers.append(Timer(t0.t, self.timeout, (t0.stimulation,)))
             if len(self.stimulus_df) > 1:
                 for idx, stim in self.stimulus_df.loc[1:, 'stimulation'].iteritems():
                     self.timers.append(Timer(dt.loc[idx], self.timeout, (stim,)))
@@ -53,9 +37,9 @@ class StimulationProtocol(Protocol):
 
     def timeout(self, i):
         if i == 0:
-            self.events['stimulation_off'][0].set()
+            self.turn_stimulation_off()
         else:
-            self.events['stimulation_on'][0].set()
+            self.turn_stimulation_on()
         self.counter += 1
         if self.counter < len(self.timers):
             self.timers[self.counter].start()

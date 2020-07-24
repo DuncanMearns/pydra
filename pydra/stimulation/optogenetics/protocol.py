@@ -1,8 +1,8 @@
 from ..utilities import LabJack
-from ..protocols import StimulationProtocol
+from ..protocol import StimulationProtocol
 
 
-class OptogeneticsProtocol(StimulationProtocol, LabJack):
+class OptogeneticsProtocol(LabJack, StimulationProtocol):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

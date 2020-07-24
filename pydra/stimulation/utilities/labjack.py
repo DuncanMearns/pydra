@@ -7,7 +7,7 @@ class LabJack:
                  'DAC1': 5002}
 
     def __init__(self, *args, **kwargs):
-        super().__init__()
+        super().__init__(*args, **kwargs)
         print('Connecting to labjack...', end=' ')
         self.u = u3.U3()
         for reg, addr in self.registers.items():

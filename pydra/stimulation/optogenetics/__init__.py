@@ -1,4 +1,4 @@
-from ..plugin import Plugin
+from ...core.plugin import Plugin
 from .protocol import OptogeneticsProtocol
 from .widget import OptogeneticsWidget
 
