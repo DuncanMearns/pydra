@@ -1,7 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from .state import StateEnabled
 
 
-class PluginWidget(QtWidgets.QDockWidget):
+class PluginWidget(StateEnabled, QtWidgets.QDockWidget):
 
     def __init__(self, plugin, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -1,5 +1,5 @@
 from .core import *
-from .saving import NoSaver
+# from .saving import NoSaver
 from multiprocessing import Event, Queue, Pipe
 import queue
 
@@ -93,22 +93,13 @@ class Handler:
         self.ProtocolConstructor = protocol_type.make(**protocol_kwargs)
 
     def set_saving(self, val: bool):
-        if val:
-            self.process_handles[self.saving_name].send(self.SavingConstructor)
-        else:
-            self.process_handles[self.saving_name].send(NoSaver.make())
-        ret = self.process_handles[self.saving_name].recv()
-        return ret
+        return self.set_param(self.saving_name, (('saving_on', val),))
 
     def set_param(self, target, args):
-        if target == self.saving_name:
-            # If trying to update saving params, update the constructor instead
-            self.SavingConstructor.update(*args)
-            ret = True
-        else:
+        if not self.exitFlag.is_set():  # check that processes have not already ended
             self.process_handles[target].send(args)
             ret = self.process_handles[target].recv()
-        return ret
+            return ret
 
     def send_event(self, target, event, args):
         self.event_handles[target]['send'].send((event, args))

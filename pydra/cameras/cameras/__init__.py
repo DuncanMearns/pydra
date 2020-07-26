@@ -1,1 +1,1 @@
-from .vimba import PikeCamera
+from .pike import PikeCamera

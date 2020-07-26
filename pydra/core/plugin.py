@@ -7,7 +7,7 @@ class Plugin(QtCore.QObject):
     worker = None
     widget = None
 
-    paramsChanged = QtCore.pyqtSignal(str, tuple)
+    paramsChanged = QtCore.pyqtSignal(str, object)
 
     def __init__(self, pydra, *args, **kwargs):
         super().__init__(*args, **kwargs)

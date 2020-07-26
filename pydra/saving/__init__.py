@@ -1,37 +1,45 @@
 from ..core import SavingWorker, Plugin
-from ..gui.widget import PluginWidget
+from ..gui import PluginWidget
 import cv2
 from PyQt5 import QtCore, QtWidgets
 from pathlib import Path
 
 
-class NoSaver(SavingWorker):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-
 class VideoSavingWorker(SavingWorker):
 
-    def __init__(self, video_path, fourcc: str, frame_rate: float, frame_size: tuple, *args, **kwargs):
+    def __init__(self, video_path, fourcc: str, frame_rate: float, frame_size: tuple, saving_on=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.video_path = video_path
         self.fourcc = fourcc
         self.frame_rate = frame_rate
         self.frame_size = frame_size
+        self.saving_on = saving_on
 
     def setup(self):
-        fourcc = cv2.VideoWriter_fourcc(*self.fourcc)
-        self.writer = cv2.VideoWriter(self.video_path, fourcc, self.frame_rate, self.frame_size, False)
+        if self.saving_on:
+            try:
+                assert self.video_path is not None
+                fourcc = cv2.VideoWriter_fourcc(*self.fourcc)
+                self.writer = cv2.VideoWriter(self.video_path, fourcc, self.frame_rate, self.frame_size, False)
+            except Exception:
+                print('NO PATH!')
         return
 
     def dump(self, frame_number, timestamp, frame, tracking):
-        print(frame_number)
-        self.writer.write(frame)
+        if self.saving_on:
+            print(frame_number)
+            try:
+                self.writer.write(frame)
+            except AttributeError:
+                pass
         return
 
     def cleanup(self):
-        self.writer.release()
+        if self.saving_on:
+            try:
+                self.writer.release()
+            except AttributeError:
+                pass
         return
 
 
@@ -92,7 +100,7 @@ class SavingWidget(PluginWidget):
 
     def set_editable(self, val: bool):
         self.change_directory_button.setEnabled(val)
-        self.filename_editor.setReadOnly(not val)
+        self.filename_editor.setEnabled(val)
 
     def idle(self):
         self.set_editable(True)
@@ -116,6 +124,7 @@ class VideoSaver(Plugin):
         self.params['fourcc'] = 'XVID'
         self.params['frame_rate'] = None
         self.params['frame_size'] = None
+        self.params['saving_on'] = False
 
         self.default_directory = Path(r'E:\\')
         self.working_directory = self.default_directory
@@ -135,3 +144,12 @@ class VideoSaver(Plugin):
         else:
             self.params['video_path'] = None
         self.paramsChanged.emit(self.name, (('video_path', self.params['video_path']),))
+
+    @QtCore.pyqtSlot(str, dict)
+    def update_recording_params(self, target, new_vals):
+        if 'frame_rate' in new_vals:
+            self.params['frame_rate'] = new_vals['frame_rate']
+        if 'frame_size' in new_vals:
+            self.params['frame_size'] = new_vals['frame_size']
+        self.paramsChanged.emit(self.name, dict(frame_rate=self.params['frame_rate'],
+                                                frame_size=self.params['frame_size']))

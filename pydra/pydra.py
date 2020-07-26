@@ -32,6 +32,8 @@ class Pydra:
 
         # Set signals-slots to change worker parameters
         self.saving.paramsChanged.connect(self.handler.set_param)
+        self.acquisition.paramsChanged.connect(self.handler.set_param)
+        self.acquisition.paramsChanged.connect(self.saving.update_recording_params)
 
     def _start_processes(self):
         self.handler.start()
@@ -115,6 +117,7 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
         # ============
         self.dock_widgets = {}
         self.dock_widgets[self.saving.name] = self.saving.widget(self.saving)
+        self.dock_widgets[self.acquisition.name] = self.acquisition.widget(self.acquisition)
         for name, widget in self.dock_widgets.items():
             self.addDockWidget(QtCore.Qt.RightDockWidgetArea, widget)
 
