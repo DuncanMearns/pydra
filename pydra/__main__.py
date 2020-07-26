@@ -1,3 +1,3 @@
-from pydra.gui import PydraGUI
+from pydra.pydra import Pydra
 
-PydraGUI.run()
+Pydra.app()

@@ -1,20 +1,8 @@
 from ..core import SavingWorker, Plugin
+from ..gui.widget import PluginWidget
 import cv2
-# from ..gui.widget import PluginWidget
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtCore, QtWidgets
 from pathlib import Path
-
-
-class PluginWidget(QtWidgets.QDockWidget):
-
-    def __init__(self, plugin, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.plugin = plugin
-        self.setMinimumWidth(250)
-        self.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
-        self.setWidget(QtWidgets.QWidget())
-        self.widget().setLayout(QtWidgets.QGridLayout())
-        self.widget().layout().setAlignment(QtCore.Qt.AlignTop)
 
 
 class NoSaver(SavingWorker):
