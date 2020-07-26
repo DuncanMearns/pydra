@@ -101,8 +101,13 @@ class Handler:
         return ret
 
     def set_param(self, target, args):
-        self.process_handles[target].send(args)
-        ret = self.process_handles[target].recv()
+        if target == self.saving_name:
+            # If trying to update saving params, update the constructor instead
+            self.SavingConstructor.update(*args)
+            ret = True
+        else:
+            self.process_handles[target].send(args)
+            ret = self.process_handles[target].recv()
         return ret
 
     def send_event(self, target, event, args):

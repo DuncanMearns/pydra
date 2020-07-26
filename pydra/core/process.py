@@ -38,7 +38,7 @@ class PydraProcess(Process):
 
     def _recv(self):
         """Updates keyword arguments of the worker object."""
-        if self.connection.poll():
+        if self.connection.poll(timeout=0.01):
             data = self.connection.recv()
             if isinstance(data, WorkerConstructor):
                 handles = dict(((name, self.worker.__getattribute__(name)) for name in self.worker.handles))
@@ -53,8 +53,6 @@ class PydraProcess(Process):
                 return
             self.worker = self.constructor()
             self.connection.send(True)
-        else:
-            time.sleep(0.001)
 
     def run(self):
         """Code that runs when process is started."""

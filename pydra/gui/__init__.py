@@ -61,29 +61,46 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
         self.recordState.entered.connect(self.record)
         self.recordState.addTransition(self.toolbar.record_button.clicked, self.idleState)
         self.stateMachine.addState(self.recordState)
+
+        # ============
+        # DOCK WIDGETS
+        # ============
+        self.dock_widgets = {}
+        self.dock_widgets[self.saving.name] = self.saving.widget(self.saving)
+        for name, widget in self.dock_widgets.items():
+            self.addDockWidget(QtCore.Qt.RightDockWidgetArea, widget)
+
+        # ==================
+        # SET INITIAL STATES
+        # ==================
+        # Set the tracking worker to be gui enabled
+        self.handler.set_param(self.tracking.name, (('gui', True),))
         # Set initial state and start state machine
         self.stateMachine.setInitialState(self.idleState)
         self.stateMachine.start()
 
-        # Set the tracking worker to be gui enabled
-        self.handler.set_param(self.tracking.name, (('gui', True),))
-
     @QtCore.pyqtSlot()
     def idle(self):
-        self.toolbar.idle()
         if self.handler.startAcquisitionFlag.is_set():
             self.stop()
+        self.toolbar.idle()
+        for name, widget in self.dock_widgets.items():
+            widget.idle()
 
     @QtCore.pyqtSlot()
     def live(self):
         self.handler.set_saving(False)
         self.toolbar.live()
+        for name, widget in self.dock_widgets.items():
+            widget.live()
         self.start()
 
     @QtCore.pyqtSlot()
     def record(self):
         self.handler.set_saving(True)
         self.toolbar.record()
+        for name, widget in self.dock_widgets.items():
+            widget.record()
         self.start()
 
     def start(self):

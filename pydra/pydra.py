@@ -27,6 +27,9 @@ class Pydra:
                                self.protocol.to_tuple())
         self._start_processes()
 
+        # Set signals-slots to change worker parameters
+        self.saving.paramsChanged.connect(self.handler.set_param)
+
     def _start_processes(self):
         self.handler.start()
 
