@@ -29,7 +29,6 @@ class Pydra:
 
     def _start_processes(self):
         self.handler.start()
-        self.handler.set_saving(False)
 
     def _join_processes(self):
         self.handler.exit()

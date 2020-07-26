@@ -2,15 +2,13 @@ from ..pydra import Pydra
 
 from .display import MainDisplayWidget
 from .toolbar import Toolbar, LiveButton, RecordButton
+from .state import StateEnabled
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 import sys
 
 
 class PydraGUI(QtWidgets.QMainWindow, Pydra):
-
-    changeLiveState = QtCore.pyqtSignal()
-    changeRecordState = QtCore.pyqtSignal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,8 +21,6 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
         self.WIDTH = 1000
         self.HEIGHT = 800
         self.resize(self.WIDTH, self.HEIGHT)
-        # Button size
-
 
         # =======
         # TOOLBAR
@@ -53,68 +49,47 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
         self.liveState = QtCore.QState()
         self.recordState = QtCore.QState()
         # Idle
-        self.idleState.entered.connect(self.set_idle_state)
+        self.idleState.entered.connect(self.idle)
         self.idleState.addTransition(self.toolbar.live_button.clicked, self.liveState)
         self.idleState.addTransition(self.toolbar.record_button.clicked, self.recordState)
         self.stateMachine.addState(self.idleState)
         # Live
-        self.liveState.entered.connect(self.set_live_state)
+        self.liveState.entered.connect(self.live)
         self.liveState.addTransition(self.toolbar.live_button.clicked, self.idleState)
         self.stateMachine.addState(self.liveState)
         # Record
-        self.recordState.entered.connect(self.set_record_state)
+        self.recordState.entered.connect(self.record)
         self.recordState.addTransition(self.toolbar.record_button.clicked, self.idleState)
         self.stateMachine.addState(self.recordState)
         # Set initial state and start state machine
         self.stateMachine.setInitialState(self.idleState)
         self.stateMachine.start()
 
+        # Set the tracking worker to be gui enabled
         self.handler.set_param(self.tracking.name, (('gui', True),))
 
     @QtCore.pyqtSlot()
-    def set_idle_state(self):
+    def idle(self):
         self.toolbar.idle()
+        if self.handler.startAcquisitionFlag.is_set():
+            self.stop()
 
     @QtCore.pyqtSlot()
-    def set_live_state(self):
+    def live(self):
+        self.handler.set_saving(False)
         self.toolbar.live()
+        self.start()
 
     @QtCore.pyqtSlot()
-    def set_record_state(self):
+    def record(self):
+        self.handler.set_saving(True)
         self.toolbar.record()
+        self.start()
 
-    @property
-    def _live_state_attributes(self):
-        for attr_name in dir(self):
-            attr = getattr(self, attr_name)
-            if hasattr(attr, 'toggle_live'):
-                yield attr
-
-    @property
-    def _record_state_attributes(self):
-        for attr_name in dir(self):
-            attr = getattr(self, attr_name)
-            if hasattr(attr, 'toggle_record'):
-                yield attr
-
-    @QtCore.pyqtSlot()
-    def _toggle_live_state(self):
-        self._live = not self._live
-        for attr in self._live_state_attributes:
-            attr.toggle_live(self._live)
-
-    @QtCore.pyqtSlot()
-    def _toggle_record_state(self):
-        self._record = not self._record
-        for attr in self._record_state_attributes:
-            attr.toggle_record(self._record)
-
-    @QtCore.pyqtSlot()
     def start(self):
         super().start()
         self.timer.start(50)
 
-    @QtCore.pyqtSlot()
     def stop(self):
         self.timer.stop()
         super().stop()
@@ -135,22 +110,6 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
         if len(frames):
             frame = frames[-1].frame
             self.display.image.setImage(frame[::-1, :].T)
-
-    @QtCore.pyqtSlot(bool)
-    def live_button_pressed(self, *args):
-        if not self._live:
-            self.start()
-        else:
-            self.stop()
-        self.changeLiveState.emit()
-
-    @QtCore.pyqtSlot(bool)
-    def record_button_pressed(self, *args):
-        if not self._record:
-            self.start()
-        else:
-            self.stop()
-        self.changeRecordState.emit()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.timer.stop()

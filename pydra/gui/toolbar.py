@@ -1,5 +1,5 @@
 from .state import StateEnabled
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtWidgets
 
 
 BUTTON_WIDTH = 100
@@ -13,18 +13,15 @@ class LiveButton(StateEnabled, QtWidgets.QPushButton):
         self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPlay')))
         self.setFixedSize(width, height)
 
-    @QtCore.pyqtSlot()
     def idle(self):
         self.setEnabled(True)
         self.setText("LIVE")
         self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPlay')))
 
-    @QtCore.pyqtSlot()
     def live(self):
         self.setText("STOP")
         self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPause')))
 
-    @QtCore.pyqtSlot()
     def record(self):
         self.setEnabled(False)
 
@@ -36,17 +33,14 @@ class RecordButton(StateEnabled, QtWidgets.QPushButton):
         self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_DialogNoButton')))
         self.setFixedSize(width, height)
 
-    @QtCore.pyqtSlot()
     def idle(self):
         self.setEnabled(True)
         self.setText("RECORD")
         self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_DialogNoButton')))
 
-    @QtCore.pyqtSlot()
     def live(self):
         self.setEnabled(False)
 
-    @QtCore.pyqtSlot()
     def record(self):
         self.setText("STOP")
         self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPause')))
