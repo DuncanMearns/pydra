@@ -1,7 +1,7 @@
 from ..pydra import Pydra
 
 from .display import MainDisplayWidget
-from .toolbar import LiveButton, RecordButton
+from .toolbar import Toolbar, LiveButton, RecordButton
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 import sys
@@ -24,23 +24,13 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
         self.HEIGHT = 800
         self.resize(self.WIDTH, self.HEIGHT)
         # Button size
-        self.BUTTON_WIDTH = 100
-        self.BUTTON_HEIGHT = 50
+
 
         # =======
         # TOOLBAR
         # =======
-        self.TOOLBAR = self.addToolBar("toolbar")
-        self.TOOLBAR.setFloatable(False)
-        self.TOOLBAR.setMovable(False)
-        # Live button
-        self.LIVE_BUTTON = LiveButton(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        self.LIVE_BUTTON.clicked.connect(self.live_button_pressed)
-        self.TOOLBAR.addWidget(self.LIVE_BUTTON)
-        # Record button
-        self.RECORD_BUTTON = RecordButton(self.BUTTON_WIDTH, self.BUTTON_HEIGHT)
-        self.RECORD_BUTTON.clicked.connect(self.record_button_pressed)
-        self.TOOLBAR.addWidget(self.RECORD_BUTTON)
+        self.toolbar = Toolbar()
+        self.addToolBar(self.toolbar)
 
         # ======================
         # CENTRAL DISPLAY WIDGET
@@ -55,15 +45,43 @@ class PydraGUI(QtWidgets.QMainWindow, Pydra):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.update_gui)
 
-        # =============================================
-        # HANDLING OF "LIVE" AND "RECORD" STATE CHANGES
-        # =============================================
-        self._live = False
-        self._record = False
-        self.changeLiveState.connect(self._toggle_live_state)
-        self.changeRecordState.connect(self._toggle_record_state)
+        # ==========
+        # GUI STATES
+        # ==========
+        self.stateMachine = QtCore.QStateMachine()
+        self.idleState = QtCore.QState()
+        self.liveState = QtCore.QState()
+        self.recordState = QtCore.QState()
+        # Idle
+        self.idleState.entered.connect(self.set_idle_state)
+        self.idleState.addTransition(self.toolbar.live_button.clicked, self.liveState)
+        self.idleState.addTransition(self.toolbar.record_button.clicked, self.recordState)
+        self.stateMachine.addState(self.idleState)
+        # Live
+        self.liveState.entered.connect(self.set_live_state)
+        self.liveState.addTransition(self.toolbar.live_button.clicked, self.idleState)
+        self.stateMachine.addState(self.liveState)
+        # Record
+        self.recordState.entered.connect(self.set_record_state)
+        self.recordState.addTransition(self.toolbar.record_button.clicked, self.idleState)
+        self.stateMachine.addState(self.recordState)
+        # Set initial state and start state machine
+        self.stateMachine.setInitialState(self.idleState)
+        self.stateMachine.start()
 
         self.handler.set_param(self.tracking.name, (('gui', True),))
+
+    @QtCore.pyqtSlot()
+    def set_idle_state(self):
+        self.toolbar.idle()
+
+    @QtCore.pyqtSlot()
+    def set_live_state(self):
+        self.toolbar.live()
+
+    @QtCore.pyqtSlot()
+    def set_record_state(self):
+        self.toolbar.record()
 
     @property
     def _live_state_attributes(self):

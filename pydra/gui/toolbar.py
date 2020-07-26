@@ -1,52 +1,78 @@
-from .state import LiveStateMixin, RecordStateMixin
-from PyQt5 import QtWidgets
+from .state import StateEnabled
+from PyQt5 import QtCore, QtWidgets
 
 
-class QToggleButton(LiveStateMixin, RecordStateMixin, QtWidgets.QPushButton):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+BUTTON_WIDTH = 100
+BUTTON_HEIGHT = 50
 
 
-class LiveButton(QToggleButton):
+class LiveButton(StateEnabled, QtWidgets.QPushButton):
 
     def __init__(self, width, height, *args, **kwargs):
         super().__init__("LIVE", *args, **kwargs)
         self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPlay')))
         self.setFixedSize(width, height)
 
-    def toggle_live(self, state):
-        if state:
-            self.setText("STOP")
-            self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPause')))
-        else:
-            self.setText("LIVE")
-            self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPlay')))
+    @QtCore.pyqtSlot()
+    def idle(self):
+        self.setEnabled(True)
+        self.setText("LIVE")
+        self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPlay')))
 
-    def toggle_record(self, state):
-        if state:
-            self.setEnabled(False)
-        else:
-            self.setEnabled(True)
+    @QtCore.pyqtSlot()
+    def live(self):
+        self.setText("STOP")
+        self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPause')))
+
+    @QtCore.pyqtSlot()
+    def record(self):
+        self.setEnabled(False)
 
 
-class RecordButton(QToggleButton):
+class RecordButton(StateEnabled, QtWidgets.QPushButton):
 
     def __init__(self, width, height, *args, **kwargs):
         super().__init__("RECORD", *args, **kwargs)
         self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_DialogNoButton')))
         self.setFixedSize(width, height)
 
-    def toggle_live(self, state):
-        if state:
-            self.setEnabled(False)
-        else:
-            self.setEnabled(True)
+    @QtCore.pyqtSlot()
+    def idle(self):
+        self.setEnabled(True)
+        self.setText("RECORD")
+        self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_DialogNoButton')))
 
-    def toggle_record(self, state):
-        if state:
-            self.setText("STOP")
-            self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPause')))
-        else:
-            self.setText("RECORD")
-            self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_DialogNoButton')))
+    @QtCore.pyqtSlot()
+    def live(self):
+        self.setEnabled(False)
+
+    @QtCore.pyqtSlot()
+    def record(self):
+        self.setText("STOP")
+        self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPause')))
+
+
+class Toolbar(StateEnabled, QtWidgets.QToolBar):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setFloatable(False)
+        self.setMovable(False)
+        # Live button
+        self.live_button = LiveButton(BUTTON_WIDTH, BUTTON_HEIGHT)
+        self.addWidget(self.live_button)
+        # Record button
+        self.record_button = RecordButton(BUTTON_WIDTH, BUTTON_HEIGHT)
+        self.addWidget(self.record_button)
+
+    def idle(self):
+        self.live_button.idle()
+        self.record_button.idle()
+
+    def live(self):
+        self.live_button.live()
+        self.record_button.live()
+
+    def record(self):
+        self.live_button.record()
+        self.record_button.record()
