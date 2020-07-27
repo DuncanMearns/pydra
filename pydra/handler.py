@@ -104,13 +104,13 @@ class Handler:
     def send_event(self, target, event, args):
         self.event_handles[target]['send'].send((event, args))
 
-    def receive_event(self, target, wait=False):
-        if wait:
-            out = self.event_handles[target]['receive'].get()
+    def receive_event(self, target, wait=0.01, block=False):
+        if block:
+            out = self.event_handles[target]['receive'].get(block=block)
             ret = True
         else:
             try:
-                out = self.event_handles[target]['receive'].get(timeout=0.01)
+                out = self.event_handles[target]['receive'].get(timeout=wait)
                 ret = True
             except queue.Empty:
                 out = None

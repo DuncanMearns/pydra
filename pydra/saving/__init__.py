@@ -115,18 +115,14 @@ class SavingWidget(PluginWidget):
             self.directory_label.setText(self.directory_text)
         self.update_output_text()
 
-    def set_editable(self, val: bool):
-        self.change_directory_button.setEnabled(val)
-        self.filename_editor.setEnabled(val)
-
     def idle(self):
-        self.set_editable(True)
+        self.setEnabled(True)
 
     def live(self):
-        self.set_editable(False)
+        self.setEnabled(False)
 
     def record(self):
-        self.set_editable(False)
+        self.setEnabled(False)
 
 
 class VideoTrackingSaver(Plugin):

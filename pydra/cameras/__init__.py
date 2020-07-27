@@ -64,19 +64,14 @@ class CameraWidget(PluginWidget):
         new_params = dict(frame_size=(width, height), frame_rate=frame_rate, exposure=exposure, gain=gain)
         self.plugin.change_params(new_params)
 
-    def set_editable(self, val):
-        for editor in self.int_editors:
-            editor.setEnabled(val)
-        self.frame_rate_editor.setEnabled(val)
-
     def idle(self):
-        self.set_editable(True)
+        self.setEnabled(True)
 
     def live(self):
-        self.set_editable(False)
+        self.setEnabled(False)
 
     def record(self):
-        self.set_editable(False)
+        self.setEnabled(False)
 
 
 class PikeCamera(Plugin):

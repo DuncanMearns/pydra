@@ -1,8 +1,7 @@
-from PyQt5 import QtWidgets, QtCore
+from ...gui.widget import PluginWidget
 
 
-class OptogeneticsWidget(QtWidgets.QWidget):
+class OptogeneticsWidget(PluginWidget):
 
-    def __init__(self, optogenetics, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.optogenetics = optogenetics
+    def __init__(self, plugin, *args, **kwargs):
+        super().__init__(plugin, *args, **kwargs)
