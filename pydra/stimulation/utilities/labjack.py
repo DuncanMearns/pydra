@@ -8,6 +8,8 @@ class LabJack:
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def setup(self):
         print('Connecting to labjack...', end=' ')
         self.u = u3.U3()
         for reg, addr in self.registers.items():
