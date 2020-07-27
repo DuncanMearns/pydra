@@ -171,6 +171,9 @@ class SavingWorker(Worker):
         self.handles.extend(['tracking_q', 'protocol_q'])
         self.metadata = {}
 
+    def setup(self):
+        self.metadata = {}
+
     def save_to_metadata(self, *args):
         return
 
@@ -184,7 +187,7 @@ class SavingWorker(Worker):
             tracking_data = self.tracking_q.get(timeout=0.001)
             self.dump(*tracking_data)
             protocol_data = self.protocol_q.get(timeout=0.001)
-            self.save_to_metadata(protocol_data)
+            self.save_to_metadata(*protocol_data)
         except queue.Empty:
             pass
 
@@ -192,6 +195,8 @@ class SavingWorker(Worker):
         """Flushes the queue"""
         for data_from_queue in self._flush_queue(self.tracking_q):
             self.dump(*data_from_queue)
+        for data_from_queue in self._flush_queue(self.protocol_q):
+            self.save_to_metadata(*data_from_queue)
         super().cleanup()
 
 

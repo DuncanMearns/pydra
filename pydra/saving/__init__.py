@@ -3,9 +3,10 @@ from ..gui import PluginWidget
 import cv2
 from PyQt5 import QtCore, QtWidgets
 from pathlib import Path
+import json
 
 
-class VideoSavingWorker(SavingWorker):
+class VideoTrackingSavingWorker(SavingWorker):
 
     def __init__(self, video_path, fourcc: str, frame_rate: float, frame_size: tuple, saving_on=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -16,30 +17,46 @@ class VideoSavingWorker(SavingWorker):
         self.saving_on = saving_on
 
     def setup(self):
+        super().setup()
         if self.saving_on:
+            self.metadata['time'] = []
+            path = Path(self.video_path)
+            self.metadata_path = path.parent.joinpath(path.stem + '.json')
             try:
                 assert self.video_path is not None
                 fourcc = cv2.VideoWriter_fourcc(*self.fourcc)
                 self.writer = cv2.VideoWriter(self.video_path, fourcc, self.frame_rate, self.frame_size, False)
             except Exception:
-                print('NO PATH!')
+                print('SAVING NOT INITIALIZED CORRECTLY!')
         return
 
     def dump(self, frame_number, timestamp, frame, tracking):
         if self.saving_on:
-            print(frame_number)
             try:
                 self.writer.write(frame)
+                self.metadata['time'].append([frame_number, timestamp])
+                for key, val in tracking.data.items():
+                    try:
+                        self.metadata[key].append(val)
+                    except KeyError:
+                        self.metadata[key] = [val]
             except AttributeError:
                 pass
         return
 
+    def format_metadata(self):
+        pass
+
     def cleanup(self):
+        super().cleanup()
         if self.saving_on:
             try:
                 self.writer.release()
             except AttributeError:
                 pass
+            self.format_metadata()
+            with open(self.metadata_path, 'w') as path:
+                json.dump(self.metadata, path)
         return
 
 
@@ -112,10 +129,10 @@ class SavingWidget(PluginWidget):
         self.set_editable(False)
 
 
-class VideoSaver(Plugin):
+class VideoTrackingSaver(Plugin):
 
     name = 'VideoSaver'
-    worker = VideoSavingWorker
+    worker = VideoTrackingSavingWorker
     widget = SavingWidget
 
     def __init__(self, *args, **kwargs):

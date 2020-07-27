@@ -1,7 +1,7 @@
 from .handler import Handler
 from .cameras import PikeCamera
 from .tracking import NoTracking
-from .saving import VideoSaver
+from .saving import VideoTrackingSaver
 from .stimulation.optogenetics import Optogenetics
 from .gui.display import MainDisplayWidget
 from .gui.toolbar import Toolbar
@@ -14,7 +14,7 @@ class Pydra:
     config = {
         'acquisition': PikeCamera,
         'tracking': NoTracking,
-        'saving': VideoSaver,
+        'saving': VideoTrackingSaver,
         'protocol': Optogenetics
     }
 
