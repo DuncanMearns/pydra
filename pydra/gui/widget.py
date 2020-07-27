@@ -9,6 +9,8 @@ class PluginWidget(StateEnabled, QtWidgets.QDockWidget):
         super().__init__(*args, **kwargs)
         self.plugin = plugin
         self.setMinimumWidth(250)
+        self.setMinimumHeight(100)
+        self.setMaximumHeight(300)
         self.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
         self.setWidget(QtWidgets.QWidget())
         self.widget().setLayout(QtWidgets.QGridLayout())

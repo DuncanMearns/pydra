@@ -194,13 +194,13 @@ class Handler:
         self.endProtocolFlag.clear()
         # Start event loop
         self.startProtocolFlag.set()
-        # print('Protocol event loop started.')
+        print('Protocol event loop started.')
 
     def stop_protocol_event_loop(self):
         self.startProtocolFlag.clear()
         self.endProtocolFlag.set()
         self.protocolFinishedFlag.wait()
-        # print('Protocol event loop finished')
+        print('Protocol event loop finished')
         self.flush_events(self.protocol_name)
 
     def exit(self):

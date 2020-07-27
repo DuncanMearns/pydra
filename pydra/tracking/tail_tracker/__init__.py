@@ -87,14 +87,14 @@ class TailTrackerPlugin(Plugin):
 
     name = 'TailTracker'
     worker = TailTracker
+    params = {'start_xy': None,
+              'tail_length': None,
+              'n_points': 9}
     widget = TailTrackingWidget
     plotter = TailPlotter
 
     def __init__(self, plugin, *args, **kwargs):
         super().__init__(plugin, *args, **kwargs)
-        self.params['start_xy'] = None
-        self.params['tail_length'] = None
-        self.params['n_points'] = 9
 
     def update_tail_points(self, new_points):
         points = np.asarray(new_points)

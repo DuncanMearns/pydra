@@ -1,6 +1,5 @@
 from .handler import Handler
 from .cameras import PikeCamera
-# from .tracking import NoTracking
 from .tracking.tail_tracker import TailTrackerPlugin
 from .saving import VideoTrackingSaver
 from .stimulation.optogenetics import Optogenetics
@@ -20,15 +19,19 @@ class Pydra:
     }
 
     def __init__(self):
+        # Create handler
+        self.handler = Handler(self.config['acquisition'].to_tuple(),
+                               self.config['tracking'].to_tuple(),
+                               self.config['saving'].to_tuple(),
+                               self.config['protocol'].to_tuple())
+
+        # Initialize plugins
         self.acquisition = self.config['acquisition'](self)
         self.tracking = self.config['tracking'](self)
         self.saving = self.config['saving'](self)
         self.protocol = self.config['protocol'](self)
 
-        self.handler = Handler(self.acquisition.to_tuple(),
-                               self.tracking.to_tuple(),
-                               self.saving.to_tuple(),
-                               self.protocol.to_tuple())
+        # Start processes
         self._start_processes()
 
         # Set signals-slots to change worker parameters
@@ -120,9 +123,6 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
         # PLUGINS
         # =======
         self.dock_widgets = {}
-        self.dock_widgets[self.saving.name] = self.saving.widget(self.saving)
-        self.dock_widgets[self.acquisition.name] = self.acquisition.widget(self.acquisition)
-        self.dock_widgets[self.tracking] = self.tracking.widget(self.tracking)
         for plugin in (self.saving, self.acquisition, self.tracking, self.protocol):
             if plugin.widget is not None:
                 widget = plugin.widget(plugin)

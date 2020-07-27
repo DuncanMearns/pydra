@@ -78,14 +78,14 @@ class PikeCamera(Plugin):
 
     name = 'PikeCamera'
     worker = CameraWorker
+    params = {'frame_size': (340, 240),
+              'frame_rate': 250.,
+              'exposure': 2695,
+              'gain': 18}
     widget = CameraWidget
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.params['frame_size'] = (340, 240)
-        self.params['frame_rate'] = 250.
-        self.params['exposure'] = 2695
-        self.params['gain'] = 18
 
     def change_params(self, new):
         self.params.update(new)

@@ -129,16 +129,15 @@ class VideoTrackingSaver(Plugin):
 
     name = 'VideoSaver'
     worker = VideoTrackingSavingWorker
+    params = {'video_path': None,
+              'fourcc': 'XVID',
+              'frame_rate': None,
+              'frame_size': None,
+              'saving_on': False}
     widget = SavingWidget
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.params['video_path'] = None
-        self.params['fourcc'] = 'XVID'
-        self.params['frame_rate'] = None
-        self.params['frame_size'] = None
-        self.params['saving_on'] = False
-
         self.default_directory = Path(r'E:\\')
         self.working_directory = self.default_directory
         self.filename = ''

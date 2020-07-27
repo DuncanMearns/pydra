@@ -5,6 +5,7 @@ class Plugin(QtCore.QObject):
 
     name = ''
     worker = None
+    params = {}
     widget = None
     plotter = None
 
@@ -13,7 +14,7 @@ class Plugin(QtCore.QObject):
     def __init__(self, pydra, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pydra = pydra
-        self.params = {}
 
-    def to_tuple(self):
-        return self.name, self.worker, self.params
+    @classmethod
+    def to_tuple(cls):
+        return cls.name, cls.worker, cls.params
