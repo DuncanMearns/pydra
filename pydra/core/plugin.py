@@ -6,6 +6,7 @@ class Plugin(QtCore.QObject):
     name = ''
     worker = None
     widget = None
+    plotter = None
 
     paramsChanged = QtCore.pyqtSignal(str, object)
 

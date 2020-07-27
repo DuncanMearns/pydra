@@ -1,7 +1,10 @@
 from ...core import Plugin, TrackingWorker, TrackingOutput
+from ...gui.display import Plotter
 from .widgets import TailTrackingWidget
+
 import numpy as np
 import cv2
+from collections import deque
 
 
 class TailTracker(TrackingWorker):
@@ -15,10 +18,10 @@ class TailTracker(TrackingWorker):
     def track(self, frame_number, timestamp, frame):
         if (self.start_xy is not None) and (self.tail_length is not None):
             frame = np.asarray(frame / np.max(frame))
-            tail_points = [self.start_xy]
             width = self.tail_length
             x = self.start_xy[0]
             y = self.start_xy[1]
+            tail_points = [[x, y]]
             img_filt = np.zeros(frame.shape)
             img_filt = cv2.boxFilter(frame, -1, (7, 7), img_filt)
             lin = np.linspace(0, np.pi, 20)
@@ -48,11 +51,44 @@ class TailTracker(TrackingWorker):
             return super().track(frame_number, timestamp, frame)
 
 
+class TailPlotter(Plotter):
+
+    def __init__(self, parent, name):
+        super().__init__(parent, name)
+        # Add tail point plot to main display
+        self.points_data = self.parent.plots["main"].plot([], [], pen=None, symbol='o')
+        # Add tail angle data to tracking plot
+        self.cache_size = 5000
+        self.cache = deque(maxlen=self.cache_size)
+        self.t0 = 0
+        self.angle_data = self.plot.plot([], [])
+
+    def reset(self):
+        self.t0 = 0
+        self.cache.clear()
+
+    def update(self, *args):
+        last = args[-1]
+        if last.data:
+            # Plot points
+            frame = last.frame
+            points = np.asarray(last.data["points"])
+            self.points_data.setData(points[:, 0], frame.shape[1] - points[:, 1])
+            # Plot tail angle
+            if not self.t0:
+                self.t0 = args[0].timestamp
+            for output in args:
+                self.cache.append((output.timestamp - self.t0, output.data["angle"]))
+            show_angles = np.array(self.cache)
+            self.angle_data.setData(show_angles[:, 0], show_angles[:, 1])
+
+
 class TailTrackerPlugin(Plugin):
 
     name = 'TailTracker'
     worker = TailTracker
     widget = TailTrackingWidget
+    plotter = TailPlotter
 
     def __init__(self, plugin, *args, **kwargs):
         super().__init__(plugin, *args, **kwargs)

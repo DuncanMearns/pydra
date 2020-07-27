@@ -4,7 +4,7 @@ from .cameras import PikeCamera
 from .tracking.tail_tracker import TailTrackerPlugin
 from .saving import VideoTrackingSaver
 from .stimulation.optogenetics import Optogenetics
-from .gui.display import MainDisplayWidget
+from .gui.display import MainDisplayWidget, MainPlotter
 from .gui.toolbar import Toolbar
 from PyQt5 import QtCore, QtWidgets, QtGui
 import sys
@@ -70,9 +70,10 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
         # ======
         self.setWindowTitle('Pydra Control Centre')
         # Window size
-        self.WIDTH = 1000
-        self.HEIGHT = 800
+        self.WIDTH = 1500
+        self.HEIGHT = 1000
         self.resize(self.WIDTH, self.HEIGHT)
+        self.showMaximized()
 
         # =======
         # TOOLBAR
@@ -85,6 +86,7 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
         # ======================
         self.display = MainDisplayWidget()
         self.setCentralWidget(self.display)
+        self.plotters = [MainPlotter.add(self.display, "main")]
 
         # ====================================
         # ACQUISITION-TRACKING-SAVING PIPELINE
@@ -114,9 +116,9 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
         self.recordState.addTransition(self.toolbar.record_button.clicked, self.idleState)
         self.stateMachine.addState(self.recordState)
 
-        # ============
-        # DOCK WIDGETS
-        # ============
+        # =======
+        # PLUGINS
+        # =======
         self.dock_widgets = {}
         self.dock_widgets[self.saving.name] = self.saving.widget(self.saving)
         self.dock_widgets[self.acquisition.name] = self.acquisition.widget(self.acquisition)
@@ -126,6 +128,8 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
                 widget = plugin.widget(plugin)
                 self.dock_widgets[plugin.name] = widget
                 self.addDockWidget(QtCore.Qt.RightDockWidgetArea, widget)
+            if plugin.plotter is not None:
+                self.plotters.append(plugin.plotter.add(self.display, plugin.name))
 
         # ==================
         # SET INITIAL STATES
@@ -161,6 +165,8 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
         self.start()
 
     def start(self):
+        for plotter in self.plotters:
+            plotter.reset()
         super().start()
         self.timer.start(50)
 
@@ -182,8 +188,8 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
             else:
                 break
         if len(frames):
-            frame = frames[-1].frame
-            self.display.image.setImage(frame[::-1, :].T)
+            for plotter in self.plotters:
+                plotter.update(*frames)
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.timer.stop()

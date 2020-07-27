@@ -40,7 +40,7 @@ class Worker:
             self.events[event_name](*args)
 
     def _flush_events(self):
-        while self.receiver.poll():
+        while self.receiver.poll(timeout=0.01):
             event_name, args = self.receiver.recv()
 
     def cleanup(self):
@@ -119,6 +119,10 @@ class TrackingWorker(Worker):
         if self.gui:
             self.cache = deque(maxlen=5000)
             self.events['send_to_gui'] = self.send_to_gui
+
+    def setup(self):
+        if self.gui:
+            self.cache.clear()
 
     def track(self, *args):
         """Analyse data from the input queue and return the result. Must be implemented in subclasses."""
