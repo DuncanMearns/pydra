@@ -176,6 +176,7 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
 
     @QtCore.pyqtSlot()
     def update_gui(self):
+        # Receive new tracking data
         self.handler.send_event(self.tracking.name, 'send_to_gui', ())
         frames = []
         while True:
@@ -187,9 +188,18 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
                     frames.append(data)
             else:
                 break
+        # Receive new protocol data
+        kw = {'protocol_data': []}
+        if self.handler.startProtocolFlag.is_set():
+            while True:
+                ret, protocol_data = self.handler.receive_event(self.protocol.name)
+                if ret:
+                    kw['protocol_data'].append(protocol_data)
+                else:
+                    break
         if len(frames):
             for plotter in self.plotters:
-                plotter.update(*frames)
+                plotter.update(*frames, **kw)
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.timer.stop()

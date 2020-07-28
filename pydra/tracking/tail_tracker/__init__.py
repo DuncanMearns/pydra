@@ -67,7 +67,7 @@ class TailPlotter(Plotter):
         self.t0 = 0
         self.cache.clear()
 
-    def update(self, *args):
+    def update(self, *args, **kwargs):
         last = args[-1]
         if last.data:
             # Plot points

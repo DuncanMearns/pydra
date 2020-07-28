@@ -75,6 +75,15 @@ class OptogeneticsWidget(PluginWidget):
         self.stateMachine.setInitialState(self.disconnectedState)
         self.stateMachine.start()
 
+    def idle(self):
+        self.connection_widget.setEnabled(True)
+
+    def live(self):
+        self.connection_widget.setEnabled(False)
+
+    def record(self):
+        self.connection_widget.setEnabled(False)
+
     @QtCore.pyqtSlot()
     def connect_to_laser(self):
         self.connect_button.setEnabled(False)

@@ -14,12 +14,14 @@ class StimulationProtocol(ProtocolWorker):
         self.timers = []
 
     def turn_stimulation_off(self):
-        t = time.clock()
+        t = time.time()
         self.q.put(ProtocolOutput(t, 0))
+        self.sender.put_nowait(ProtocolOutput(t, 0))
 
     def turn_stimulation_on(self):
-        t = time.clock()
+        t = time.time()
         self.q.put(ProtocolOutput(t, 1))
+        self.sender.put_nowait(ProtocolOutput(t, 1))
 
     def setup(self):
         self.counter = 0

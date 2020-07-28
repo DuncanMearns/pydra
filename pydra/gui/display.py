@@ -20,7 +20,7 @@ class Plotter:
     def reset(self):
         return
 
-    def update(self, *args):
+    def update(self, *args, **kwargs):
         return
 
 
@@ -41,7 +41,7 @@ class MainPlotter(Plotter):
         self.fps_text = pg.TextItem(self.fps_formatter.format(self.fps_est), anchor=(0, 0))
         self.plot.addItem(self.fps_text)
 
-    def update(self, *args):
+    def update(self, *args, **kwargs):
         last = args[-1]
         # Update image
         frame = last.frame
