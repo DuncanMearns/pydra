@@ -17,4 +17,4 @@ class Plugin(QtCore.QObject):
 
     @classmethod
     def to_tuple(cls):
-        return cls.name, cls.worker, cls.params
+        return cls.name, cls.worker, dict(cls.params)  # must make copy of class params
