@@ -14,6 +14,7 @@ class Worker:
     handles = ['receiver', 'sender']
 
     def __init__(self, receiver: Connection, sender: Queue, **kwargs):
+        self.events = {'set_param': self.set_param}
         self.events = {}
         self.receiver = receiver
         self.sender = sender
@@ -58,6 +59,9 @@ class Worker:
             except queue.Empty:
                 return
 
+    def set_param(self, name, val):
+        self.__setattr__(name, val)
+
 
 class WorkerConstructor:
 
@@ -93,7 +97,7 @@ class AcquisitionWorker(Worker):
 
     def acquire(self):
         """Acquire data from a source. Called time _run is called. Must be implemented in subclasses."""
-        return
+        return FrameOutput(None, None, None)
 
     def _run(self):
         """Acquires some data and puts it in the frame queue."""
@@ -131,7 +135,7 @@ class TrackingWorker(Worker):
     def _run(self):
         """Takes input from the input queue, runs track and puts the output in the output queue."""
         try:
-            frame_input = self.input_q.get(timeout=0.001)
+            frame_input = self.input_q.get(timeout=0.01)
             tracked_frame = self.track(*frame_input)
             self.output_q.put(tracked_frame)
             if self.gui:
@@ -163,7 +167,7 @@ class ProtocolWorker(Worker):
     def __init__(self, q: Queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.q = q
-        self.handles.append(['q'])
+        self.handles.append('q')
 
 
 class SavingWorker(Worker):
@@ -188,9 +192,12 @@ class SavingWorker(Worker):
     def _run(self):
         """Takes input from a queue and dumps it somewhere."""
         try:
-            tracking_data = self.tracking_q.get(timeout=0.001)
+            tracking_data = self.tracking_q.get(timeout=0.01)
             self.dump(*tracking_data)
-            protocol_data = self.protocol_q.get(timeout=0.001)
+        except queue.Empty:
+            pass
+        try:
+            protocol_data = self.protocol_q.get(timeout=0.01)
             self.save_to_metadata(*protocol_data)
         except queue.Empty:
             pass
