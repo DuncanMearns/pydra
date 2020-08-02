@@ -42,7 +42,7 @@ class Pydra:
         # Set signals-slots to change worker parameters
         self.saving.paramsChanged.connect(self.handler.set_param)  # change saving params
         self.acquisition.paramsChanged.connect(self.handler.set_param)  # change acquisition params
-        # self.acquisition.paramsChanged.connect(self.saving.update_recording_params)  # pass on changes to saving
+        self.acquisition.paramsChanged.connect(self.saving.update_recording_params)  # pass on changes to saving
         self.tracking.paramsChanged.connect(self.handler.set_param)  # change tracking params
 
     def start(self):
