@@ -7,26 +7,28 @@ class StimulationProtocol(ProtocolWorker):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.events['stimulation_on'] = self.turn_stimulation_on
-        self.events['stimulation_off'] = self.turn_stimulation_off
+        self.events['stimulation_on'] = self.stimulation_on
+        self.events['stimulation_off'] = self.stimulation_off
+        self.events['run_protocol'] = self.run_protocol
+        self.events['end_protocol'] = self.cleanup
         self.stimulus_df = kwargs.get('stimulus_df', None)
         self.counter = 0
         self.timers = []
 
-    def turn_stimulation_off(self):
+    def stimulation_off(self):
         t = time.time()
         self.q.put(ProtocolOutput(t, 0))
         self.sender.put_nowait(ProtocolOutput(t, 0))
 
-    def turn_stimulation_on(self):
+    def stimulation_on(self):
         t = time.time()
         self.q.put(ProtocolOutput(t, 1))
         self.sender.put_nowait(ProtocolOutput(t, 1))
 
-    def setup(self):
+    def run_protocol(self):
         self.counter = 0
         self.timers = []
-        self.turn_stimulation_off()
+        self.stimulation_off()
         if self.stimulus_df is not None:
             self.stimulus_df['stimulation'] = self.stimulus_df['stimulation'].apply(lambda x: 1 if x > 0 else 0)
             dt = self.stimulus_df['t'].diff()
@@ -37,11 +39,14 @@ class StimulationProtocol(ProtocolWorker):
                     self.timers.append(Timer(dt.loc[idx], self.timeout, (stim,)))
             self.timers[0].start()
 
+    def setup(self):
+        self.stimulation_off()
+
     def timeout(self, i):
         if i == 0:
-            self.turn_stimulation_off()
+            self.stimulation_off()
         else:
-            self.turn_stimulation_on()
+            self.stimulation_on()
         self.counter += 1
         if self.counter < len(self.timers):
             self.timers[self.counter].start()
@@ -49,5 +54,5 @@ class StimulationProtocol(ProtocolWorker):
     def cleanup(self):
         for timer in self.timers:
             timer.cancel()
-        self.turn_stimulation_off()
+        self.stimulation_off()
         return

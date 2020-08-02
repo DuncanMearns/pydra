@@ -9,9 +9,7 @@
     <option name="requirementsPath" value="" />
   </component>
   <component name="PyDocumentationSettings">
+    <option name="format" value="NUMPY" />
     <option name="myDocStringFormat" value="NumPy" />
-  </component>
-  <component name="TestRunnerService">
-    <option name="PROJECT_TEST_RUNNER" value="Unittests" />
   </component>
 </module>

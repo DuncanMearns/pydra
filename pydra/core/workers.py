@@ -15,7 +15,6 @@ class Worker:
 
     def __init__(self, receiver: Connection, sender: Queue, **kwargs):
         self.events = {'set_param': self.set_param}
-        self.events = {}
         self.receiver = receiver
         self.sender = sender
 

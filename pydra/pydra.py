@@ -6,6 +6,7 @@ from .stimulation.optogenetics import Optogenetics
 from .gui.display import MainDisplayWidget, MainPlotter
 from .gui.toolbar import Toolbar
 from PyQt5 import QtCore, QtWidgets, QtGui
+from threading import Timer
 import sys
 
 
@@ -18,7 +19,11 @@ class Pydra:
         'protocol': Optogenetics
     }
 
+    started = QtCore.pyqtSignal()
+    stopped = QtCore.pyqtSignal()
+
     def __init__(self):
+        super().__init__()
         # Create handler
         self.handler = Handler(self.config['acquisition'].to_tuple(),
                                self.config['tracking'].to_tuple(),
@@ -32,28 +37,24 @@ class Pydra:
         self.protocol = self.config['protocol'](self)
 
         # Start processes
-        self._start_processes()
+        self.handler.start()
 
         # Set signals-slots to change worker parameters
         self.saving.paramsChanged.connect(self.handler.set_param)  # change saving params
         self.acquisition.paramsChanged.connect(self.handler.set_param)  # change acquisition params
-        self.acquisition.paramsChanged.connect(self.saving.update_recording_params)  # pass on changes to saving
+        # self.acquisition.paramsChanged.connect(self.saving.update_recording_params)  # pass on changes to saving
         self.tracking.paramsChanged.connect(self.handler.set_param)  # change tracking params
-
-    def _start_processes(self):
-        self.handler.start()
-
-    def _join_processes(self):
-        self.handler.exit()
 
     def start(self):
         self.handler.start_event_loop()
-        # self.pipeline.protocol_sender.send(dict(stimulus_df=pd.DataFrame(dict(t=[0, 1, 2], stimulation=[0, 1, 0]))))
-        # time.sleep(0.1)
-        # self.handler.start_protocol_event_loop()
+        self.started.emit()
 
     def stop(self):
         self.handler.stop_event_loop()
+        self.stopped.emit()
+
+    def exit(self):
+        self.handler.exit()
 
     @staticmethod
     def app():
@@ -64,6 +65,12 @@ class Pydra:
 
 
 class PydraApp(QtWidgets.QMainWindow, Pydra):
+
+    states = {'idle': 0,
+              'live': 1,
+              'record': 2}
+
+    timeout = QtCore.pyqtSignal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -87,7 +94,7 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
         # ======================
         # CENTRAL DISPLAY WIDGET
         # ======================
-        self.display = MainDisplayWidget()
+        self.display = MainDisplayWidget(parent=self)
         self.setCentralWidget(self.display)
         self.plotters = [MainPlotter.add(self.display, "main")]
 
@@ -117,6 +124,7 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
         # Record
         self.recordState.entered.connect(self.record)
         self.recordState.addTransition(self.toolbar.record_button.clicked, self.idleState)
+        self.recordState.addTransition(self.timeout, self.idleState)
         self.stateMachine.addState(self.recordState)
 
         # =======
@@ -137,11 +145,19 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
         # Set the tracking worker to be gui enabled
         self.handler.set_param(self.tracking.name, (('gui', True),))
         # Set initial state and start state machine
+        self.currentState = self.states['idle']
         self.stateMachine.setInitialState(self.idleState)
         self.stateMachine.start()
 
+        # =========
+        # Recording
+        # =========
+        self.recordTime = 0
+        self.recordTimer = Timer(0, lambda x: x)  # initialize with dummy timer
+
     @QtCore.pyqtSlot()
     def idle(self):
+        self.currentState = self.states['idle']
         if self.handler.startAcquisitionFlag.is_set():
             self.stop()
         self.toolbar.idle()
@@ -150,6 +166,7 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
 
     @QtCore.pyqtSlot()
     def live(self):
+        self.currentState = self.states['live']
         self.handler.set_saving(False)
         self.toolbar.live()
         for name, widget in self.dock_widgets.items():
@@ -158,6 +175,7 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
 
     @QtCore.pyqtSlot()
     def record(self):
+        self.currentState = self.states['record']
         self.handler.set_saving(True)
         self.toolbar.record()
         for name, widget in self.dock_widgets.items():
@@ -168,10 +186,14 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
         for plotter in self.plotters:
             plotter.reset()
         super().start()
+        if (self.currentState == self.states['record']) and self.recordTime:
+            self.recordTimer = Timer(self.recordTime, lambda: self.timeout.emit())
+            self.recordTimer.start()
         self.timer.start(50)
 
     def stop(self):
         self.timer.stop()
+        self.recordTimer.cancel()
         super().stop()
 
     @QtCore.pyqtSlot()
@@ -203,5 +225,5 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.timer.stop()
-        self._join_processes()
+        self.exit()
         a0.accept()

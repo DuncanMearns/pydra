@@ -4,6 +4,7 @@ from ..protocol import StimulationProtocol
 from ...gui.display import Plotter
 from .widget import OptogeneticsWidget
 from PyQt5 import QtCore
+import pandas as pd
 
 
 class OptogeneticsProtocol(LabJack, StimulationProtocol):
@@ -29,13 +30,13 @@ class OptogeneticsProtocol(LabJack, StimulationProtocol):
         # self.laser_button.setText('LASER: OFF')
         # self.laser_button.setStyleSheet(self.laser_default_stylesheet)
 
-    def turn_stimulation_off(self):
+    def stimulation_off(self):
         self.set_laser_state(0)
-        super().turn_stimulation_off()
+        super().stimulation_off()
 
-    def turn_stimulation_on(self):
+    def stimulation_on(self):
         self.set_laser_state(1)
-        super().turn_stimulation_on()
+        super().stimulation_on()
 
 
 class OptogeneticsPlotter(Plotter):
@@ -67,10 +68,44 @@ class OptogeneticsPlotter(Plotter):
             for (t, val) in kwargs['protocol_data']:
                 self.t.extend([t - self.t0, t-self.t0])
                 self.laser.extend([self.laser[-1], val])
+            last_state = kwargs['protocol_data'][-1][1]
+            if last_state:
+                self.parent.parent().protocol.laserOn.emit()
+            else:
+                self.parent.parent().protocol.laserOff.emit()
         now = args[-1].timestamp
         t = self.t + [now - self.t0]
         laser = self.laser + [self.laser[-1]]
         self.laser_data.setData(t, laser)
+
+
+class StimulusMaker:
+
+    def __init__(self, pre_stim_time, stim_time, inter_stimulus_interval, n_stims, post_stim_time):
+        self.pre_stim_time = pre_stim_time
+        self.stim_time = stim_time
+        self.inter_stimulus_interval = inter_stimulus_interval
+        self.n_stims = n_stims
+        self.post_stim_time = post_stim_time
+        t, df = self.create()
+        self.total_time = t
+        self.stimulus_df = df
+
+    def create(self):
+        stimulus = []
+        t = 0
+        t += self.pre_stim_time
+        stimulus.append((t, 1))
+        for i in range(self.n_stims - 1):
+            t += self.stim_time
+            stimulus.append((t, 0))
+            t += self.inter_stimulus_interval
+            stimulus.append((t, 1))
+        t += self.stim_time
+        stimulus.append((t, 0))
+        t += self.post_stim_time
+        stimulus_df = pd.DataFrame(stimulus, columns=['t', 'stimulation'])
+        return t, stimulus_df
 
 
 class Optogenetics(Plugin):
@@ -80,22 +115,69 @@ class Optogenetics(Plugin):
     widget = OptogeneticsWidget
     plotter = OptogeneticsPlotter
 
-    startProtocol = QtCore.pyqtSignal()
-    stopProtocol = QtCore.pyqtSignal()
+    startEventLoop = QtCore.pyqtSignal()
+    stopEventLoop = QtCore.pyqtSignal()
+    protocolStarted = QtCore.pyqtSignal()
+    protocolFinished = QtCore.pyqtSignal()
+    laserOn = QtCore.pyqtSignal()
+    laserOff = QtCore.pyqtSignal()
 
     def __init__(self, pydra, *args, **kwargs):
         super().__init__(pydra, *args, **kwargs)
-        self.startProtocol.connect(self.pydra.handler.start_protocol_event_loop)
-        self.stopProtocol.connect(self.pydra.handler.stop_protocol_event_loop)
+        self.startEventLoop.connect(self.pydra.handler.start_protocol_event_loop)
+        self.stopEventLoop.connect(self.pydra.handler.stop_protocol_event_loop)
+        self.stimulus = None
+        # Handle events from pydra
+        self.pydra.started.connect(self.run_protocol)
+        self.pydra.stopped.connect(self.end_protocol)
+        # Laser state
+        self.laser_state = 0
+        self.laserOn.connect(self.set_laser_state_on)
+        self.laserOff.connect(self.set_laser_state_off)
 
     def connect_laser(self):
-        self.startProtocol.emit()
+        self.startEventLoop.emit()
 
     def disconnect_laser(self):
-        self.stopProtocol.emit()
+        self.stopEventLoop.emit()
 
-    def set_laser(self, val):
-        if val:
-            self.pydra.handler.send_event(self.name, 'stimulation_on', ())
+    def laser_on(self):
+        self.pydra.handler.send_event(self.name, 'stimulation_on', ())
+        self.laserOn.emit()
+
+    def laser_off(self):
+        self.pydra.handler.send_event(self.name, 'stimulation_off', ())
+        self.laserOff.emit()
+
+    def set_laser_state_on(self):
+        self.laser_state = 1
+
+    def set_laser_state_off(self):
+        self.laser_state = 0
+
+    def toggle_laser(self):
+        if self.laser_state:
+            self.laser_off()
         else:
-            self.pydra.handler.send_event(self.name, 'stimulation_off', ())
+            self.laser_on()
+
+    def create_stimulus(self, set_active: bool, **kwargs):
+        if set_active:
+            self.stimulus = StimulusMaker(**kwargs)
+            df = self.stimulus.stimulus_df
+            self.pydra.handler.send_event(self.name, 'set_param', ('stimulus_df', df))
+            self.pydra.recordTime = self.stimulus.total_time
+        else:
+            self.stimulus = None
+            self.pydra.handler.send_event(self.name, 'set_param', ('stimulus_df', None))
+            self.pydra.recordTime = 0
+
+    def run_protocol(self):
+        if (self.pydra.currentState == self.pydra.states['record']) and self.stimulus:
+            self.protocolStarted.emit()
+            self.pydra.handler.send_event(self.name, 'run_protocol', ())
+
+    def end_protocol(self):
+        if self.stimulus:
+            self.pydra.handler.send_event(self.name, 'end_protocol', ())
+            self.protocolFinished.emit()
