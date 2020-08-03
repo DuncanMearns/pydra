@@ -4,6 +4,7 @@ import cv2
 from PyQt5 import QtCore, QtWidgets
 from pathlib import Path
 import json
+import numpy as np
 
 
 class VideoTrackingSavingWorker(SavingWorker):
@@ -22,6 +23,10 @@ class VideoTrackingSavingWorker(SavingWorker):
             self.metadata['time'] = []
             path = Path(self.video_path)
             self.metadata_path = path.parent.joinpath(path.stem + '.json')
+            self.points = []
+            self.points_path = path.parent.joinpath(path.stem + '_points' + '.npy')
+            self.angles = []
+            self.angles_path = path.parent.joinpath(path.stem + '_angles' + '.npy')
             try:
                 assert self.video_path is not None
                 fourcc = cv2.VideoWriter_fourcc(*self.fourcc)
@@ -30,22 +35,31 @@ class VideoTrackingSavingWorker(SavingWorker):
                 print('SAVING NOT INITIALIZED CORRECTLY!')
         return
 
+    def save_to_metadata(self, timestamp, data):
+        if self.saving_on:
+            try:
+                self.metadata['optogenetics'].append([timestamp, data])
+            except KeyError:
+                self.metadata['optogenetics'] = [[timestamp, data]]
+
     def dump(self, frame_number, timestamp, frame, tracking):
         if self.saving_on:
             try:
                 self.writer.write(frame)
                 self.metadata['time'].append([frame_number, timestamp])
-                for key, val in tracking.data.items():
-                    try:
-                        self.metadata[key].append(val)
-                    except KeyError:
-                        self.metadata[key] = [val]
+                try:
+                    self.points.append(tracking['points'])
+                    self.angles.append(tracking['angle'])
+                except KeyError:
+                    pass
+                # for key, val in tracking.items():
+                #     try:
+                #         self.metadata[key].append(val)
+                #     except KeyError:
+                #         self.metadata[key] = [val]
             except AttributeError:
                 pass
         return
-
-    def format_metadata(self):
-        pass
 
     def cleanup(self):
         super().cleanup()
@@ -54,9 +68,12 @@ class VideoTrackingSavingWorker(SavingWorker):
                 self.writer.release()
             except AttributeError:
                 pass
-            self.format_metadata()
             with open(self.metadata_path, 'w') as path:
                 json.dump(self.metadata, path)
+            points = np.array(self.points)
+            np.save(self.points_path, points)
+            angles = np.array(self.angles)
+            np.save(self.angles_path, angles)
         return
 
 

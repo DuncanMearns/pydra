@@ -196,7 +196,7 @@ class SavingWorker(Worker):
         except queue.Empty:
             pass
         try:
-            protocol_data = self.protocol_q.get(timeout=0.01)
+            protocol_data = self.protocol_q.get(timeout=0.001)
             self.save_to_metadata(*protocol_data)
         except queue.Empty:
             pass

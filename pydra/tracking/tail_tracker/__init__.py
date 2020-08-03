@@ -17,13 +17,13 @@ class TailTracker(TrackingWorker):
 
     def track(self, frame_number, timestamp, frame):
         if (self.start_xy is not None) and (self.tail_length is not None):
-            frame = np.asarray(frame / np.max(frame))
+            frame_normalized = np.asarray(frame / np.max(frame))
             width = self.tail_length
             x = self.start_xy[0]
             y = self.start_xy[1]
             tail_points = [[x, y]]
-            img_filt = np.zeros(frame.shape)
-            img_filt = cv2.boxFilter(frame, -1, (7, 7), img_filt)
+            img_filt = np.zeros(frame_normalized.shape)
+            img_filt = cv2.boxFilter(frame_normalized, -1, (7, 7), img_filt)
             lin = np.linspace(0, np.pi, 20)
             for j in range(self.n_points):
                 try:
@@ -73,7 +73,7 @@ class TailPlotter(Plotter):
             # Plot points
             frame = last.frame
             points = np.asarray(last.data["points"])
-            self.points_data.setData(points[:, 0], frame.shape[1] - points[:, 1])
+            self.points_data.setData(points[:, 0], frame.shape[0] - points[:, 1])
             # Plot tail angle
             if not self.t0:
                 self.t0 = args[0].timestamp
@@ -98,7 +98,7 @@ class TailTrackerPlugin(Plugin):
 
     def update_tail_points(self, new_points):
         points = np.asarray(new_points)
-        length = np.linalg.norm(points) + 10
+        length = points[1, 0] - points[0, 0] + 10
         self.params['start_xy'] = points[0]
         self.params['tail_length'] = length
         self.paramsChanged.emit(self.name, (('start_xy', self.params['start_xy']),
