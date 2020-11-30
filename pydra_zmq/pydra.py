@@ -38,6 +38,7 @@ class DummyTracker(Worker):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.t_last = 0
+        self.events["hello_world"] = self.hello_world
 
     def recv_frame(self, t, i, frame, **kwargs):
         t, i, frame = messaging.DATA.serializer("f").decode(t, i, frame)
@@ -54,6 +55,10 @@ class DummyTracker(Worker):
         print(t - self.t_last, data)
         self.t_last = t
 
+    def hello_world(self, **kwargs):
+        print("hello world!")
+        return True
+
 
 MODULE_ACQUISITION = {
     "name": "acquisition",
@@ -61,7 +66,9 @@ MODULE_ACQUISITION = {
     "subscriptions": (
         # ("pydra", "", (messaging.DATA,)),
     ),
-    "params": {}
+    "params": {},
+    "save": True,
+    "events": True
 }
 
 
@@ -69,31 +76,37 @@ MODULE_TRACKER = {
     "name": "tracker",
     "worker": DummyTracker,
     "subscriptions": (
+        ("pydra", "", (messaging.EVENT,)),
         ("acquisition", "", (messaging.DATA,)),
     ),
-    "params": {}
+    "params": {},
+    "save": True,
+    "events": True
 }
 
 
 config = {
 
-    "modules": [MODULE_ACQUISITION, MODULE_TRACKER]
+    "modules": [MODULE_ACQUISITION, MODULE_TRACKER],
 
 }
 
 
-class Pydra(zmq.ZMQMain):
+class Pydra(bases.ZMQMain):
 
     name = "pydra"
     modules = []
 
     def __init__(self, *args, **kwargs):
+        # Initialize main
+        super().__init__(*args, **kwargs)
         # Start workers
         for module in self.modules:
             module["worker"].start(zmq_config=zmq_config, **module["params"])
-        super().__init__(*args, **kwargs)
+        # Start saving saver
+        self.server = Saver.start(zmq_config=zmq_config)
+        # Wait for processes to start
         time.sleep(0.5)
-        self.i = 0
 
     @classmethod
     def run(cls, config):
@@ -111,7 +124,25 @@ class Pydra(zmq.ZMQMain):
             cls.configure(zmq_config, ports)
             for module in cls.modules:
                 module["worker"].configure(zmq_config, ports, module["subscriptions"])
+        # Configure saver
+        saver_subs = []
+        for module in cls.modules:
+            sub = [module["name"]]
+            if ("save" in module) and module["save"]:
+                sub.append(1)
+            else:
+                sub.append(0)
+            if ("events" in module) and module["events"]:
+                sub.append(1)
+            else:
+                sub.append(0)
+            saver_subs.append(sub)
+        Saver.configure(zmq_config, (), saver_subs)
         return cls(zmq_config=zmq_config)
+
+    def hello_world_event(self):
+        ret = self.event("tracker", "hello_world", wait=True)
+        self.exit()
 
     def hello_world(self):
         self.send_message("hello world!")
@@ -121,9 +152,10 @@ def main():
     pydra = Pydra.run(config)
     pydra.hello_world()
     time.sleep(1.0)
-    # pydra.send_timestamped(time.time(), {"hello": "world"})
-    # time.sleep(0.5)
-    pydra.exit()
+    pydra.send_timestamped(time.time(), {"hello": "world"})
+    time.sleep(0.5)
+    pydra.hello_world_event()
+    # pydra.exit()
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-from pydra_zmq.core.zmq import ZMQWorker
+from pydra_zmq.core.bases import ZMQWorker, ZMQSaver
 from multiprocessing import Process
 
 
@@ -19,19 +19,12 @@ class PydraProcess(Process):
                 break
 
 
-class Worker(ZMQWorker):
-
-    name = "worker"
+class ProcessMixIn:
 
     @classmethod
     def start(cls, *args, **kwargs):
         process = PydraProcess(cls, args, kwargs)
         process.start()
-
-    def __init__(self, process=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._process = process
-        self.states = {}
 
     def setup(self):
         return
@@ -39,14 +32,14 @@ class Worker(ZMQWorker):
     def close(self, *args, **kwargs):
         return
 
-    def _recv(self):
-        sockets = dict(self.zmq_poller.poll(0))
-        for name, sock in self.zmq_subscriptions.items():
-            if sock in sockets:
-                msg_flag, source, t, flags, *parts = sock.recv_multipart()
-                ret = self._handle_event(msg_flag, source, t, flags, *parts)
-                return ret
-        return
+
+class Worker(ZMQWorker, ProcessMixIn):
+
+    name = "worker"
+
+    def __init__(self, process=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._process = process
 
 
 class Acquisition(Worker):
@@ -62,3 +55,11 @@ class Acquisition(Worker):
 
     def acquire(self):
         return
+
+
+class Saver(ZMQSaver, ProcessMixIn):
+
+    name = "saver"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

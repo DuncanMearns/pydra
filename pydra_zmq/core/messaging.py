@@ -27,7 +27,12 @@ class DATA(MessageType):
     serializer = DataSerializer
 
 
-class OutputMessage:
+class EVENT(MessageType):
+    flag = b"event"
+    serializer = EventSerializer
+
+
+class output:
 
     def __init__(self, message_type, *message_flags):
         self.message = message_type

@@ -48,7 +48,7 @@ def _deserialize_array(a_bytes: bytes):
 class Serializer:
 
     def __init__(self, *flags):
-        super().__init__()
+        self.flags = flags
 
     def encode(self, args):
         return (b"", )
@@ -104,9 +104,8 @@ class DataSerializer(Serializer):
 
     def __init__(self, *flags):
         super().__init__(*flags)
-        self.flag = flags[0][0].lower()
-        self.encoders = self.options[self.flag]["encoder"]
-        self.decoders = self.options[self.flag]["decoder"]
+        self.encoders = self.options[self.flags[0][0].lower()]["encoder"]
+        self.decoders = self.options[self.flags[0][0].lower()]["decoder"]
 
     def encode(self, args):
         out = []
@@ -119,3 +118,16 @@ class DataSerializer(Serializer):
         for decoder, arg in zip(self.decoders, args):
             out.append(decoder(arg))
         return out
+
+
+class EventSerializer(Serializer):
+
+    def __init__(self, *flags):
+        super().__init__(*flags)
+
+    def encode(self, args):
+        event_name, event_kw = args
+        return _serialize_string(event_name), _to_json(event_kw)
+
+    def decode(self, event_name, event_kw):
+        return _deserialize_string(event_name), _from_json(event_kw)
