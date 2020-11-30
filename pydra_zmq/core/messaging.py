@@ -9,17 +9,22 @@ class MessageType:
 
 
 class MESSAGE(MessageType):
-    flag = b"m"
+    flag = b"message"
     serializer = StringSerializer
 
 
 class STATE(MessageType):
-    flag = b"s"
+    flag = b"string"
     serializer = StateSerializer
 
 
 class EXIT(STATE):
-    flag = b"e"
+    flag = b"exit"
+
+
+class DATA(MessageType):
+    flag = b"data"
+    serializer = DataSerializer
 
 
 class OutputMessage:
@@ -33,11 +38,14 @@ class OutputMessage:
         def zmq_output_wrapper(obj, *args, **kwargs):
             result = method(obj, *args, **kwargs)
             serialized = self.serializer.encode(result)
-            flag = self.message.flag
+            message_flag = self.message.flag
             source = _serialize_string(obj.name)
+            flags = b""
+            for f in self.flags:
+                flags = flags + _serialize_string(f)
             t = time.time()
             t = _serialize_float(t)
-            msg = [flag, source, t] + list(serialized)
+            msg = [message_flag, source, t, flags] + list(serialized)
             obj.zmq_publisher.send_multipart(msg)
             return result
         return zmq_output_wrapper

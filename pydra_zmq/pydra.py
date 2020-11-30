@@ -1,5 +1,6 @@
 import time
 from pydra_zmq.core import *
+import numpy as np
 
 
 ports = [
@@ -12,13 +13,36 @@ ports = [
 zmq_config = {}
 
 
-DummyWorker = type("DummyWorker", (Worker,), dict(name="dummy"))
+class DummyWorker(Worker):
+
+    name = "dummy"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.t_last = 0
+
+    def recv_frame(self, t, i, frame, **kwargs):
+        t, i, frame = messaging.DATA.serializer("f").decode(t, i, frame)
+        print(i, t - self.t_last, frame.shape)
+        self.t_last = t
+
+    def recv_indexed(self, t, i, data, **kwargs):
+        t, i, data = messaging.DATA.serializer("i").decode(t, i, data)
+        print(t - self.t_last, i, data)
+        self.t_last = t
+
+    def recv_timestamped(self, t, data, **kwargs):
+        t, data = messaging.DATA.serializer("t").decode(t, data)
+        print(t - self.t_last, data)
+        self.t_last = t
 
 
 MODULE_DUMMY = {
     "name": "dummy",
     "worker": DummyWorker,
-    "subscriptions": (),
+    "subscriptions": (
+        ("pydra", "", (messaging.DATA,)),
+    ),
     "params": {}
 }
 
@@ -41,6 +65,7 @@ class Pydra(zmq.ZMQMain):
             module["worker"].start(zmq_config=zmq_config, **module["params"])
         super().__init__(*args, **kwargs)
         time.sleep(0.5)
+        self.i = 0
 
     @classmethod
     def run(cls, config):
@@ -62,12 +87,25 @@ class Pydra(zmq.ZMQMain):
 
     def hello_world(self):
         self.send_message("hello world!")
-        self.exit()
+
+    def new_frame(self):
+        t = time.time()
+        a = np.zeros((512, 512), dtype="uint8")
+        self.send_frame(t, self.i, a)
+        self.i += 1
 
 
 def main():
     pydra = Pydra.run(config)
     pydra.hello_world()
+    for f in range(10):
+        time.sleep(0.01)
+        pydra.new_frame()
+    pydra.send_indexed(time.time(), -1000, {"hello": 0, "world": [1, 2, 3]})
+    time.sleep(0.1)
+    pydra.send_timestamped(time.time(), {"hello": "world"})
+    time.sleep(0.5)
+    pydra.exit()
 
 
 if __name__ == "__main__":

@@ -1,5 +1,8 @@
 import sys
 import struct
+import json
+import pickle
+import numpy as np
 
 
 def _serialize_int(i: int):
@@ -19,19 +22,35 @@ def _deserialize_string(s_bytes: bytes):
 
 
 def _serialize_float(f: float):
-    return bytearray(struct.pack("f", f))
+    return bytearray(struct.pack("d", f))
 
 
 def _deserialize_float(f_bytes: bytes):
-    return struct.unpack("f", f_bytes)
+    return struct.unpack("d", f_bytes)[0]
+
+
+def _to_json(d: dict):
+    return json.dumps(d).encode("utf-8")
+
+
+def _from_json(d_bytes: bytes):
+    return json.loads(d_bytes.decode("utf-8"))
+
+
+def _serialize_array(a: np.ndarray):
+    return a.dumps()
+
+
+def _deserialize_array(a_bytes: bytes):
+    return pickle.loads(a_bytes)
 
 
 class Serializer:
 
     def __init__(self, *flags):
-        super().__init__(*flags)
+        super().__init__()
 
-    def encode(self, *args):
+    def encode(self, args):
         return (b"", )
 
     def decode(self, *args):
@@ -61,3 +80,42 @@ class StateSerializer(Serializer):
 
     def decode(self, state, val):
         return _deserialize_string(state), _deserialize_int(val)
+
+
+class DataSerializer(Serializer):
+
+    options = {
+
+        "t": {
+            "encoder": (_serialize_float, _to_json),
+            "decoder": (_deserialize_float, _from_json)
+        },
+
+        "i": {
+            "encoder": (_serialize_float, _serialize_int, _to_json),
+            "decoder": (_deserialize_float, _deserialize_int, _from_json)
+        },
+
+        "f": {
+            "encoder": (_serialize_float, _serialize_int, _serialize_array),
+            "decoder": (_deserialize_float, _deserialize_int, _deserialize_array)
+        }
+    }
+
+    def __init__(self, *flags):
+        super().__init__(*flags)
+        self.flag = flags[0][0].lower()
+        self.encoders = self.options[self.flag]["encoder"]
+        self.decoders = self.options[self.flag]["decoder"]
+
+    def encode(self, args):
+        out = []
+        for encoder, arg in zip(self.encoders, args):
+            out.append(encoder(arg))
+        return out
+
+    def decode(self, *args):
+        out = []
+        for decoder, arg in zip(self.decoders, args):
+            out.append(decoder(arg))
+        return out
