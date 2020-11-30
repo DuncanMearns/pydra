@@ -69,8 +69,7 @@ class ZMQContext:
             self.states[state](val, **kwargs)
 
     @output(EVENT)
-    def send_event(self, event_name, copy=False, **kwargs):
-        kwargs["copy"] = copy
+    def send_event(self, event_name, **kwargs):
         return event_name, kwargs
 
     def handle_event(self, event_name, event_kw, **kwargs):
@@ -78,8 +77,7 @@ class ZMQContext:
         if event_name in self.events:
             event_kw.update(**kwargs)
             ret = self.events[event_name](**event_kw)
-            if event_kw["copy"]:
-                self.send_event(event_name, ret=ret)
+            return ret
 
     @output(DATA, "t")
     def send_timestamped(self, t, data):
@@ -208,13 +206,13 @@ class ZMQMain(ZMQContext):
         ret = self.zmq_client.recv_multipart()
         return ret
 
-    def event(self, source, event_name, wait=True, **event_kw):
-        if wait:
-            self.send_event(event_name, copy=True, **event_kw)
+    def send_event(self, event_name, source=None, wait=True, **event_kw):
+        if wait and source:
+            super().send_event(event_name, **event_kw)
             ret = self.receive_event(source, event_name)
             return ret
         else:
-            self.send_event(event_name, copy=False, **event_kw)
+            super().send_event(event_name, **event_kw)
 
 
 class ZMQSaver(ZMQContext):
@@ -227,7 +225,7 @@ class ZMQSaver(ZMQContext):
             # Add subscriptions to config
             zmq_config[cls.name]["subscriptions"] = []
             # Add subscription to main pydra process
-            subscribe_to_main = ("pydra", zmq_config["pydra"]["publisher"][1], (STATE, EXIT))
+            subscribe_to_main = ("pydra", zmq_config["pydra"]["publisher"][1], (STATE, EXIT, EVENT))
             zmq_config[cls.name]["subscriptions"].append(subscribe_to_main)
             for (name, save, events) in subscriptions:
                 if name in zmq_config:
@@ -253,6 +251,7 @@ class ZMQSaver(ZMQContext):
             "event": self.reply_event,
             "data": self.reply_data
         }
+        self.events["log_event"] = self.log_event
 
     def _recv(self):
         if self._handle_server():
@@ -269,11 +268,15 @@ class ZMQSaver(ZMQContext):
         self.message_cache.append((kwargs["source"], kwargs["timestamp"], s))
 
     def handle_event(self, event_name, event_kw, **kwargs):
-        event_name, event_kw = EVENT.serializer().decode(event_name, event_kw)
+        ret = super().handle_event(event_name, event_kw, **kwargs)
+        event_name = _deserialize_string(event_name)
+        self.log_event(event_name, ret, **kwargs)
+
+    def log_event(self, event_name, ret, **kwargs):
         if kwargs["source"] in self.event_cache:
-            self.event_cache[kwargs["source"]][event_name] = event_kw["ret"]
+            self.event_cache[kwargs["source"]][event_name] = ret
         else:
-            self.event_cache[kwargs["source"]] = {event_name: event_kw["ret"]}
+            self.event_cache[kwargs["source"]] = {event_name: ret}
 
     def reply_messages(self, *args):
         while len(self.message_cache):

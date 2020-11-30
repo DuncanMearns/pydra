@@ -1,4 +1,4 @@
-from pydra_zmq.core.bases import ZMQWorker, ZMQSaver
+from pydra_zmq.core.bases import ZMQWorker, ZMQSaver, logged
 from multiprocessing import Process
 
 
@@ -63,3 +63,10 @@ class Saver(ZMQSaver, ProcessMixIn):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Set the working directory
+        self.working_dir = None
+        self.events["set_working_directory"] = self.set_working_directory
+
+    def set_working_directory(self, directory=None, **kwargs):
+        self.working_dir = directory
+        return 1

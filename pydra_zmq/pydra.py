@@ -1,6 +1,8 @@
 import time
 from pydra_zmq.core import *
 import numpy as np
+from pathlib import Path
+import os
 
 
 ports = [
@@ -24,7 +26,7 @@ class DummyAcquisition(Acquisition):
         self.n = 0
 
     def acquire(self):
-        time.sleep(0.01)
+        time.sleep(0.2)
         a = np.zeros((512, 512), dtype="uint8")
         t = time.time()
         self.send_frame(t, self.n, a)
@@ -55,9 +57,10 @@ class DummyTracker(Worker):
         print(t - self.t_last, data)
         self.t_last = t
 
+    @messaging.logged
     def hello_world(self, **kwargs):
-        print("hello world!")
-        return True
+        print("hello world!", kwargs)
+        return 1
 
 
 MODULE_ACQUISITION = {
@@ -97,7 +100,7 @@ class Pydra(bases.ZMQMain):
     name = "pydra"
     modules = []
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, working_dir, *args, **kwargs):
         # Initialize main
         super().__init__(*args, **kwargs)
         # Start workers
@@ -107,6 +110,9 @@ class Pydra(bases.ZMQMain):
         self.server = Saver.start(zmq_config=zmq_config)
         # Wait for processes to start
         time.sleep(0.5)
+        # Set working directory
+        self.working_dir = working_dir
+        self.set_working_directory()
 
     @classmethod
     def run(cls, config):
@@ -138,24 +144,28 @@ class Pydra(bases.ZMQMain):
                 sub.append(0)
             saver_subs.append(sub)
         Saver.configure(zmq_config, (), saver_subs)
-        return cls(zmq_config=zmq_config)
+        # Get working directory
+        working_dir = config.get("working_dir", os.getcwd())
+        working_dir = Path(working_dir)
+        return cls(working_dir, zmq_config=zmq_config)
 
-    def hello_world_event(self):
-        ret = self.event("tracker", "hello_world", wait=True)
-        self.exit()
+    def set_working_directory(self):
+        ret = self.send_event("set_working_directory", wait=True, source=self.name,
+                              directory=str(self.working_dir))
+        return ret
 
-    def hello_world(self):
-        self.send_message("hello world!")
+    def set_file_name(self):
+        ret = self.send_event("set_working_directory", wait=True, source=self.name,
+                              directory=str(self.working_dir))
+        return ret
 
 
 def main():
     pydra = Pydra.run(config)
-    pydra.hello_world()
     time.sleep(1.0)
     pydra.send_timestamped(time.time(), {"hello": "world"})
     time.sleep(0.5)
-    pydra.hello_world_event()
-    # pydra.exit()
+    pydra.exit()
 
 
 if __name__ == "__main__":

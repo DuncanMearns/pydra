@@ -1,4 +1,4 @@
-from .serialize import _serialize_string, _serialize_float
+from .serialize import _serialize_string, _serialize_float, _to_json
 from .serialize import *
 import time
 
@@ -54,3 +54,21 @@ class output:
             obj.zmq_publisher.send_multipart(msg)
             return result
         return zmq_output_wrapper
+
+
+def logged(method):
+    def zmq_output_wrapper(obj, **kwargs):
+        ret = method(obj, **kwargs)
+        name = method.__name__
+        kw = {"event_name": name,
+              "ret": int(ret)}
+        serialized = EVENT.serializer().encode(("log_event", kw))
+        message_flag = EVENT.flag
+        source = _serialize_string(obj.name)
+        flags = b""
+        t = time.time()
+        t = _serialize_float(t)
+        msg = [message_flag, source, t, flags] + list(serialized)
+        obj.zmq_publisher.send_multipart(msg)
+        return ret
+    return zmq_output_wrapper
