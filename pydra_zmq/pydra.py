@@ -6,16 +6,34 @@ import numpy as np
 ports = [
     ("tcp://*:5555", "tcp://localhost:5555"),
     ("tcp://*:5556", "tcp://localhost:5556"),
-    ("tcp://*:5557", "tcp://localhost:5557")
+    ("tcp://*:5557", "tcp://localhost:5557"),
+    ("tcp://*:5558", "tcp://localhost:5558"),
+    ("tcp://*:5559", "tcp://localhost:5559")
 ]
 
 
 zmq_config = {}
 
 
-class DummyWorker(Worker):
+class DummyAcquisition(Acquisition):
 
-    name = "dummy"
+    name = "acquisition"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n = 0
+
+    def acquire(self):
+        time.sleep(0.01)
+        a = np.zeros((512, 512), dtype="uint8")
+        t = time.time()
+        self.send_frame(t, self.n, a)
+        self.n += 1
+
+
+class DummyTracker(Worker):
+
+    name = "tracker"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,7 +41,7 @@ class DummyWorker(Worker):
 
     def recv_frame(self, t, i, frame, **kwargs):
         t, i, frame = messaging.DATA.serializer("f").decode(t, i, frame)
-        print(i, t - self.t_last, frame.shape)
+        print(kwargs["source"], i, t - self.t_last, frame.shape)
         self.t_last = t
 
     def recv_indexed(self, t, i, data, **kwargs):
@@ -37,11 +55,21 @@ class DummyWorker(Worker):
         self.t_last = t
 
 
-MODULE_DUMMY = {
-    "name": "dummy",
-    "worker": DummyWorker,
+MODULE_ACQUISITION = {
+    "name": "acquisition",
+    "worker": DummyAcquisition,
     "subscriptions": (
-        ("pydra", "", (messaging.DATA,)),
+        # ("pydra", "", (messaging.DATA,)),
+    ),
+    "params": {}
+}
+
+
+MODULE_TRACKER = {
+    "name": "tracker",
+    "worker": DummyTracker,
+    "subscriptions": (
+        ("acquisition", "", (messaging.DATA,)),
     ),
     "params": {}
 }
@@ -49,7 +77,7 @@ MODULE_DUMMY = {
 
 config = {
 
-    "modules": [MODULE_DUMMY]
+    "modules": [MODULE_ACQUISITION, MODULE_TRACKER]
 
 }
 
@@ -88,23 +116,13 @@ class Pydra(zmq.ZMQMain):
     def hello_world(self):
         self.send_message("hello world!")
 
-    def new_frame(self):
-        t = time.time()
-        a = np.zeros((512, 512), dtype="uint8")
-        self.send_frame(t, self.i, a)
-        self.i += 1
-
 
 def main():
     pydra = Pydra.run(config)
     pydra.hello_world()
-    for f in range(10):
-        time.sleep(0.01)
-        pydra.new_frame()
-    pydra.send_indexed(time.time(), -1000, {"hello": 0, "world": [1, 2, 3]})
-    time.sleep(0.1)
-    pydra.send_timestamped(time.time(), {"hello": "world"})
-    time.sleep(0.5)
+    time.sleep(1.0)
+    # pydra.send_timestamped(time.time(), {"hello": "world"})
+    # time.sleep(0.5)
     pydra.exit()
 
 

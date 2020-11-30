@@ -127,6 +127,9 @@ class ZMQContext:
             self.zmq_subscriptions[name] = zmq_subscriber
             self.zmq_poller.register(zmq_subscriber, zmq.POLLIN)
 
+    def _destroy(self):
+        self.zmq_context.destroy(200)
+
 
 class ZMQMain(ZMQContext):
 

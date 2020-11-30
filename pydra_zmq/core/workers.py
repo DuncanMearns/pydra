@@ -40,7 +40,7 @@ class Worker(ZMQWorker):
         return
 
     def _recv(self):
-        sockets = dict(self.zmq_poller.poll())
+        sockets = dict(self.zmq_poller.poll(0))
         for name, sock in self.zmq_subscriptions.items():
             if sock in sockets:
                 msg_flag, source, t, flags, *parts = sock.recv_multipart()
@@ -58,8 +58,7 @@ class Acquisition(Worker):
 
     def _recv(self):
         self.acquire()
-        super()._recv()
-        return
+        return super()._recv()
 
     def acquire(self):
         return
