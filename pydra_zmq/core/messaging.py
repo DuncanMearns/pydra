@@ -37,30 +37,42 @@ class ZMQMessage:
             out.append(decoder(arg))
         return out
 
-    def __call__(self, method):
-        def zmq_output_wrapper(obj, *args, **kwargs):
-            result = method(obj, *args, **kwargs)
-            serialized = self.encode(*result)
-            source = serialize_string(obj.name)
-            dtypes = serialize_string(self.dtypes)
-            t = time.time()
-            t = serialize_float(t)
-            msg = [self.flag, source, t, dtypes] + serialized
-            obj.zmq_publisher.send_multipart(msg)
-            return result
-        return zmq_output_wrapper
+    def message_tags(self, obj):
+        source = serialize_string(obj.name)
+        dtypes = serialize_string(self.dtypes)
+        t = time.time()
+        t = serialize_float(t)
+        return [self.flag, source, t, dtypes]
+
+    def serializer(self, args):
+        obj, method, result = args
+        out = self.message_tags(obj)
+        out += self.encode(*result)
+        return out
 
     @staticmethod
-    def recv(sock):
-        flag, source, t, dtypes, *args = sock.recv_multipart()
+    def reader(parts):
+        flag, source, t, flags, *args = parts
         flag = deserialize_string(flag)
         source = deserialize_string(source)
         t = deserialize_float(t)
-        dtypes = deserialize_string(dtypes)
-        return flag, source, t, dtypes, args
+        flags = deserialize_string(flags)
+        return flag, source, t, flags, args
+
+    @staticmethod
+    def recv(sock):
+        return sock.recv_serialized(ZMQMessage.reader)
+
+    def __call__(self, method):
+        def zmq_output_wrapper(obj, *args, **kwargs):
+            result = method(obj, *args, **kwargs)
+            obj.zmq_publisher.send_serialized((obj, method, result), self.serializer)
+            return result
+        return zmq_output_wrapper
 
 
 class EXIT(ZMQMessage):
+    """Decorator for outputting an exit signal. Should only be used by ZMQMain class."""
 
     flag = b"exit"
 
@@ -69,6 +81,7 @@ class EXIT(ZMQMessage):
 
 
 class MESSAGE(ZMQMessage):
+    """Decorator for sending a message as a string."""
 
     flag = b"message"
 
@@ -76,12 +89,19 @@ class MESSAGE(ZMQMessage):
         super().__init__(str)
 
 
+message = MESSAGE()
+
+
 class EVENT(ZMQMessage):
+    """Decorator for sending events."""
 
     flag = b"event"
 
     def __init__(self):
         super().__init__(str, dict)
+
+
+event = EVENT()
 
 
 TIMESTAMPED = b"t"
@@ -90,6 +110,8 @@ FRAME = b"f"
 
 
 class DATA(ZMQMessage):
+    """Decorator for sending data. Takes a data_flag as an argument for specifying the format of the data being sent,
+    and an optional saved parameter."""
 
     flag = b"data"
 
@@ -105,56 +127,35 @@ class DATA(ZMQMessage):
         if saved:
             self.data_flags += b"s"
 
-    def __call__(self, method):
-        def zmq_output_wrapper(obj, *args, **kwargs):
-            result = method(obj, *args, **kwargs)
-            serialized = self.encode(*result)
-            source = serialize_string(obj.name)
-            t = time.time()
-            t = serialize_float(t)
-            msg = [self.flag, source, t, self.data_flags] + serialized
-            obj.zmq_publisher.send_multipart(msg)
-            return result
-        return zmq_output_wrapper
+    def message_tags(self, obj):
+        source = serialize_string(obj.name)
+        t = time.time()
+        t = serialize_float(t)
+        return [self.flag, source, t, self.data_flags]
 
 
-# class output:
-#
-#     def __init__(self, message_type, *message_flags):
-#         self.message = message_type
-#         self.flags = message_flags
-#         self.serializer = self.message.serializer(*self.flags)
-#
-#     def __call__(self, method):
-#         def zmq_output_wrapper(obj, *args, **kwargs):
-#             result = method(obj, *args, **kwargs)
-#             serialized = self.serializer.encode(result)
-#             message_flag = self.message.flag
-#             source = serialize_string(obj.name)
-#             flags = b""
-#             for f in self.flags:
-#                 flags = flags + serialize_string(f)
-#             t = time.time()
-#             t = serialize_float(t)
-#             msg = [message_flag, source, t, flags] + list(serialized)
-#             obj.zmq_publisher.send_multipart(msg)
-#             return result
-#         return zmq_output_wrapper
-#
-#
-# def logged(method):
-#     def zmq_output_wrapper(obj, **kwargs):
-#         ret = method(obj, **kwargs)
-#         name = method.__name__
-#         kw = {"event_name": name,
-#               "ret": int(ret)}
-#         serialized = EVENT.serializer().encode(("log_event", kw))
-#         message_flag = EVENT.flag
-#         source = serialize_string(obj.name)
-#         flags = b""
-#         t = time.time()
-#         t = serialize_float(t)
-#         msg = [message_flag, source, t, flags] + list(serialized)
-#         obj.zmq_publisher.send_multipart(msg)
-#         return ret
-#     return zmq_output_wrapper
+class LOGGED(ZMQMessage):
+    """Decorator for logging methods that are called."""
+
+    flag = b"log"
+
+    def __init__(self):
+        super().__init__(str, dict)
+
+    def serializer(self, args):
+        obj, method, result = args
+        name = method.__name__
+        out = self.message_tags(obj)
+        out += self.encode(name, result)
+        return out
+
+
+logged = LOGGED()
+
+
+class TRIGGER(ZMQMessage):
+
+    flag = b"trigger"
+
+    def __init__(self):
+        super().__init__()

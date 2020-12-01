@@ -42,6 +42,7 @@ class DummyTracker(Worker):
         self.t_last = 0
         self.events["hello_world"] = self.hello_world
 
+    @messaging.logged
     def hello_world(self, **kwargs):
         print("hello world!")
 
@@ -49,16 +50,6 @@ class DummyTracker(Worker):
         t, i, frame = messaging.DATA(messaging.FRAME).decode(t, i, frame)
         print(kwargs["source"], i, t - self.t_last, frame.shape)
         self.t_last = t
-
-    # def recv_indexed(self, t, i, data, **kwargs):
-    #     t, i, data = messaging.DATA.serializer("i").decode(t, i, data)
-    #     print(t - self.t_last, i, data)
-    #     self.t_last = t
-    #
-    # def recv_timestamped(self, t, data, **kwargs):
-    #     t, data = messaging.DATA.serializer("t").decode(t, data)
-    #     print(t - self.t_last, data)
-    #     self.t_last = t
 
 
 MODULE_ACQUISITION = {
@@ -99,8 +90,8 @@ class Pydra(bases.ZMQMain):
         # Start workers
         for module in self.modules:
             module["worker"].start(zmq_config=zmq_config, **module["params"])
-        # # Start saving saver
-        # self.server = Saver.start(zmq_config=zmq_config)
+        # Start saving saver
+        self.server = Saver.start(zmq_config=zmq_config)
         # Wait for processes to start
         time.sleep(0.5)
         # Set working directory
@@ -154,11 +145,9 @@ class Pydra(bases.ZMQMain):
 
 def main():
     pydra = Pydra.run(config)
-    pydra.send_event("hello_world")
+    pydra.send_event("hello_world", log_id="ABCD")
+    pydra.query("messages")
     time.sleep(1.0)
-    # pydra.send_timestamped(time.time(), {"hello": "world"})
-    # pydra.record()
-    # time.sleep(0.5)
     pydra.exit()
 
 

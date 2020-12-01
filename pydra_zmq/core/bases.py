@@ -20,16 +20,18 @@ class ZMQContext:
             self._zmq_set_publisher()
         if "subscriptions" in self.zmq_config:
             self._zmq_set_subscriptions()
-        if "client" in self.zmq_config:
-            self._zmq_set_client()
-        if "server" in self.zmq_config:
-            self._zmq_set_server()
+        if "receiver" in self.zmq_config:
+            self._zmq_set_receiver()
+        if "sender" in self.zmq_config:
+            self._zmq_set_sender()
         # Set data handlers
         self.msg_handlers = {
-            "exit": self.close,
+            "exit": self.exit,
             "message": self.handle_message,
             "event": self.handle_event,
-            "data": self.handle_data
+            "data": self.handle_data,
+            "log": self.handle_log,
+            "trigger": self.triggered
         }
         # Create events
         self.events = {}
@@ -65,54 +67,66 @@ class ZMQContext:
             self.zmq_subscriptions[name] = zmq_subscriber
             self.zmq_poller.register(zmq_subscriber, zmq.POLLIN)
 
-    def _zmq_set_client(self):
-        self.zmq_client = self.zmq_context.socket(zmq.REQ)
+    def _zmq_set_receiver(self):
+        self.zmq_receiver = self.zmq_context.socket(zmq.PULL)
         try:
-            self.zmq_client.connect(self.zmq_config["client"][1])
+            self.zmq_receiver.bind(self.zmq_config["receiver"][0])
         except KeyError:
-            print(f"No req-rep pair specified in zmq_config file of {self.name}")
+            print(f"No sender-receiver pair specified in zmq_config file of {self.name}")
 
-    def _zmq_set_server(self):
-        self.zmq_server = self.zmq_context.socket(zmq.REP)
+    def _zmq_set_sender(self):
+        self.zmq_sender = self.zmq_context.socket(zmq.PUSH)
         try:
-            self.zmq_server.bind(self.zmq_config["server"][0])
+            self.zmq_sender.connect(self.zmq_config["sender"][1])
         except KeyError:
-            print(f"No req-rep pair specified in zmq_config file of {self.name}")
+            print(f"No sender-receiver pair specified in zmq_config file of {self.name}")
 
     def _destroy(self):
         self.zmq_context.destroy(200)
 
-    def _handle_subscriptions(self):
+    def _recv_subscriptions(self):
         sockets = dict(self.zmq_poller.poll(0))
         for name, sock in self.zmq_subscriptions.items():
             if sock in sockets:
                 flag, source, timestamp, dtypes, args = ZMQMessage.recv(sock)
                 self.msg_handlers[flag](*args, flag=flag, source=source, timestamp=timestamp, dtypes=dtypes)
 
-    @MESSAGE()
+    @message
     def send_message(self, s):
         return s
 
     def handle_message(self, s, **kwargs):
-        s = MESSAGE().decode(s)
+        s = message.decode(s)
         self.recv_message(s, **kwargs)
 
     def recv_message(self, s, **kwargs):
         print(f"{self.name} received from {kwargs.get('source', 'UNKNOWN')} at {kwargs.get('timestamp', 0.0)}:\n{s}")
 
-    def close(self, *args, **kwargs):
+    def exit(self, *args, **kwargs):
         return
 
-    @EVENT()
+    def triggered(self, *args, **kwargs):
+        return
+
+    @event
     def send_event(self, event_name, **kwargs):
         return event_name, kwargs
 
     def handle_event(self, event_name, event_kw, **kwargs):
-        event_name, event_kw = EVENT().decode(event_name, event_kw)
+        event_name, event_kw = event.decode(event_name, event_kw)
         if event_name in self.events:
             event_kw.update(**kwargs)
             ret = self.events[event_name](**event_kw)
             return ret
+
+    def handle_log(self, name, data, **kwargs):
+        name, data = logged.decode(name, data)
+        timestamp = kwargs["timestamp"]
+        source = kwargs["source"]
+        self.recv_log(timestamp, source, name, data)
+
+    def recv_log(self, timestamp, source, name, data):
+        return
 
     @DATA(TIMESTAMPED)
     def send_timestamped(self, t, data):
@@ -157,7 +171,7 @@ class ZMQMain(ZMQContext):
             # Add a port for publishing outputs
             zmq_config[cls.name]["publisher"] = ports.pop(0)
             # Add client
-            zmq_config[cls.name]["client"] = ports.pop(0)
+            zmq_config[cls.name]["receiver"] = ports.pop(0)
         except IndexError:
             print(f"Not enough ports to configure {cls.name}")
 
@@ -167,6 +181,15 @@ class ZMQMain(ZMQContext):
     @EXIT()
     def exit(self):
         return ()
+
+    @TRIGGER()
+    def triggered(self, *args, **kwargs):
+        return ()
+
+    def query(self, query_type):
+        self.send_event("query", query_type=query_type)
+        result = self.zmq_receiver.recv_multipart()
+        return result
 
     # def receive_messages(self):
     #     # Handle messages
@@ -206,60 +229,37 @@ class ZMQSaver(ZMQContext):
             # Add subscriptions to config
             zmq_config[cls.name]["subscriptions"] = []
             # Add subscription to main pydra process
-            subscribe_to_main = ("pydra", zmq_config["pydra"]["publisher"][1], (EXIT, EVENT))
+            subscribe_to_main = ("pydra", zmq_config["pydra"]["publisher"][1], (EXIT, EVENT, LOGGED))
             zmq_config[cls.name]["subscriptions"].append(subscribe_to_main)
             for (name, save) in subscriptions:
                 if name in zmq_config:
                     port = zmq_config[name]["publisher"][1]
-                    messages = [MESSAGE, DATA]
+                    messages = [MESSAGE, LOGGED]
+                    if save:
+                        messages.append(DATA)
                     zmq_config[cls.name]["subscriptions"].append((name, port, tuple(messages)))
             # Add server for pydra client
-            zmq_config[cls.name]["server"] = zmq_config["pydra"]["client"]
+            zmq_config[cls.name]["sender"] = zmq_config["pydra"]["receiver"]
         except KeyError:
             print(f"Cannot configure {cls.name}. Check zmq_configuration.")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.message_cache = []
-        self.event_cache = {}
-        # self.server_handlers = {
-        #     "message": self.reply_messages,
-        #     "event": self.reply_event,
-        #     "data": self.reply_data
-        # }
-        self.events["log_event"] = self.log_event
-        self.save_from = []
-        for name, port, messages in self.zmq_config["subscriptions"]:
-            if DATA in messages:
-                self.save_from.append(name)
+        self.events["query"] = self._query_event
+
+        # self.save_from = []
+        # for name, port, messages in self.zmq_config["subscriptions"]:
+        #     if DATA in messages:
+        #         self.save_from.append(name)
 
     def _recv(self):
-        # if self._handle_server():
-        #     return 1
-        return self._handle_subscriptions()
+        self._recv_subscriptions()
 
-    # def _handle_server(self):
-    #     if self.zmq_server.poll(0):
-    #         msg_flag, *args = self.zmq_server.recv_multipart()
-    #         msg_flag = io.deserialize_string(msg_flag)
-    #         return self.server_handlers[msg_flag](*args)
+    def _query_event(self, query_type, **kwargs):
+        event_name = "query_" + query_type
+        if event_name in self.events:
+            self.events[event_name]()
 
-    def recv_message(self, s, **kwargs):
-        self.message_cache.append((kwargs["source"], kwargs["timestamp"], s))
-
-    # def handle_event(self, event_name, event_kw, **kwargs):
-    #     ret = super().handle_event(event_name, event_kw, **kwargs)
-    #     event_name = io.deserialize_string(event_name)
-    #     self.log_event(event_name, ret, **kwargs)
-
-    def log_event(self, event_name, ret, **kwargs):
-        print(event_name, ret, kwargs)
-        if kwargs["source"] in self.event_cache:
-            self.event_cache[kwargs["source"]][event_name] = ret
-        else:
-            self.event_cache[kwargs["source"]] = {event_name: ret}
-
-    # def reply_messages(self, *args):
     #     while len(self.message_cache):
     #         source, timestamp, message = self.message_cache.pop(0)
     #         out = io.serialize_string(source), io.serialize_float(timestamp), message
@@ -280,9 +280,6 @@ class ZMQSaver(ZMQContext):
     #             ret = self._handle_subscriptions()
     #             if ret:
     #                 return
-
-    def reply_data(self, *args):
-        pass
 
 
 class ZMQWorker(ZMQContext):
@@ -310,4 +307,4 @@ class ZMQWorker(ZMQContext):
         super().__init__(*args, **kwargs)
 
     def _recv(self):
-        return self._handle_subscriptions()
+        self._recv_subscriptions()
