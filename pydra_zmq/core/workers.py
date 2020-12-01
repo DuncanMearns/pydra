@@ -1,4 +1,4 @@
-from pydra_zmq.core.bases import ZMQWorker, ZMQSaver, logged
+from pydra_zmq.core.bases import ZMQWorker, ZMQSaver
 from multiprocessing import Process
 
 
@@ -12,11 +12,7 @@ class PydraProcess(Process):
 
     def run(self):
         self.worker = self.worker_type(*self.worker_args, **self.worker_kwargs)
-        self.worker.setup()
-        while True:
-            exit_flag = self.worker._recv()
-            if exit_flag:
-                break
+        self.worker.run()
 
 
 class ProcessMixIn:
@@ -26,12 +22,6 @@ class ProcessMixIn:
         process = PydraProcess(cls, args, kwargs)
         process.start()
 
-    def setup(self):
-        return
-
-    def close(self, *args, **kwargs):
-        return
-
 
 class Worker(ZMQWorker, ProcessMixIn):
 
@@ -40,6 +30,26 @@ class Worker(ZMQWorker, ProcessMixIn):
     def __init__(self, process=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._process = process
+        self.exit_flag = 0
+        # if save:
+        #     self.recording = 0
+        #     self.states["recording"] = self.record
+            # self.events["start_record"] = self.start_record
+
+    def setup(self):
+        return
+
+    def close(self, *args, **kwargs):
+        self.exit_flag = 1
+
+    def run(self):
+        self.setup()
+        while not self.exit_flag:
+            self._recv()
+
+    # def record(self, val, **kwargs):
+    #     self.recording = val
+        # if val:
 
 
 class Acquisition(Worker):
@@ -50,8 +60,8 @@ class Acquisition(Worker):
         super().__init__(*args, **kwargs)
 
     def _recv(self):
+        super()._recv()
         self.acquire()
-        return super()._recv()
 
     def acquire(self):
         return
@@ -63,10 +73,26 @@ class Saver(ZMQSaver, ProcessMixIn):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.events["set_working_directory"] = self.set_working_directory
+        self.events["set_filename"] = self.set_filename
+        self.events["start_record"] = self.start_record
         # Set the working directory
         self.working_dir = None
-        self.events["set_working_directory"] = self.set_working_directory
+        self.filename = None
 
     def set_working_directory(self, directory=None, **kwargs):
         self.working_dir = directory
         return 1
+
+    def set_filename(self, filename=None, **kwargs):
+        self.filename = filename
+        return 1
+
+    def start_record(self, **kwargs):
+        # while True:
+        #     print(self.save_from)
+        #     break
+        return 1
+
+    def record(self, val, **kwargs):
+        return

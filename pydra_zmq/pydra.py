@@ -42,36 +42,31 @@ class DummyTracker(Worker):
         self.t_last = 0
         self.events["hello_world"] = self.hello_world
 
+    def hello_world(self, **kwargs):
+        print("hello world!")
+
     def recv_frame(self, t, i, frame, **kwargs):
-        t, i, frame = messaging.DATA.serializer("f").decode(t, i, frame)
+        t, i, frame = messaging.DATA(messaging.FRAME).decode(t, i, frame)
         print(kwargs["source"], i, t - self.t_last, frame.shape)
         self.t_last = t
 
-    def recv_indexed(self, t, i, data, **kwargs):
-        t, i, data = messaging.DATA.serializer("i").decode(t, i, data)
-        print(t - self.t_last, i, data)
-        self.t_last = t
-
-    def recv_timestamped(self, t, data, **kwargs):
-        t, data = messaging.DATA.serializer("t").decode(t, data)
-        print(t - self.t_last, data)
-        self.t_last = t
-
-    @messaging.logged
-    def hello_world(self, **kwargs):
-        print("hello world!", kwargs)
-        return 1
+    # def recv_indexed(self, t, i, data, **kwargs):
+    #     t, i, data = messaging.DATA.serializer("i").decode(t, i, data)
+    #     print(t - self.t_last, i, data)
+    #     self.t_last = t
+    #
+    # def recv_timestamped(self, t, data, **kwargs):
+    #     t, data = messaging.DATA.serializer("t").decode(t, data)
+    #     print(t - self.t_last, data)
+    #     self.t_last = t
 
 
 MODULE_ACQUISITION = {
     "name": "acquisition",
     "worker": DummyAcquisition,
-    "subscriptions": (
-        # ("pydra", "", (messaging.DATA,)),
-    ),
+    "subscriptions": (),
     "params": {},
-    "save": True,
-    "events": True
+    "save": True
 }
 
 
@@ -79,12 +74,10 @@ MODULE_TRACKER = {
     "name": "tracker",
     "worker": DummyTracker,
     "subscriptions": (
-        ("pydra", "", (messaging.EVENT,)),
         ("acquisition", "", (messaging.DATA,)),
     ),
     "params": {},
-    "save": True,
-    "events": True
+    "save": True
 }
 
 
@@ -106,13 +99,12 @@ class Pydra(bases.ZMQMain):
         # Start workers
         for module in self.modules:
             module["worker"].start(zmq_config=zmq_config, **module["params"])
-        # Start saving saver
-        self.server = Saver.start(zmq_config=zmq_config)
+        # # Start saving saver
+        # self.server = Saver.start(zmq_config=zmq_config)
         # Wait for processes to start
         time.sleep(0.5)
         # Set working directory
         self.working_dir = working_dir
-        self.set_working_directory()
 
     @classmethod
     def run(cls, config):
@@ -138,10 +130,6 @@ class Pydra(bases.ZMQMain):
                 sub.append(1)
             else:
                 sub.append(0)
-            if ("events" in module) and module["events"]:
-                sub.append(1)
-            else:
-                sub.append(0)
             saver_subs.append(sub)
         Saver.configure(zmq_config, (), saver_subs)
         # Get working directory
@@ -149,22 +137,28 @@ class Pydra(bases.ZMQMain):
         working_dir = Path(working_dir)
         return cls(working_dir, zmq_config=zmq_config)
 
+    # def record(self):
+    #     ret = self.send_event("start_record", source=self.name, wait=True)
+    #     self.send_state("recording", 1)
+
     def set_working_directory(self):
-        ret = self.send_event("set_working_directory", wait=True, source=self.name,
+        ret = self.send_event("set_working_directory", source=self.name, wait=True,
                               directory=str(self.working_dir))
         return ret
 
-    def set_file_name(self):
-        ret = self.send_event("set_working_directory", wait=True, source=self.name,
+    def set_filename(self):
+        ret = self.send_event("set_filename", wait=True, source=self.name,
                               directory=str(self.working_dir))
         return ret
 
 
 def main():
     pydra = Pydra.run(config)
+    pydra.send_event("hello_world")
     time.sleep(1.0)
-    pydra.send_timestamped(time.time(), {"hello": "world"})
-    time.sleep(0.5)
+    # pydra.send_timestamped(time.time(), {"hello": "world"})
+    # pydra.record()
+    # time.sleep(0.5)
     pydra.exit()
 
 

@@ -45,7 +45,7 @@ class VideoTrackingSavingWorker(SavingWorker):
     def dump(self, frame_number, timestamp, frame, tracking):
         if self.saving_on:
             try:
-                self.writer.write(frame)
+                self.writer.encode(frame)
                 self.metadata['time'].append([frame_number, timestamp])
                 try:
                     self.points.append(tracking['points'])
