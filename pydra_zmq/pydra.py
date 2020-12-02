@@ -1,5 +1,5 @@
 import time
-from pydra_zmq.core import *
+from pydra_zmq.core import Saver, Worker, Acquisition, messaging, bases
 import numpy as np
 from pathlib import Path
 import os
@@ -23,10 +23,14 @@ class DummyAcquisition(Acquisition):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.events["start_recording"] = self.start_recording
+        self.n = 0
+
+    def start_recording(self, **kwargs):
         self.n = 0
 
     def acquire(self):
-        time.sleep(0.2)
+        time.sleep(0.01)
         a = np.zeros((512, 512), dtype="uint8")
         t = time.time()
         self.send_frame(t, self.n, a)
@@ -48,27 +52,31 @@ class DummyTracker(Worker):
 
     def recv_frame(self, t, i, frame, **kwargs):
         t, i, frame = messaging.DATA(messaging.FRAME).decode(t, i, frame)
-        print(kwargs["source"], i, t - self.t_last, frame.shape)
+        # print(kwargs["source"], i, t - self.t_last, frame.shape)
         self.t_last = t
+        self.send_indexed(t, i, dict(hello="world"))
 
 
 MODULE_ACQUISITION = {
     "name": "acquisition",
     "worker": DummyAcquisition,
-    "subscriptions": (),
     "params": {},
-    "save": True
+    "subscriptions": (),
+    "save": True,
+    "group": "",
+    "codec": "xvid"
 }
 
 
 MODULE_TRACKER = {
     "name": "tracker",
     "worker": DummyTracker,
+    "params": {},
     "subscriptions": (
         ("acquisition", "", (messaging.DATA,)),
     ),
-    "params": {},
-    "save": True
+    "save": True,
+    "group": ""
 }
 
 
@@ -83,19 +91,6 @@ class Pydra(bases.ZMQMain):
 
     name = "pydra"
     modules = []
-
-    def __init__(self, working_dir, *args, **kwargs):
-        # Initialize main
-        super().__init__(*args, **kwargs)
-        # Start workers
-        for module in self.modules:
-            module["worker"].start(zmq_config=zmq_config, **module["params"])
-        # Start saving saver
-        self.server = Saver.start(zmq_config=zmq_config)
-        # Wait for processes to start
-        time.sleep(0.5)
-        # Set working directory
-        self.working_dir = working_dir
 
     @classmethod
     def run(cls, config):
@@ -117,37 +112,70 @@ class Pydra(bases.ZMQMain):
         saver_subs = []
         for module in cls.modules:
             sub = [module["name"]]
-            if ("save" in module) and module["save"]:
+            if module["save"]:
                 sub.append(1)
             else:
                 sub.append(0)
             saver_subs.append(sub)
         Saver.configure(zmq_config, (), saver_subs)
-        # Get working directory
-        working_dir = config.get("working_dir", os.getcwd())
-        working_dir = Path(working_dir)
-        return cls(working_dir, zmq_config=zmq_config)
+        # Return configured pydra object
+        return cls(zmq_config)
 
-    # def record(self):
-    #     ret = self.send_event("start_record", source=self.name, wait=True)
-    #     self.send_state("recording", 1)
+    def __init__(self, zmq_config, *args, **kwargs):
+        # Initialize main
+        super().__init__(zmq_config=zmq_config, *args, **kwargs)
+        # Start workers
+        for module in self.modules:
+            module["worker"].start(zmq_config=zmq_config, **module["params"])
+        # Start saving saver
+        groups = {}
+        for module in self.modules:
+            group = module["group"]
+            if group in groups:
+                groups[group].append(module["name"])
+            else:
+                groups[group] = [module["name"]]
+        self.saver = Saver.start(groups, None, zmq_config=zmq_config)
+        # Wait for processes to start
+        time.sleep(0.5)
+        # Set working directory and filename
+        working_dir = kwargs.get("working_dir", os.getcwd())
+        self.working_dir = Path(working_dir)
+        filename = kwargs.get("filename", "default_filename")
+        self.filename = filename
 
-    def set_working_directory(self):
-        ret = self.send_event("set_working_directory", source=self.name, wait=True,
-                              directory=str(self.working_dir))
-        return ret
+    @messaging.event
+    def start_recording(self):
+        return "start_recording", dict(directory=str(self.working_dir), filename=str(self.filename))
 
-    def set_filename(self):
-        ret = self.send_event("set_filename", wait=True, source=self.name,
-                              directory=str(self.working_dir))
-        return ret
+    @messaging.event
+    def stop_recording(self):
+        return "stop_recording", {}
+
+    @messaging.event
+    def set_working_directory(self, directory):
+        self.working_dir = directory
+        return "set_working_directory", dict(directory=str(self.working_dir))
+
+    @messaging.logged
+    @messaging.event
+    def set_filename(self, filename):
+        self.filename = filename
+        return "set_filename", dict(filename=str(self.filename))
 
 
 def main():
     pydra = Pydra.run(config)
-    pydra.send_event("hello_world", log_id="ABCD")
-    pydra.query("messages")
-    time.sleep(1.0)
+    # pydra.query("messages")
+    pydra.send_event("hello_world")
+    time.sleep(5.0)
+    pydra.start_recording()
+    time.sleep(2.0)
+    pydra.stop_recording()
+    pydra.set_filename("new_name")
+    pydra.start_recording()
+    time.sleep(0.2)
+    pydra.stop_recording()
     pydra.exit()
 
 

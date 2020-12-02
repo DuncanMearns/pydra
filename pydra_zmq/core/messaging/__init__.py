@@ -1,4 +1,4 @@
-from .serialize import *
+from .serializers import *
 import time
 
 
@@ -64,11 +64,11 @@ class ZMQMessage:
         return sock.recv_serialized(ZMQMessage.reader)
 
     def __call__(self, method):
-        def zmq_output_wrapper(obj, *args, **kwargs):
+        def zmq_message(obj, *args, **kwargs):
             result = method(obj, *args, **kwargs)
             obj.zmq_publisher.send_serialized((obj, method, result), self.serializer)
             return result
-        return zmq_output_wrapper
+        return zmq_message
 
 
 class EXIT(ZMQMessage):

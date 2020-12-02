@@ -1,4 +1,5 @@
 import zmq
+from multiprocessing import Process
 from .messaging import *
 
 
@@ -84,12 +85,12 @@ class ZMQContext:
     def _destroy(self):
         self.zmq_context.destroy(200)
 
-    def _recv_subscriptions(self):
+    def poll(self):
         sockets = dict(self.zmq_poller.poll(0))
         for name, sock in self.zmq_subscriptions.items():
             if sock in sockets:
-                flag, source, timestamp, dtypes, args = ZMQMessage.recv(sock)
-                self.msg_handlers[flag](*args, flag=flag, source=source, timestamp=timestamp, dtypes=dtypes)
+                msg, source, timestamp, flags, args = ZMQMessage.recv(sock)
+                self.msg_handlers[msg](*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
 
     @message
     def send_message(self, s):
@@ -116,8 +117,7 @@ class ZMQContext:
         event_name, event_kw = event.decode(event_name, event_kw)
         if event_name in self.events:
             event_kw.update(**kwargs)
-            ret = self.events[event_name](**event_kw)
-            return ret
+            self.events[event_name](**event_kw)
 
     def handle_log(self, name, data, **kwargs):
         name, data = logged.decode(name, data)
@@ -141,7 +141,7 @@ class ZMQContext:
         return t, i, frame
 
     def handle_data(self, *data, **kwargs):
-        flags = kwargs["dtypes"]
+        flags = kwargs["flags"]
         if "s" in flags:
             kwargs["save"] = True
         if "t" in flags:
@@ -191,33 +191,6 @@ class ZMQMain(ZMQContext):
         result = self.zmq_receiver.recv_multipart()
         return result
 
-    # def receive_messages(self):
-    #     # Handle messages
-    #     messages = []
-    #     while True:
-    #         self.zmq_client.send_multipart([b"message"])
-    #         message = self.zmq_client.recv_multipart()
-    #         if message[0]:
-    #             messages.append(message)
-    #         else:
-    #             break
-    #     return messages
-
-    # def receive_event(self, source, event_name):
-    #     source = io.serialize_string(source)
-    #     event_name = io.serialize_string(event_name)
-    #     self.zmq_client.send_multipart([b"event", source, event_name])
-    #     ret = self.zmq_client.recv_multipart()
-    #     return ret
-
-    # def send_event(self, event_name, source=None, wait=True, **event_kw):
-    #     if wait and source:
-    #         super().send_event(event_name, **event_kw)
-    #         ret = self.receive_event(source, event_name)
-    #         return io.deserialize_int(ret[0])
-    #     else:
-    #         super().send_event(event_name, **event_kw)
-
 
 class ZMQSaver(ZMQContext):
 
@@ -247,39 +220,13 @@ class ZMQSaver(ZMQContext):
         super().__init__(*args, **kwargs)
         self.events["query"] = self._query_event
 
-        # self.save_from = []
-        # for name, port, messages in self.zmq_config["subscriptions"]:
-        #     if DATA in messages:
-        #         self.save_from.append(name)
-
     def _recv(self):
-        self._recv_subscriptions()
+        self.poll()
 
     def _query_event(self, query_type, **kwargs):
         event_name = "query_" + query_type
         if event_name in self.events:
             self.events[event_name]()
-
-    #     while len(self.message_cache):
-    #         source, timestamp, message = self.message_cache.pop(0)
-    #         out = io.serialize_string(source), io.serialize_float(timestamp), message
-    #         self.zmq_server.send_multipart(out)
-    #     self.zmq_server.send_multipart([b""])
-
-    # def reply_event(self, source, event_name):
-    #     source = io.deserialize_string(source)
-    #     event_name = io.deserialize_string(event_name)
-    #     while True:
-    #         if (source in self.event_cache) and (event_name in self.event_cache[source]):
-    #             ret = self.event_cache[source][event_name]
-    #             ret_bytes = io.serialize_int(int(ret))
-    #             self.zmq_server.send_multipart([ret_bytes])
-    #             del self.event_cache[source][event_name]
-    #             break
-    #         else:
-    #             ret = self._handle_subscriptions()
-    #             if ret:
-    #                 return
 
 
 class ZMQWorker(ZMQContext):
@@ -307,4 +254,43 @@ class ZMQWorker(ZMQContext):
         super().__init__(*args, **kwargs)
 
     def _recv(self):
-        self._recv_subscriptions()
+        self.poll()
+
+
+class PydraProcess(Process):
+
+    def __init__(self, worker, worker_args, worker_kwargs, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.worker_type = worker
+        self.worker_args = worker_args
+        self.worker_kwargs = worker_kwargs
+
+    def run(self):
+        self.worker = self.worker_type(*self.worker_args, **self.worker_kwargs)
+        self.worker.run()
+
+
+class ProcessMixIn:
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.exit_flag = 0
+
+    @classmethod
+    def start(cls, *args, **kwargs):
+        process = PydraProcess(cls, args, kwargs)
+        process.start()
+
+    def close(self):
+        self.exit_flag = 1
+
+    def setup(self):
+        return
+
+    def _process(self):
+        return
+
+    def run(self):
+        self.setup()
+        while not self.exit_flag:
+            self._process()
