@@ -7,6 +7,7 @@ import zmq
 import cv2
 from pathlib import Path
 from collections import deque
+import pandas as pd
 
 
 class Thread(threading.Thread):
@@ -53,7 +54,7 @@ class FrameThread(Thread):
         fourcc = cv2.VideoWriter_fourcc(*self.fourcc)
         self.writer = cv2.VideoWriter(self.path, fourcc, self.frame_rate, self.frame_size, self.is_color)
 
-    def dump(self, frame):
+    def dump(self, source, frame):
         frame = deserialize_array(frame)
         self.writer.write(frame)
 
@@ -68,25 +69,58 @@ class IndexedThread(Thread):
         self.data = None
 
     def setup(self):
-        self.data = []
+        self.data = {}
 
-    def dump(self, t, i, data):
+    def dump(self, source, t, i, data):
         t, i, data = DATA(INDEXED).decode(t, i, data)
+        try:
+            self.data[source]["time"].append(t)
+            self.data[source]["index"].append(i)
+            if data:
+                for key, val in data.items():
+                    self.data[source]["data"][key].append(val)
+        except KeyError:
+            self.data[source] = dict(time=[t], index=[i])
+            if data:
+                for key, val in data.items():
+                    self.data[source]["data"] = {key: [val]}
 
     def cleanup(self):
-        return
+        dfs = []
+        for source, data in self.data.items():
+            if "data" in data:
+                df = pd.DataFrame(data["data"], index=data["index"])
+                col_map = {}
+                for col in df.columns:
+                    col_map[col] = "_".join([source, col])
+                df.rename(columns=col_map, inplace=True)
+            else:
+                df = pd.DataFrame(index=data["index"])
+            df[source + "_t"] = data["time"]
+            dfs.append(df)
+        df = pd.concat(dfs, axis=1)
+        df.to_csv(self.path)
 
 
 class TimestampedThread(Thread):
 
     def __init__(self, path, q, *args, **kwargs):
         super().__init__(path, q)
+        self.data = None
 
     def setup(self):
-        self.data = []
+        self.data = {}
 
-    def dump(self, t, data):
+    def dump(self, source, t, data):
         t, data = DATA(TIMESTAMPED).decode(t, data)
+        try:
+            self.data[source]["time"].append(t)
+            for key, val in data.items():
+                self.data[source][key].append(val)
+        except KeyError:
+            self.data[source] = dict(time=[t])
+            for key, val in data.items():
+                self.data[source][key] = [val]
 
     def cleanup(self):
         return
@@ -100,9 +134,10 @@ class Group:
         self.frame_q = queue.Queue()
         self.indexed_q = queue.Queue()
         self.timestamped_q = queue.Queue()
-        # Frame handling
-        self.last = None
+        # Data handling
+        self.frame = None
         self.timestamps = deque(maxlen=1000)
+        self.data_cache = {}
         self.fourcc = "xvid"
 
     @property
@@ -111,25 +146,57 @@ class Group:
 
     @property
     def frame_size(self):
-        return deserialize_array(self.last).shape[:2][::-1]
+        return deserialize_array(self.frame).shape[:2][::-1]
 
     @property
     def is_color(self):
-        return deserialize_array(self.last).ndim > 2
+        return deserialize_array(self.frame).ndim > 2
 
-    def update(self, t, i, frame):
-        self.timestamps.append(deserialize_float(t))
-        self.last = frame
+    def update(self, source, dtype, *args):
+        t = deserialize_float(args[0])
+        i = None
+        if dtype == "frame":
+            self.timestamps.append(t)
+            i = deserialize_int(args[1])
+            self.frame = args[2]
+            data = None
+        elif dtype == "indexed":
+            i = deserialize_int(args[1])
+            data = deserialize_dict(args[2])
+        elif dtype == "timestamped":
+            data = deserialize_dict(args[1])
+        else:
+            return
+        if source in self.data_cache:
+            self.data_cache[source]["time"].append(t)
+            if i is not None:
+                self.data_cache[source]["index"].append(i)
+            if data:
+                for key, val in data.items():
+                    self.data_cache[source]["data"][key].append(val)
+        else:
+            self.data_cache[source] = {}
+            self.data_cache[source]["time"] = [t]
+            if i is not None:
+                self.data_cache[source]["index"] = [i]
+                if data:
+                    for key, val in data.items():
+                        self.data_cache[source]["data"] = {key: [val]}
 
-    def frame(self, t, i, frame):
-        self.frame_q.put((frame,))
-        self.indexed_q.put((t, i, "null".encode("utf-8")))
+    def flush(self):
+        serialized = serialize_dict(self.data_cache)
+        self.data_cache = {}
+        return serialized
 
-    def indexed(self, t, i, data):
-        self.indexed_q.put((t, i, data))
+    def save_frame(self, source, t, i, frame):
+        self.frame_q.put((source, frame))
+        self.indexed_q.put((source, t, i, "null".encode("utf-8")))
 
-    def timestamped(self, t, data):
-        self.timestamped_q.put((t, data))
+    def save_indexed(self, source, t, i, data):
+        self.indexed_q.put((source, t, i, data))
+
+    def save_timestamped(self, source, t, data):
+        self.timestamped_q.put((source, t, data))
 
     def start(self, directory, filename):
         # Base name
@@ -184,16 +251,39 @@ class Saver(ZMQSaver, ProcessMixIn):
                 self.targets[members] = group
         # Video params
         self.video_params = video_params
-        # Data buffers
-        self.timestamped = []
-        self.indexed = []
+
+    def setup(self):
+        self.zmq_sender.send(b"")
 
     def _process(self):
         self._recv()
 
     def exit(self, *args, **kwargs):
-        print(self.log)
         self.close()
+
+    def recv_message(self, s, **kwargs):
+        self.messages.append((kwargs["source"], kwargs["timestamp"], s))
+
+    def recv_log(self, timestamp, source, name, data):
+        self.log.append((timestamp, source, name, data))
+
+    def recv_timestamped(self, t, data, **kwargs):
+        self.targets[kwargs["source"]].update(kwargs["source"], "timestamped", t, data)
+        if kwargs["save"] and self.recording:
+            self.targets[kwargs["source"]].save_timestamped(kwargs["source"], t, data)
+        return
+
+    def recv_indexed(self, t, i, data, **kwargs):
+        self.targets[kwargs["source"]].update(kwargs["source"], "indexed", t, i, data)
+        if kwargs["save"] and self.recording:
+            self.targets[kwargs["source"]].save_indexed(kwargs["source"], t, i, data)
+        return
+
+    def recv_frame(self, t, i, frame, **kwargs):
+        self.targets[kwargs["source"]].update(kwargs["source"], "frame", t, i, frame)
+        if kwargs["save"] and self.recording:
+            self.targets[kwargs["source"]].save_frame(kwargs["source"], t, i, frame)
+        return
 
     def query_messages(self):
         self.zmq_sender.send(b"", zmq.SNDMORE)
@@ -206,33 +296,20 @@ class Saver(ZMQSaver, ProcessMixIn):
         self.zmq_sender.send(b"")
 
     def query_data(self):
+        for group in self.groups:
+            if group.frame:
+                name = serialize_string(group.name)
+                frame = group.frame
+                data = group.flush()
+                self.zmq_sender.send_multipart([name, frame, data], zmq.SNDMORE)
+        self.zmq_sender.send_multipart([b""])
         return
 
     def query_log(self):
-        return
-
-    def recv_message(self, s, **kwargs):
-        self.messages.append((kwargs["source"], kwargs["timestamp"], s))
-
-    def recv_log(self, timestamp, source, name, data):
-        self.log.append((timestamp, source, name, data))
-
-    def recv_timestamped(self, t, data, **kwargs):
-        self.timestamped.append((t, data))
-        if kwargs["save"] and self.recording:
-            self.targets[kwargs["source"]].timestamped(t, data)
-        return
-
-    def recv_indexed(self, t, i, data, **kwargs):
-        self.indexed.append((t, i, data))
-        if kwargs["save"] and self.recording:
-            self.targets[kwargs["source"]].indexed(t, i, data)
-        return
-
-    def recv_frame(self, t, i, frame, **kwargs):
-        self.targets[kwargs["source"]].update(t, i, frame)
-        if kwargs["save"] and self.recording:
-            self.targets[kwargs["source"]].frame(t, i, frame)
+        for item in self.log:
+            serialized = LOGDATA().encode(*item)
+            self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
+        self.zmq_sender.send_multipart([b""])
         return
 
     def start_recording(self, directory: str = None, filename: str = None, **kwargs):

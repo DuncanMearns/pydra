@@ -153,6 +153,13 @@ class LOGGED(ZMQMessage):
 logged = LOGGED()
 
 
+
+class LOGDATA(ZMQMessage):
+
+    def __init__(self):
+        super().__init__(float, str, str, dict)
+
+
 class TRIGGER(ZMQMessage):
 
     flag = b"trigger"

@@ -1,0 +1,1 @@
+from .ximea import XimeaCamera

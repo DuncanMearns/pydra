@@ -252,6 +252,11 @@ class ZMQWorker(ZMQContext):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.events["test_connection"] = self.test_connection
+
+    @logged
+    def test_connection(self, **kwargs):
+        return dict()
 
     def _recv(self):
         self.poll()
