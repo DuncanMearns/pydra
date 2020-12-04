@@ -8,12 +8,13 @@ class XimeaCamera(CameraAcquisition):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.id = 0
 
     def setup(self):
         """ """
         try:
             from ximea import xiapi
-            self.camera = xiapi.Camera()
+            self.camera = xiapi.Camera(self.id)
         except NameError:
             raise Exception(
                 "The xiapi package must be installed to use a Ximea camera!"
@@ -34,25 +35,28 @@ class XimeaCamera(CameraAcquisition):
     @logged
     def set_params(self, **kwargs):
         new_params = {}
-        if "exposure" in kwargs:
-            self.camera.set_exposure(int(kwargs["exposure"] * 1000))
-            new_params["exposure"] = kwargs["exposure"]
-        if "frame_rate" in kwargs:
-            self.camera.set_framerate(kwargs["frame_rate"])
-            new_params["frame_rate"] = kwargs["frame_rate"]
-        if "frame_size" in kwargs:
-            w, h = kwargs["frame_size"]
-            self.camera.set_width(w)
-            self.camera.set_height(h)
-            new_params["frame_size"] = (w, h)
-        if "offset" in kwargs:
-            x, y = kwargs["offset"]
-            self.camera.set_offsetX(x)
-            self.camera.set_offsetY(y)
-            new_params["offset"] = (x, y)
-        if "gain" in kwargs:
-            self.camera.set_gain(kwargs["gain"])
-            new_params["gain"] = kwargs["gain"]
+        if ("target" in kwargs) and (kwargs["target"] != self.name):
+            pass
+        else:
+            if "exposure" in kwargs:
+                self.camera.set_exposure(int(kwargs["exposure"] * 1000))
+                new_params["exposure"] = kwargs["exposure"]
+            if "frame_rate" in kwargs:
+                self.camera.set_framerate(kwargs["frame_rate"])
+                new_params["frame_rate"] = kwargs["frame_rate"]
+            if "frame_size" in kwargs:
+                w, h = kwargs["frame_size"]
+                self.camera.set_width(w)
+                self.camera.set_height(h)
+                new_params["frame_size"] = (w, h)
+            if "offset" in kwargs:
+                x, y = kwargs["offset"]
+                self.camera.set_offsetX(x)
+                self.camera.set_offsetY(y)
+                new_params["offset"] = (x, y)
+            if "gain" in kwargs:
+                self.camera.set_gain(kwargs["gain"])
+                new_params["gain"] = kwargs["gain"]
         return new_params
 
     def read(self):

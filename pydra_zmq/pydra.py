@@ -105,10 +105,10 @@ MODULE_TRACKER = {
 }
 
 
-config = {
+_config = {
 
-    "zmq_config": {"remote_trigger": {"remote": "tcp://192.168.236.123:5996"}}
-    # "modules": [MODULE_ACQUISITION, MODULE_TRACKER],
+    # "zmq_config": {"remote_trigger": {"remote": "tcp://192.168.236.123:5996"}}
+    "modules": [MODULE_ACQUISITION, MODULE_TRACKER],
     # "modules": [MODULE_XIMEA, MODULE_TRACKER],
 
 }
@@ -280,6 +280,6 @@ def trigger_test():
 
 
 if __name__ == "__main__":
-    trigger_test()
+    # trigger_test()
     # ximea_test()
-    # main()
+    main()

@@ -357,7 +357,7 @@ class RemoteWorker(Worker):
             assert "remote" in zmq_config[cls.name]
         except AssertionError:
             raise ValueError(f"zmq_config for {cls.name} must contain a 'remote' key")
-        Worker.configure(zmq_config, ports, subscriptions)
+        super(RemoteWorker, cls).configure(zmq_config, ports, subscriptions)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -138,7 +138,7 @@ class Group:
         self.frame = None
         self.timestamps = deque(maxlen=1000)
         self.data_cache = {}
-        self.fourcc = "xvid"
+        self.fourcc = "XVID"
 
     @property
     def frame_rate(self):
@@ -200,10 +200,12 @@ class Group:
 
     def start(self, directory, filename):
         # Base name
-        filename = str(Path(directory).joinpath(filename + self.name))
+        directory = Path(directory)
+        if not directory.exists():
+            directory.mkdir(parents=True)
+        filename = str(directory.joinpath(filename + self.name))
         # Frame thread
-        self.frame_thread = FrameThread(filename + ".avi", self.frame_q,
-                                        self.frame_rate, self.frame_size, self.fourcc, self.is_color)
+        self.frame_thread = FrameThread(filename + ".avi", self.frame_q, int(self.frame_rate), self.frame_size, self.fourcc, self.is_color)
         self.frame_thread.start()
         # Indexed thread
         self.indexed_thread = IndexedThread(filename + ".csv", self.indexed_q)
