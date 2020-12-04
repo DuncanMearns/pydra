@@ -9,10 +9,11 @@ class ZMQContext:
 
     @classmethod
     def configure(cls, zmq_config, ports):
-        zmq_config[cls.name] = {}
+        if cls.name not in zmq_config:
+            zmq_config[cls.name] = {}
 
-    def __init__(self, zmq_config, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, zmq_config=None, *args, **kwargs):
+        super().__init__()
         # Get the zmq configuration
         self.zmq_config = zmq_config[self.name]
         # Create the zmq context and bindings
@@ -32,7 +33,7 @@ class ZMQContext:
             "event": self.handle_event,
             "data": self.handle_data,
             "log": self.handle_log,
-            "trigger": self.triggered
+            "trigger": self.send_trigger
         }
         # Create events
         self.events = {}
@@ -44,6 +45,13 @@ class ZMQContext:
             self.zmq_publisher.bind(self.zmq_config["publisher"][0])
         except KeyError:
             print(f"No publisher specified in zmq_config file of {self.name}")
+
+    def _zmq_set_remote(self):
+        self.zmq_remote = self.zmq_context.socket(zmq.REQ)
+        try:
+            self.zmq_remote.connect(self.zmq_config["remote"])
+        except KeyError:
+            print(f"No remote port specified in zmq_config file of {self.name}")
 
     def _zmq_set_subscriptions(self):
         # Create a poller to check for messages on subscription channels
@@ -106,8 +114,9 @@ class ZMQContext:
     def exit(self, *args, **kwargs):
         return
 
-    def triggered(self, *args, **kwargs):
-        return
+    @TRIGGER()
+    def send_trigger(self, *args, **kwargs):
+        return ()
 
     @event
     def send_event(self, event_name, **kwargs):
@@ -151,6 +160,13 @@ class ZMQContext:
         elif "f" in flags:
             self.recv_frame(*data, **kwargs)
 
+    def send_remote(self, *args):
+        dtypes = [type(arg) for arg in args]
+        serialized = ZMQMessage(*dtypes).encode(*args)
+        self.zmq_remote.send_multipart(serialized)
+        ret = self.zmq_remote.recv()
+        return ret
+
     def recv_timestamped(self, t, data, **kwargs):
         return
 
@@ -166,10 +182,12 @@ class ZMQMain(ZMQContext):
     @classmethod
     def configure(cls, zmq_config, ports):
         # Create dictionary for storing config info
-        zmq_config[cls.name] = {}
+        if cls.name not in zmq_config:
+            zmq_config[cls.name] = {}
         try:
             # Add a port for publishing outputs
-            zmq_config[cls.name]["publisher"] = ports.pop(0)
+            if "publisher" not in zmq_config[cls.name]:
+                zmq_config[cls.name]["publisher"] = ports.pop(0)
             # Add client
             zmq_config[cls.name]["receiver"] = ports.pop(0)
         except IndexError:
@@ -180,10 +198,6 @@ class ZMQMain(ZMQContext):
 
     @EXIT()
     def exit(self):
-        return ()
-
-    @TRIGGER()
-    def triggered(self, *args, **kwargs):
         return ()
 
     def query(self, query_type):
@@ -234,10 +248,12 @@ class ZMQWorker(ZMQContext):
     @classmethod
     def configure(cls, zmq_config, ports, subscriptions=()):
         # Create dictionary for storing config info
-        zmq_config[cls.name] = {}
+        if cls.name not in zmq_config:
+            zmq_config[cls.name] = {}
         try:
             # Add a port for publishing outputs
-            zmq_config[cls.name]["publisher"] = ports.pop(0)
+            if "publisher" not in zmq_config[cls.name]:
+                zmq_config[cls.name]["publisher"] = ports.pop(0)
             # Add subscriptions to config
             zmq_config[cls.name]["subscriptions"] = []
             # Add subscription to main pydra process
@@ -299,3 +315,49 @@ class ProcessMixIn:
         self.setup()
         while not self.exit_flag:
             self._process()
+
+
+class Worker(ZMQWorker, ProcessMixIn):
+
+    name = "worker"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _process(self):
+        self._recv()
+
+    def exit(self, *args, **kwargs):
+        self.close()
+
+
+class Acquisition(Worker):
+
+    name = "acquisition"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _process(self):
+        self._recv()
+        self.acquire()
+
+    def acquire(self):
+        return
+
+
+class RemoteWorker(Worker):
+
+    name = "remote"
+
+    @classmethod
+    def configure(cls, zmq_config, ports, subscriptions=()):
+        # Create dictionary for storing config info
+        try:
+            assert "remote" in zmq_config[cls.name]
+        except AssertionError:
+            raise ValueError(f"zmq_config for {cls.name} must contain a 'remote' key")
+        Worker.configure(zmq_config, ports, subscriptions)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

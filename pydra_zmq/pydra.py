@@ -1,5 +1,5 @@
 import time
-from pydra_zmq.core import Saver, Worker, Acquisition, messaging, bases
+from pydra_zmq.core import Saver, Worker, Acquisition, RemoteWorker, messaging, ZMQMain
 from pydra_zmq.cameras import *
 import numpy as np
 from pathlib import Path
@@ -14,9 +14,6 @@ ports = [
     ("tcp://*:5558", "tcp://localhost:5558"),
     ("tcp://*:5559", "tcp://localhost:5559")
 ]
-
-
-zmq_config = {}
 
 
 class DummyAcquisition(Acquisition):
@@ -59,6 +56,22 @@ class DummyTracker(Worker):
         self.send_indexed(t, i, dict(hello="world"))
 
 
+class RemoteTrigger(RemoteWorker):
+
+    name = "remote_trigger"
+
+    def __init__(self, *args ,**kwargs):
+        super().__init__(*args, **kwargs)
+
+
+MODULE_TRIGGER = {
+    "name": "remote_trigger",
+    "worker": RemoteTrigger,
+    "params": {},
+    "subscriptions": (),
+}
+
+
 MODULE_XIMEA = {
     "name": "ximea",
     "worker": XimeaCamera,
@@ -85,7 +98,7 @@ MODULE_TRACKER = {
     "worker": DummyTracker,
     "params": {},
     "subscriptions": (
-        ("ximea", "", (messaging.DATA,)),
+        ("acquisition", "", (messaging.DATA,)),
     ),
     "save": True,
     "group": ""
@@ -94,13 +107,14 @@ MODULE_TRACKER = {
 
 config = {
 
+    "zmq_config": {"remote_trigger": {"remote": "tcp://192.168.236.123:5996"}}
     # "modules": [MODULE_ACQUISITION, MODULE_TRACKER],
-    "modules": [MODULE_XIMEA, MODULE_TRACKER],
+    # "modules": [MODULE_XIMEA, MODULE_TRACKER],
 
 }
 
 
-class Pydra(bases.ZMQMain):
+class Pydra(ZMQMain):
 
     name = "pydra"
     modules = []
@@ -113,44 +127,48 @@ class Pydra(bases.ZMQMain):
         except KeyError:
             cls.modules = []
         # Set the zmq configuration
-        global zmq_config
         try:
-            zmq_config.update(config["zmq_config"])
+            zmq_config = config["zmq_config"]
         except KeyError:
-            global ports
-            cls.configure(zmq_config, ports)
-            for module in cls.modules:
-                module["worker"].configure(zmq_config, ports, module["subscriptions"])
+            zmq_config = {}
+            config["zmq_config"] = zmq_config
+        global ports
+        cls.configure(zmq_config, ports)
+        for module in cls.modules:
+            module["worker"].configure(zmq_config, ports, module["subscriptions"])
         # Configure saver
         saver_subs = []
         for module in cls.modules:
             sub = [module["name"]]
-            if module["save"]:
+            if ("save" in module) and module["save"]:
                 sub.append(1)
             else:
                 sub.append(0)
             saver_subs.append(sub)
         Saver.configure(zmq_config, (), saver_subs)
         # Return configured pydra object
-        return cls(zmq_config)
+        return cls(**config)
 
-    def __init__(self, zmq_config, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         # Initialize main
-        super().__init__(zmq_config=zmq_config, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Start saver
         groups = {}
         for module in self.modules:
-            group = module["group"]
+            try:
+                group = module["group"]
+            except KeyError:
+                group = ""
             if group in groups:
                 groups[group].append(module["name"])
             else:
                 groups[group] = [module["name"]]
-        self.saver = Saver.start(groups, None, zmq_config=zmq_config)
+        self.saver = Saver.start(groups, None, zmq_config=kwargs["zmq_config"])
         # Wait for saver
         self.zmq_receiver.recv_multipart()
         # Start workers
         for module in self.modules:
-            module["worker"].start(zmq_config=zmq_config, **module["params"])
+            module["worker"].start(zmq_config=kwargs["zmq_config"], **module["params"])
         # Wait for processes to start
         self.test_connections()
         # Set working directory and filename
@@ -212,8 +230,10 @@ class Pydra(bases.ZMQMain):
 
 
 def main():
+    config = {
+        "modules": [MODULE_ACQUISITION, MODULE_TRACKER],
+    }
     pydra = Pydra.run(config)
-    # pydra.query("messages")
     pydra.send_event("hello_world")
     time.sleep(5.0)
     pydra.start_recording()
@@ -228,6 +248,9 @@ def main():
 
 def ximea_test():
     import cv2
+    config = {
+        "modules": [MODULE_XIMEA, MODULE_TRACKER],
+    }
     pydra = Pydra.run(config)
     pydra.send_event("set_params", frame_rate=300, exposure=1, frame_size=(100, 100))
     pydra.start_recording()
@@ -245,6 +268,18 @@ def ximea_test():
     pydra.exit()
 
 
+def trigger_test():
+    config = {
+        "modules": [MODULE_TRIGGER],
+        "zmq_config": {"remote_trigger": {"publisher": ("tcp://192.168.236.123:5996",
+                                                        "tcp://192.168.236.123:5996")}}
+    }
+    pydra = Pydra.run(config)
+    time.sleep(2)
+    pydra.exit()
+
+
 if __name__ == "__main__":
-    ximea_test()
+    trigger_test()
+    # ximea_test()
     # main()
