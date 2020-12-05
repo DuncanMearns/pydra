@@ -8,6 +8,7 @@ class CameraAcquisition(Acquisition):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.events["set_params"] = self.set_params
+        self.events["start_recording"] = self.reset_frame_number
         self.camera = None
         self.frame_number = 0
 
@@ -22,3 +23,6 @@ class CameraAcquisition(Acquisition):
 
     def set_params(self, **kwargs):
         return {}
+
+    def reset_frame_number(self, **kwargs):
+        self.frame_number = 0

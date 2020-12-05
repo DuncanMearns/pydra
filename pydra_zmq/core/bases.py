@@ -26,6 +26,8 @@ class ZMQContext:
             self._zmq_set_receiver()
         if "sender" in self.zmq_config:
             self._zmq_set_sender()
+        if "remote" in self.zmq_config:
+            self._zmq_set_remote()
         # Set data handlers
         self.msg_handlers = {
             "exit": self.exit,

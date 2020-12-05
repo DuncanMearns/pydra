@@ -38,6 +38,24 @@ class ScanImage(RemoteWorker):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.events["start_recording"] = self.start_scanning
+        self.events["stop_recording"] = self.stop_scanning
+        self.events["release_scanimage"] = self.release_scanimage
+
+    def start_scanning(self, **kwargs):
+        ret = self.send_remote(1)
+        ret = messaging.deserialize_int(ret)
+        return ret
+
+    def stop_scanning(self, **kwargs):
+        ret = self.send_remote(2)
+        ret = messaging.deserialize_int(ret)
+        return ret
+
+    def release_scanimage(self, **kwargs):
+        ret = self.send_remote(0)
+        ret = messaging.deserialize_int(ret)
+        return ret
 
 
 MODULE_TAIL = {
@@ -86,7 +104,10 @@ def main():
     pydra.send_event("set_params", target="jawcam", exposure=1, frame_size=(300, 200))
     pydra.set_working_directory(r"C:\DATA\Duncan\2020_12_04")
     pydra.set_filename(r"test_video")
-    time.sleep(3.)
+    return pydra
+    # pydra.send_event("start_scanning")
+    # time.sleep(3.)
+
     # for f in range(1000):
     #     result = pydra.query("data")
     #     result = result[:-1]
@@ -97,12 +118,12 @@ def main():
     #             frame = messaging.deserialize_array(frame)
     #             cv2.imshow(name, frame)
     #             cv2.waitKey(1)
-    pydra.start_recording()
-    time.sleep(3.0)
-    pydra.stop_recording()
+    # pydra.start_recording()
+    # time.sleep(3.0)
+    # pydra.stop_recording()
     # log = pydra.request_log()
     # print(log)
-    pydra.exit()
+    # pydra.exit()
 
 
 if __name__ == "__main__":
