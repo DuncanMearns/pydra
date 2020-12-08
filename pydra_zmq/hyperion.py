@@ -1,6 +1,6 @@
 import time
 from pydra_zmq.pydra import Pydra
-from pydra_zmq.core import RemoteWorker, messaging
+from pydra_zmq.core import RemoteReceiver, RemoteSender, messaging
 from pydra_zmq.cameras import XimeaCamera
 import cv2
 
@@ -32,7 +32,7 @@ class JawCam(XimeaCamera):
         self.id = 1
 
 
-class ScanImage(RemoteWorker):
+class ScanImageSender(RemoteSender):
 
     name = "scanimage"
 
@@ -58,6 +58,35 @@ class ScanImage(RemoteWorker):
         return ret
 
 
+class TriggerReceiver(RemoteReceiver):
+
+    name = "trigger_receiver"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @messaging.logged
+    def trigger_received(self, val):
+        return {"val": val}
+
+    def recv_remote(self, val, *args):
+        self.trigger_received(val)
+
+
+class Hyperion(Pydra):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.events["trigger_received"] = self.trigger_received
+
+    def trigger_received(self, **kwargs):
+        val = kwargs.get("val")
+        if val:
+            self.start_recording()
+        else:
+            self.stop_recording()
+
+
 MODULE_TAIL = {
     "name": "tailcam",
     "worker": TailCam,
@@ -79,8 +108,8 @@ MODULE_JAW = {
 
 
 MODULE_SCANIMAGE = {
-    "name": "scanimage",
-    "worker": ScanImage,
+    "name": "trigger_receiver",
+    "worker": TriggerReceiver,
     "params": {},
     "subscriptions": (),
     "save": True,
@@ -92,7 +121,7 @@ config = {
 
     "modules": [MODULE_TAIL, MODULE_JAW, MODULE_SCANIMAGE],
     "zmq_config": {
-        "scanimage": {"remote": "tcp://192.168.236.123:5996"}
+        "scanimage": {"receiver": "tcp://192.168.236.123:5996"}
     }
 
 }
@@ -105,25 +134,6 @@ def main():
     pydra.set_working_directory(r"C:\DATA\Duncan\2020_12_04")
     pydra.set_filename(r"test_video")
     return pydra
-    # pydra.send_event("start_scanning")
-    # time.sleep(3.)
-
-    # for f in range(1000):
-    #     result = pydra.query("data")
-    #     result = result[:-1]
-    #     if len(result):
-    #         for i in range(len(result) // 3):
-    #             name, frame, data = result[(3 * i) : (3 * i) + 3]
-    #             name = messaging.deserialize_string(name)
-    #             frame = messaging.deserialize_array(frame)
-    #             cv2.imshow(name, frame)
-    #             cv2.waitKey(1)
-    # pydra.start_recording()
-    # time.sleep(3.0)
-    # pydra.stop_recording()
-    # log = pydra.request_log()
-    # print(log)
-    # pydra.exit()
 
 
 if __name__ == "__main__":

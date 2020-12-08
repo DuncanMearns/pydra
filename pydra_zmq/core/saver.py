@@ -235,10 +235,13 @@ class Saver(ZMQSaver, ProcessMixIn):
         self.messages = []
         # Log
         self.log = []
+        # Worker events
+        self.worker_events = []
         # Query events
         self.events["query_messages"] = self.query_messages
         self.events["query_data"] = self.query_data
         self.events["query_log"] = self.query_log
+        self.events["query_events"] = self.query_events
         # Recording
         self.events["start_recording"] = self.start_recording
         self.events["stop_recording"] = self.stop_recording
@@ -267,6 +270,8 @@ class Saver(ZMQSaver, ProcessMixIn):
         self.messages.append((kwargs["source"], kwargs["timestamp"], s))
 
     def recv_log(self, timestamp, source, name, data):
+        if "event" in data:
+            self.worker_events.append((timestamp, source, name, data))
         self.log.append((timestamp, source, name, data))
 
     def recv_timestamped(self, t, data, **kwargs):
@@ -309,9 +314,17 @@ class Saver(ZMQSaver, ProcessMixIn):
 
     def query_log(self):
         for item in self.log:
-            serialized = LOGDATA().encode(*item)
+            serialized = LOGDATA.encode(*item)
             self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
         self.zmq_sender.send_multipart([b""])
+        return
+
+    def query_events(self):
+        for event in self.worker_events:
+            serialized = LOGDATA.encode(*event)
+            self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
+        self.zmq_sender.send_multipart([b""])
+        self.worker_events = []
         return
 
     def start_recording(self, directory: str = None, filename: str = None, **kwargs):

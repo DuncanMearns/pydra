@@ -26,8 +26,6 @@ class ZMQContext:
             self._zmq_set_receiver()
         if "sender" in self.zmq_config:
             self._zmq_set_sender()
-        if "remote" in self.zmq_config:
-            self._zmq_set_remote()
         # Set data handlers
         self.msg_handlers = {
             "exit": self.exit,
@@ -47,13 +45,6 @@ class ZMQContext:
             self.zmq_publisher.bind(self.zmq_config["publisher"][0])
         except KeyError:
             print(f"No publisher specified in zmq_config file of {self.name}")
-
-    def _zmq_set_remote(self):
-        self.zmq_remote = self.zmq_context.socket(zmq.REQ)
-        try:
-            self.zmq_remote.connect(self.zmq_config["remote"])
-        except KeyError:
-            print(f"No remote port specified in zmq_config file of {self.name}")
 
     def _zmq_set_subscriptions(self):
         # Create a poller to check for messages on subscription channels
@@ -162,13 +153,6 @@ class ZMQContext:
         elif "f" in flags:
             self.recv_frame(*data, **kwargs)
 
-    def send_remote(self, *args):
-        dtypes = [type(arg) for arg in args]
-        serialized = ZMQMessage(*dtypes).encode(*args)
-        self.zmq_remote.send_multipart(serialized)
-        ret = self.zmq_remote.recv()
-        return ret
-
     def recv_timestamped(self, t, data, **kwargs):
         return
 
@@ -205,7 +189,7 @@ class ZMQMain(ZMQContext):
     def query(self, query_type):
         self.send_event("query", query_type=query_type)
         result = self.zmq_receiver.recv_multipart()
-        return result
+        return result[:-1]
 
 
 class ZMQSaver(ZMQContext):
@@ -270,11 +254,17 @@ class ZMQWorker(ZMQContext):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.events["test_connection"] = self.test_connection
+        self.events["test_connection"] = self.check_connection
+        self._connected = 0
+
+    def check_connection(self, **kwargs):
+        if not self.connected:
+            self._connected = 1
+            self.connected()
 
     @logged
-    def test_connection(self, **kwargs):
-        return dict()
+    def connected(self):
+        return dict(event=True)
 
     def _recv(self):
         self.poll()
@@ -348,18 +338,49 @@ class Acquisition(Worker):
         return
 
 
-class RemoteWorker(Worker):
+class RemoteReceiver(Worker):
 
-    name = "remote"
+    name = "receiver"
 
     @classmethod
     def configure(cls, zmq_config, ports, subscriptions=()):
         # Create dictionary for storing config info
         try:
-            assert "remote" in zmq_config[cls.name]
+            assert "receiver" in zmq_config[cls.name]
         except AssertionError:
-            raise ValueError(f"zmq_config for {cls.name} must contain a 'remote' key")
-        super(RemoteWorker, cls).configure(zmq_config, ports, subscriptions)
+            raise ValueError(f"zmq_config for {cls.name} must contain a 'receiver' key")
+        super(RemoteReceiver, cls).configure(zmq_config, ports, subscriptions)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def poll_remote(self):
+        ret = self.zmq_receiver.poll(0)
+        if ret:
+            parts = self.zmq_receiver.recv_multipart()
+            self.recv_remote(*parts)
+            self.zmq_receiver.send(serialize_int(1))
+
+    def recv_remote(self, *args):
+        return
+
+    def _recv(self):
+        self.poll_remote()
+        super()._recv()
+
+
+class RemoteSender(Worker):
+
+    name = "sender"
+
+    @classmethod
+    def configure(cls, zmq_config, ports, subscriptions=()):
+        # Create dictionary for storing config info
+        try:
+            assert "sender" in zmq_config[cls.name]
+        except AssertionError:
+            raise ValueError(f"zmq_config for {cls.name} must contain a 'sender' key")
+        super(RemoteSender, cls).configure(zmq_config, ports, subscriptions)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

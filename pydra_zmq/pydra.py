@@ -1,5 +1,5 @@
 import time
-from pydra_zmq.core import Saver, Worker, Acquisition, RemoteWorker, messaging, ZMQMain
+from pydra_zmq.core import Saver, Worker, Acquisition, RemoteReceiver, messaging, ZMQMain
 from pydra_zmq.cameras import *
 import numpy as np
 from pathlib import Path
@@ -54,22 +54,6 @@ class DummyTracker(Worker):
         # print(kwargs["source"], i, t - self.t_last, frame.shape)
         # self.t_last = t
         self.send_indexed(t, i, dict(hello="world"))
-
-
-class RemoteTrigger(RemoteWorker):
-
-    name = "remote_trigger"
-
-    def __init__(self, *args ,**kwargs):
-        super().__init__(*args, **kwargs)
-
-
-MODULE_TRIGGER = {
-    "name": "remote_trigger",
-    "worker": RemoteTrigger,
-    "params": {},
-    "subscriptions": (),
-}
 
 
 MODULE_XIMEA = {
@@ -177,12 +161,23 @@ class Pydra(ZMQMain):
         filename = kwargs.get("filename", "default_filename")
         self.filename = filename
 
+    @staticmethod
+    def parse_logdata(log):
+        return [messaging.LOGDATA.decode(*log[(4 * i):(4 * i) + 4]) for i in range(len(log) // 4)]
+
     def request_log(self):
         log = self.query("log")
-        log = log[:-1]
         if len(log):
-            log = [messaging.LOGDATA().decode(*log[(4 * i):(4 * i) + 4]) for i in range(len(log) // 4)]
-        return log
+            log = self.parse_logdata(log)
+            return True, log
+        return False, log
+
+    def request_events(self):
+        events = self.query("events")
+        if len(events):
+            event_data = self.parse_logdata(events)
+            return True, event_data
+        return False, events
 
     def test_connections(self, timeout=10.):
         print("Testing connections...")
@@ -192,21 +187,28 @@ class Pydra(ZMQMain):
         while (time.time() < t1) and (not all(connected.values())):
             time.sleep(0.1)
             self.send_event("test_connection")
-            log = self.request_log()
-            for module in filter(lambda x: not connected[x], connected):
-                module_logged = list(filter(lambda x: x[1] == module, log))
-                if len(module_logged):
-                    event_times, event_names = zip(*[(item[0], item[2]) for item in module_logged])
-                    if "test_connection" in event_names:
-                        idx = event_names.index("test_connection")
-                        event_time = event_times[idx]
-                        print(f"Module {module} responded after {event_time - t0} seconds.")
-                        connected[module] = True
+            ret, events = self.request_events()
+            if ret:
+                for module in filter(lambda x: not connected[x], connected):
+                    module_events = list(filter(lambda x: x[1] == module, events))
+                    if len(module_events):
+                        event_times, event_names = zip(*[(item[0], item[2]) for item in module_events])
+                        if "connected" in event_names:
+                            idx = event_names.index("connected")
+                            event_time = event_times[idx]
+                            print(f"Module {module} responded after {event_time - t0} seconds.")
+                            connected[module] = True
         if all(connected.values()):
             print("All modules connected!")
         else:
             for module in filter(lambda x: not connected[x], connected):
                 print(f"Module {module} did not respond within {timeout} seconds. Check ZMQ config file.")
+
+    def receive_events(self):
+        events = self.query("events")
+        for (t, source, event, kwargs) in events:
+            if event in self.events:
+                self.events[event](**kwargs)
 
     @messaging.event
     def start_recording(self):
@@ -268,18 +270,6 @@ def ximea_test():
     pydra.exit()
 
 
-def trigger_test():
-    config = {
-        "modules": [MODULE_TRIGGER],
-        "zmq_config": {"remote_trigger": {"publisher": ("tcp://192.168.236.123:5996",
-                                                        "tcp://192.168.236.123:5996")}}
-    }
-    pydra = Pydra.run(config)
-    time.sleep(2)
-    pydra.exit()
-
-
 if __name__ == "__main__":
-    # trigger_test()
     # ximea_test()
     main()
