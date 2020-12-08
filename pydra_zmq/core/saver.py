@@ -270,7 +270,7 @@ class Saver(ZMQSaver, ProcessMixIn):
         self.messages.append((kwargs["source"], kwargs["timestamp"], s))
 
     def recv_log(self, timestamp, source, name, data):
-        if "event" in data:
+        if ("event" in data) and data["event"]:
             self.worker_events.append((timestamp, source, name, data))
         self.log.append((timestamp, source, name, data))
 

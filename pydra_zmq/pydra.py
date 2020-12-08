@@ -150,6 +150,7 @@ class Pydra(ZMQMain):
         self.saver = Saver.start(groups, None, zmq_config=kwargs["zmq_config"])
         # Wait for saver
         self.zmq_receiver.recv_multipart()
+        print("Saver ready.\nStarting modules...")
         # Start workers
         for module in self.modules:
             module["worker"].start(zmq_config=kwargs["zmq_config"], **module["params"])
@@ -206,6 +207,7 @@ class Pydra(ZMQMain):
 
     def receive_events(self):
         events = self.query("events")
+        events = self.parse_logdata(events)
         for (t, source, event, kwargs) in events:
             if event in self.events:
                 self.events[event](**kwargs)

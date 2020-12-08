@@ -67,9 +67,10 @@ class TriggerReceiver(RemoteReceiver):
 
     @messaging.logged
     def trigger_received(self, val):
-        return {"val": val}
+        return {"val": val, "event": True}
 
     def recv_remote(self, val, *args):
+        val = messaging.deserialize_int(val)
         self.trigger_received(val)
 
 
@@ -121,19 +122,23 @@ config = {
 
     "modules": [MODULE_TAIL, MODULE_JAW, MODULE_SCANIMAGE],
     "zmq_config": {
-        "scanimage": {"receiver": "tcp://192.168.236.123:5996"}
+        "trigger_receiver": {"receiver": ("tcp://*:5996", "tcp://localhost:5996")}
     }
 
 }
 
 
 def main():
-    pydra = Pydra.run(config)
+    pydra = Hyperion.run(config)
     pydra.send_event("set_params", target="tailcam", exposure=3, frame_size=(300, 300), gain=4)
     pydra.send_event("set_params", target="jawcam", exposure=1, frame_size=(300, 200))
-    pydra.set_working_directory(r"C:\DATA\Duncan\2020_12_04")
+    pydra.set_working_directory(r"C:\DATA\Duncan\2020_12_08")
     pydra.set_filename(r"test_video")
-    return pydra
+    while True:
+        pydra.receive_events()
+        time.sleep(0.1)
+    pydra.exit()
+    # return pydra
 
 
 if __name__ == "__main__":

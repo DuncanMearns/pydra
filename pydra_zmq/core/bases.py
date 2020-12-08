@@ -37,6 +37,8 @@ class ZMQContext:
         }
         # Create events
         self.events = {}
+        # Wait for zmq connections
+        time.sleep(1.0)
 
     def _zmq_set_publisher(self):
         """Create the publisher for sending messages"""
@@ -258,7 +260,7 @@ class ZMQWorker(ZMQContext):
         self._connected = 0
 
     def check_connection(self, **kwargs):
-        if not self.connected:
+        if not self._connected:
             self._connected = 1
             self.connected()
 
@@ -359,7 +361,6 @@ class RemoteReceiver(Worker):
         if ret:
             parts = self.zmq_receiver.recv_multipart()
             self.recv_remote(*parts)
-            self.zmq_receiver.send(serialize_int(1))
 
     def recv_remote(self, *args):
         return
