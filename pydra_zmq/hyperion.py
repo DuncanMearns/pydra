@@ -3,6 +3,7 @@ from pydra_zmq.pydra import Pydra
 from pydra_zmq.core import RemoteReceiver, RemoteSender, messaging
 from pydra_zmq.cameras import XimeaCamera
 import cv2
+import numpy as np
 
 
 ports = [
@@ -79,13 +80,18 @@ class Hyperion(Pydra):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.events["trigger_received"] = self.trigger_received
+        self.number = 1
 
     def trigger_received(self, **kwargs):
         val = kwargs.get("val")
         if val:
+            self.set_filename(self.filename[:-1] + str(self.number))
+            print(f"Recording start {self.filename}...", end=" ")
             self.start_recording()
         else:
             self.stop_recording()
+            print("finished.")
+            self.number += 1
 
 
 MODULE_TAIL = {
@@ -128,18 +134,39 @@ config = {
 }
 
 
+def show_cameras():
+    datamsg = messaging.ZMQMessage(str, np.ndarray, dict)
+    pydra = Hyperion.run(config)
+    pydra.send_event("set_params", target="tailcam", exposure=3, frame_size=(300, 300), gain=4)
+    pydra.send_event("set_params", target="jawcam", exposure=0.5, frame_size=(300, 200))
+    while True:
+        data = pydra.query("data")
+        if len(data):
+            data = [datamsg.decode(*data[(3 * i):(3 * i) + 3]) for i in range(len(data) // 3)]
+            for name, frame, _ in data:
+                cv2.imshow(name, frame)
+            k = cv2.waitKey(1)
+            if k == 13:
+                break
+    pydra.exit()
+
+
 def main():
     pydra = Hyperion.run(config)
     pydra.send_event("set_params", target="tailcam", exposure=3, frame_size=(300, 300), gain=4)
-    pydra.send_event("set_params", target="jawcam", exposure=1, frame_size=(300, 200))
-    pydra.set_working_directory(r"C:\DATA\Duncan\2020_12_08")
-    pydra.set_filename(r"test_video")
+    pydra.send_event("set_params", target="jawcam", exposure=0.5, frame_size=(300, 200))
+    pydra.set_working_directory(r"C:\DATA\Duncan\2020_12_09")
+    pydra.set_filename(r"fish2_plane2_0001")
+    cv2.namedWindow("exit")
     while True:
         pydra.receive_events()
-        time.sleep(0.1)
+        k = cv2.waitKey(1)
+        if k == 13:
+            break
     pydra.exit()
-    # return pydra
+    return pydra
 
 
 if __name__ == "__main__":
+    # show_cameras()
     main()
