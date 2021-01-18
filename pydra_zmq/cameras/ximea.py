@@ -1,5 +1,5 @@
 from .camera import CameraAcquisition
-from ..core.messaging import logged
+from ..core.messaging import LOGGED
 
 
 class XimeaCamera(CameraAcquisition):
@@ -32,7 +32,7 @@ class XimeaCamera(CameraAcquisition):
         self.camera.start_acquisition()
         self.camera.set_acq_timing_mode("XI_ACQ_TIMING_MODE_FRAME_RATE")
 
-    @logged
+    @LOGGED
     def set_params(self, **kwargs):
         new_params = {}
         if ("target" in kwargs) and (kwargs["target"] != self.name):

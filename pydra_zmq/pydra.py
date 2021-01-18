@@ -1,7 +1,5 @@
 import time
-from pydra_zmq.core import Saver, Worker, Acquisition, RemoteReceiver, messaging, ZMQMain
-from pydra_zmq.cameras import *
-import numpy as np
+from pydra_zmq.core import Saver, messaging, PydraObject, EXIT, EVENT, LOGGED, TextMessage, DataMessage
 from pathlib import Path
 import os
 import sys
@@ -16,121 +14,62 @@ ports = [
 ]
 
 
-class DummyAcquisition(Acquisition):
+config = {
 
-    name = "acquisition"
+    "connections": {
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.events["start_recording"] = self.start_recording
-        self.n = 0
+        "pydra": {
+            "publisher": "tcp://*:6000",
+            "receiver": "tcp://localhost:6001",
+            "port": "tcp://localhost:6000"
+        },
 
-    def start_recording(self, **kwargs):
-        self.n = 0
+        "saver": {
+            "sender": "tcp://*:6001",
+            "subscriptions": []
+        },
 
-    def acquire(self):
-        time.sleep(0.01)
-        a = np.zeros((512, 512), dtype="uint8")
-        t = time.time()
-        self.send_frame(t, self.n, a)
-        self.n += 1
+    },
 
-
-class DummyTracker(Worker):
-
-    name = "tracker"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.t_last = 0
-        self.events["hello_world"] = self.hello_world
-
-    @messaging.logged
-    def hello_world(self, **kwargs):
-        print("hello world!")
-
-    def recv_frame(self, t, i, frame, **kwargs):
-        t, i, frame = messaging.DATA(messaging.FRAME).decode(t, i, frame)
-        # print(kwargs["source"], i, t - self.t_last, frame.shape)
-        # self.t_last = t
-        self.send_indexed(t, i, dict(hello="world"))
-
-
-MODULE_XIMEA = {
-    "name": "ximea",
-    "worker": XimeaCamera,
-    "params": {},
-    "subscriptions": (),
-    "save": True,
-    "group": ""
-}
-
-
-MODULE_ACQUISITION = {
-    "name": "acquisition",
-    "worker": DummyAcquisition,
-    "params": {},
-    "subscriptions": (),
-    "save": True,
-    "group": "",
-    "codec": "xvid"
-}
-
-
-MODULE_TRACKER = {
-    "name": "tracker",
-    "worker": DummyTracker,
-    "params": {},
-    "subscriptions": (
-        ("acquisition", "", (messaging.DATA,)),
-    ),
-    "save": True,
-    "group": ""
-}
-
-
-_config = {
-
-    # "zmq_config": {"remote_trigger": {"remote": "tcp://192.168.236.123:5996"}}
-    "modules": [MODULE_ACQUISITION, MODULE_TRACKER],
-    # "modules": [MODULE_XIMEA, MODULE_TRACKER],
+    "modules": []
 
 }
 
 
-class Pydra(ZMQMain):
+class Pydra(PydraObject):
 
     name = "pydra"
     modules = []
 
     @classmethod
-    def run(cls, config):
-        # Add modules
-        try:
-            cls.modules = config["modules"]
-        except KeyError:
-            cls.modules = []
-        # Set the zmq configuration
-        try:
-            zmq_config = config["zmq_config"]
-        except KeyError:
-            zmq_config = {}
-            config["zmq_config"] = zmq_config
+    def run(cls):
+        global config
         global ports
-        cls.configure(zmq_config, ports)
+        # Add modules
+        cls.modules = config["modules"]
+        # Configure saver connections
+        pydra_port = config["connections"]["pydra"]["port"]
+        config["connections"]["saver"]["subscriptions"].append(("pydra", pydra_port, (EXIT, EVENT, LogMessage)))
+        # Configure connections
         for module in cls.modules:
-            module["worker"].configure(zmq_config, ports, module["subscriptions"])
-        # Configure saver
-        saver_subs = []
+            worker = module["worker"]
+            worker_config = {}
+            pub, sub = ports.pop(0)
+            worker_config["publisher"] = pub
+            worker_config["port"] = sub
+            worker_config["subscriptions"] = [("pydra",
+                                               pydra_port,
+                                               (EXIT, EVENT))]
+            config["connections"][worker.name] = worker_config
+        # Add subscriptions to saver and workers
         for module in cls.modules:
-            sub = [module["name"]]
-            if ("save" in module) and module["save"]:
-                sub.append(1)
-            else:
-                sub.append(0)
-            saver_subs.append(sub)
-        Saver.configure(zmq_config, (), saver_subs)
-        # Return configured pydra object
+            worker = module["worker"]
+            port = config["connections"][worker.name]["port"]
+            config["connections"]["saver"]["subscriptions"].append((worker.name, port, (TextMessage, LogMessage, DataMessage)))
+            for name in worker.subscriptions:
+                port = config["connections"][name]["port"]
+                config["connections"][worker.name]["subscriptions"].append((worker.name, port, (EVENT, DataMessage)))
+        # Return pydra object
         return cls(**config)
 
     def __init__(self, *args, **kwargs):
@@ -162,9 +101,38 @@ class Pydra(ZMQMain):
         filename = kwargs.get("filename", "default_filename")
         self.filename = filename
 
+    @EXIT
+    def exit(self):
+        return ()
+
+    @EVENT
+    def start_recording(self):
+        return "start_recording", dict(directory=str(self.working_dir), filename=str(self.filename))
+
+    @EVENT
+    def stop_recording(self):
+        return "stop_recording", {}
+
+    @LOGGED
+    @EVENT
+    def set_working_directory(self, directory):
+        self.working_dir = directory
+        return "set_working_directory", dict(directory=str(self.working_dir))
+
+    @LOGGED
+    @EVENT
+    def set_filename(self, filename):
+        self.filename = filename
+        return "set_filename", dict(filename=str(self.filename))
+
+    def query(self, query_type):
+        self.send_event("query", query_type=query_type)
+        result = self.zmq_receiver.recv_multipart()
+        return result[:-1]
+
     @staticmethod
     def parse_logdata(log):
-        return [messaging.LOGDATA.decode(*log[(4 * i):(4 * i) + 4]) for i in range(len(log) // 4)]
+        return [messaging.LOGINFO.decode(*log[(4 * i):(4 * i) + 4]) for i in range(len(log) // 4)]
 
     def request_log(self):
         log = self.query("log")
@@ -211,67 +179,3 @@ class Pydra(ZMQMain):
         for (t, source, event, kwargs) in events:
             if event in self.events:
                 self.events[event](**kwargs)
-
-    @messaging.event
-    def start_recording(self):
-        return "start_recording", dict(directory=str(self.working_dir), filename=str(self.filename))
-
-    @messaging.event
-    def stop_recording(self):
-        return "stop_recording", {}
-
-    @messaging.logged
-    @messaging.event
-    def set_working_directory(self, directory):
-        self.working_dir = directory
-        return "set_working_directory", dict(directory=str(self.working_dir))
-
-    @messaging.logged
-    @messaging.event
-    def set_filename(self, filename):
-        self.filename = filename
-        return "set_filename", dict(filename=str(self.filename))
-
-
-def main():
-    config = {
-        "modules": [MODULE_ACQUISITION, MODULE_TRACKER],
-    }
-    pydra = Pydra.run(config)
-    pydra.send_event("hello_world")
-    time.sleep(5.0)
-    pydra.start_recording()
-    time.sleep(2.0)
-    pydra.stop_recording()
-    pydra.set_filename("new_name")
-    pydra.start_recording()
-    time.sleep(0.2)
-    pydra.stop_recording()
-    pydra.exit()
-
-
-def ximea_test():
-    import cv2
-    config = {
-        "modules": [MODULE_XIMEA, MODULE_TRACKER],
-    }
-    pydra = Pydra.run(config)
-    pydra.send_event("set_params", frame_rate=300, exposure=1, frame_size=(100, 100))
-    pydra.start_recording()
-    for f in range(100):
-        result = pydra.query("data")
-        result = result[:-1]
-        if len(result):
-            name, frame, data = result
-            frame = messaging.deserialize_array(frame)
-            cv2.imshow("frame", frame)
-            cv2.waitKey(10)
-        else:
-            time.sleep(0.1)
-    pydra.stop_recording()
-    pydra.exit()
-
-
-if __name__ == "__main__":
-    # ximea_test()
-    main()

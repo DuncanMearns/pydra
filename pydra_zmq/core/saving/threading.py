@@ -1,9 +1,7 @@
-from .bases import ZMQSaver, ProcessMixIn
-from .messaging import *
-from .messaging.serializers import *
+from ..messaging import *
+from ..messaging.serializers import *
 import threading
 import queue
-import zmq
 import cv2
 from pathlib import Path
 from collections import deque
@@ -72,7 +70,7 @@ class IndexedThread(Thread):
         self.data = {}
 
     def dump(self, source, t, i, data):
-        t, i, data = DATA(INDEXED).decode(t, i, data)
+        t, i, data = DataMessage(INDEXED).decode(t, i, data)
         try:
             self.data[source]["time"].append(t)
             self.data[source]["index"].append(i)
@@ -112,7 +110,7 @@ class TimestampedThread(Thread):
         self.data = {}
 
     def dump(self, source, t, data):
-        t, data = DATA(TIMESTAMPED).decode(t, data)
+        t, data = DataMessage(TIMESTAMPED).decode(t, data)
         try:
             self.data[source]["time"].append(t)
             for key, val in data.items():
@@ -126,7 +124,7 @@ class TimestampedThread(Thread):
         return
 
 
-class Group:
+class ThreadGroup:
 
     def __init__(self, name, members):
         self.name = name
@@ -223,121 +221,3 @@ class Group:
         self.timestamped_thread.join()
         self.indexed_thread.join()
         self.frame_thread.join()
-
-
-class Saver(ZMQSaver, ProcessMixIn):
-
-    name = "saver"
-
-    def __init__(self, groups, video_params, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Message cache
-        self.messages = []
-        # Log
-        self.log = []
-        # Worker events
-        self.worker_events = []
-        # Query events
-        self.events["query_messages"] = self.query_messages
-        self.events["query_data"] = self.query_data
-        self.events["query_log"] = self.query_log
-        self.events["query_events"] = self.query_events
-        # Recording
-        self.events["start_recording"] = self.start_recording
-        self.events["stop_recording"] = self.stop_recording
-        self.recording = False
-        # Groups
-        self.groups = []
-        self.targets = {}
-        for name, members in groups.items():
-            group = Group(name, members)
-            self.groups.append(group)
-            for members in members:
-                self.targets[members] = group
-        # Video params
-        self.video_params = video_params
-
-    def setup(self):
-        self.zmq_sender.send(b"")
-
-    def _process(self):
-        self._recv()
-
-    def exit(self, *args, **kwargs):
-        self.close()
-
-    def recv_message(self, s, **kwargs):
-        self.messages.append((kwargs["source"], kwargs["timestamp"], s))
-
-    def recv_log(self, timestamp, source, name, data):
-        if ("event" in data) and data["event"]:
-            self.worker_events.append((timestamp, source, name, data))
-        self.log.append((timestamp, source, name, data))
-
-    def recv_timestamped(self, t, data, **kwargs):
-        self.targets[kwargs["source"]].update(kwargs["source"], "timestamped", t, data)
-        if kwargs["save"] and self.recording:
-            self.targets[kwargs["source"]].save_timestamped(kwargs["source"], t, data)
-        return
-
-    def recv_indexed(self, t, i, data, **kwargs):
-        self.targets[kwargs["source"]].update(kwargs["source"], "indexed", t, i, data)
-        if kwargs["save"] and self.recording:
-            self.targets[kwargs["source"]].save_indexed(kwargs["source"], t, i, data)
-        return
-
-    def recv_frame(self, t, i, frame, **kwargs):
-        self.targets[kwargs["source"]].update(kwargs["source"], "frame", t, i, frame)
-        if kwargs["save"] and self.recording:
-            self.targets[kwargs["source"]].save_frame(kwargs["source"], t, i, frame)
-        return
-
-    def query_messages(self):
-        self.zmq_sender.send(b"", zmq.SNDMORE)
-        while len(self.messages):
-            source, t, m = self.messages.pop(0)
-            d = {"source": source,
-                 "timestamp": t,
-                 "message": m}
-            self.zmq_sender.send(serialize_dict(d), zmq.SNDMORE)
-        self.zmq_sender.send(b"")
-
-    def query_data(self):
-        for group in self.groups:
-            if group.frame:
-                name = serialize_string(group.name)
-                frame = group.frame
-                data = group.flush()
-                self.zmq_sender.send_multipart([name, frame, data], zmq.SNDMORE)
-        self.zmq_sender.send_multipart([b""])
-        return
-
-    def query_log(self):
-        for item in self.log:
-            serialized = LOGDATA.encode(*item)
-            self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
-        self.zmq_sender.send_multipart([b""])
-        return
-
-    def query_events(self):
-        for event in self.worker_events:
-            serialized = LOGDATA.encode(*event)
-            self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
-        self.zmq_sender.send_multipart([b""])
-        self.worker_events = []
-        return
-
-    def start_recording(self, directory: str = None, filename: str = None, **kwargs):
-        for group in self.groups:
-            group.start(directory, filename)
-        # Set recording to True
-        self.recording = True
-        return
-
-    def stop_recording(self, **kwargs):
-        # Stop all saving groups
-        for group in self.groups:
-            group.stop()
-        # Set recording to False
-        self.recording = False
-        return

@@ -66,7 +66,7 @@ class TriggerReceiver(RemoteReceiver):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @messaging.logged
+    @messaging.LOGGED
     def trigger_received(self, val):
         return {"val": val, "event": True}
 
@@ -135,7 +135,7 @@ config = {
 
 
 def show_cameras():
-    datamsg = messaging.ZMQMessage(str, np.ndarray, dict)
+    datamsg = messaging.PydraMessage(str, np.ndarray, dict)
     pydra = Hyperion.run(config)
     pydra.send_event("set_params", target="tailcam", exposure=3, frame_size=(300, 300), gain=4)
     pydra.send_event("set_params", target="jawcam", exposure=0.5, frame_size=(300, 200))
