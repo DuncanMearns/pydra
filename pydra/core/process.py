@@ -1,69 +1,74 @@
-from .workers import WorkerConstructor
-from multiprocessing import Process, Event
-from multiprocessing.connection import Connection
-import time
+from multiprocessing import Process
 
 
 class PydraProcess(Process):
+    """Class for running pydra objects in a separate process.
 
-    def __init__(
-            self,
-            constructor: WorkerConstructor,
-            exit_flag: Event,
-            start_flag: Event,
-            stop_flag: Event,
-            finished_flag: Event,
-            connection: Connection,
-            *args, **kwargs
-    ):
-        """Pydra process class.
+    The run method of PydraProcess calls the constructor for the worker class and then calls the run method of the
+    newly created object.
 
-        Parameters
-        ----------
-        constructor : WorkerConstructor
-            A WorkerConstructor object.
-        exit_flag : Event
-            Signal telling the main loop of the core when to exit.
-        finished_flag : Event
-            Signal sent by the core once it has finished.
-        """
+    Parameters
+    ----------
+    worker_type : type
+        Worker type (should be a subclass of PydraObject and ProcessMixIn).
+    worker_args : iterable
+        Arguments passed with star to the constructor of the worker pydra object.
+    worker_kwargs : dict
+        Keyword arguments passed with double star to the constructor of the worker pydra object.
+
+    Attributes
+    ----------
+    worker : PydraObject
+        An instance of a PydraObject class.
+    """
+
+    def __init__(self, worker_type, worker_args, worker_kwargs, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.constructor = constructor  # worker constructor object
-        self.exit_flag = exit_flag  # flag that tells process to exit
-        self.start_flag = start_flag  # flag that tells process to begin the worker event loop
-        self.stop_flag = stop_flag  # flag that tells the process to end the worker event loop
-        self.finished_flag = finished_flag  # flag that informs other processes that the worker event loop as ended
-        self.connection = connection  # connection from the main process to receive events
-        self.worker = None
-
-    def _recv(self):
-        """Updates keyword arguments of the worker object."""
-        if self.connection.poll(timeout=0.01):
-            data = self.connection.recv()
-            if isinstance(data, WorkerConstructor):
-                handles = dict(((name, self.worker.__getattribute__(name)) for name in self.worker.handles))
-                self.constructor = data
-                self.constructor.kwargs.update(handles)
-            elif isinstance(data, dict):
-                self.constructor.update(**data)
-            elif isinstance(data, tuple):
-                self.constructor.update(*data)
-            else:
-                self.connection.send(False)
-                return
-            self.worker = self.constructor()
-            self.connection.send(True)
+        self.worker_type = worker_type
+        self.worker_args = worker_args
+        self.worker_kwargs = worker_kwargs
 
     def run(self):
-        """Code that runs when process is started."""
-        self.worker = self.constructor()
-        while not self.exit_flag.is_set():  # "event loop" runs as long as exit flag is not set
-            self._recv()  # receive worker arguments from the main process
-            if self.start_flag.is_set():  # check if start flag is set
-                self.worker.setup()
-                while not self.stop_flag.is_set():  # run the worker event loop until stop flag is set
-                    self.worker._run()
-                    self.worker._handle_events()
-                self.worker.cleanup()  # cleanup worker
-                self.worker._flush_events()  # flush any remaining events
-                self.finished_flag.set()  # set the finished flag
+        self.worker = self.worker_type(*self.worker_args, **self.worker_kwargs)
+        self.worker.run()
+
+
+class ProcessMixIn:
+    """Mix-in class for running pydra objects in a separate process.
+
+    Provides such classes with a run method that is called after the object is instantiated in a separate process. Also
+    provides a start classmethod that launches the object in a separate process.
+
+    Attributes
+    ----------
+    exit_flag : int
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.exit_flag = 0
+
+    @classmethod
+    def start(cls, *args, **kwargs):
+        """Launches the object in a separate process. Parameters are the same as the constructor."""
+        process = PydraProcess(cls, args, kwargs)
+        process.start()
+
+    def close(self):
+        """Sets the exit_flag, causing process to terminate."""
+        self.exit_flag = 1
+
+    def setup(self):
+        """Called once as soon as the object is created in a separate process."""
+        return
+
+    def _process(self):
+        """Called repeatedly in a while loop for as long as the exit_flag is not set."""
+        return
+
+    def run(self):
+        """Calls setup, and then enters an endless loop that calls the _process method for as long as the exit_flag is
+        not set."""
+        self.setup()
+        while not self.exit_flag:
+            self._process()
