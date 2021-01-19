@@ -1,5 +1,6 @@
 import zmq
 from .messaging import *
+import time
 
 
 class PydraObject:
@@ -53,10 +54,10 @@ class PydraObject:
 
     See Also
     --------
-    pydra_zmq.core.pydra.Pydra
-    pydra_zmq.core.saving.Saver
-    pydra_zmq.core.workers.Worker
-    pydra_zmq.core.process
+    pydra.core.pydra.Pydra
+    pydra.core.saving.Saver
+    pydra.core.workers.Worker
+    pydra.core.process
     """
 
     name = ""
@@ -93,7 +94,7 @@ class PydraObject:
         }
         # Create events
         self.events = {}
-        # Wait for zmq connections
+        # Wait for 0MQ connections
         time.sleep(1.0)
 
     def _zmq_set_publisher(self, port):
@@ -118,12 +119,12 @@ class PydraObject:
     def _zmq_set_sender(self, port):
         """Creates the zmq_sender for pushing messages to another pydra object."""
         self.zmq_sender = self.zmq_context.socket(zmq.PUSH)
-        self.zmq_sender.connect(port)
+        self.zmq_sender.bind(port)
 
     def _zmq_set_receiver(self, port):
         """Creates the zmq_receiver for receiving pushed messages."""
         self.zmq_receiver = self.zmq_context.socket(zmq.PULL)
-        self.zmq_receiver.bind(port)
+        self.zmq_receiver.connect(port)
 
     def _destroy(self):
         """Destroys the 0MQ context."""
@@ -185,8 +186,10 @@ class PydraObject:
         event_name : str
             The name of the event. Other pydra objects subscribing to events from this one will call the corresponding
             method in their events attribute.
-        kwargs : dict
-            Dictionary of keyword arguments associated with the event."""
+
+        Other Parameters
+        ----------------
+            Keyword arguments associated with the event."""
         return event_name, kwargs
 
     def handle_event(self, event_name, event_kw, **kwargs):
@@ -270,9 +273,13 @@ class PydraObject:
             Time at which the message was sent.
         flags : str
             Additional flags received along with the message.
+
+        Notes
+        -----
+        To decode messages use:
+        >>> t, data = TIMESTAMPED.decode(t, data)
         """
-        t, data = TIMESTAMPED.decode(t, data)
-        return t, data
+        return
 
     def recv_indexed(self, t, i, data, **kwargs):
         """Method for handling serialized indexed data received from other objects. May be re-implemented in subclasses.
@@ -296,9 +303,13 @@ class PydraObject:
             Time at which the message was sent.
         flags : str
             Additional flags received along with the message.
+
+        Notes
+        -----
+        To decode messages use:
+        >>> t, i, data = INDEXED.decode(t, i, data)
         """
-        t, i, data = INDEXED.decode(t, i, data)
-        return t, i, data
+        return
 
     def recv_frame(self, t, i, frame, **kwargs):
         """Method for handling serialized frame data received from other objects. May be re-implemented in subclasses.
@@ -322,6 +333,10 @@ class PydraObject:
             Time at which the message was sent.
         flags : str
             Additional flags received along with the message.
+
+        Notes
+        -----
+        To decode messages use:
+        >>> t, i, frame = FRAME.decode(t, i, frame)
         """
-        t, i, frame = FRAME.decode(t, i, frame)
-        return t, i, frame
+        return

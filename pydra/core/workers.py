@@ -9,27 +9,6 @@ class Worker(PydraObject, ProcessMixIn):
     name = "worker"
     subscriptions = []
 
-    @classmethod
-    def configure(cls, zmq_config, ports, subscriptions=()):
-        # Create dictionary for storing config info
-        if cls.name not in zmq_config:
-            zmq_config[cls.name] = {}
-        try:
-            # Add a port for publishing outputs
-            if "publisher" not in zmq_config[cls.name]:
-                zmq_config[cls.name]["publisher"] = ports.pop(0)
-            # Add subscriptions to config
-            zmq_config[cls.name]["subscriptions"] = []
-            # Add subscription to main pydra process
-            subscribe_to_main = ("pydra", zmq_config["pydra"]["publisher"][1], (EVENT, EXIT))
-            zmq_config[cls.name]["subscriptions"].append(subscribe_to_main)
-            for name, port, messages in subscriptions:
-                if name in zmq_config:
-                    port = zmq_config[name]["publisher"][1]
-                zmq_config[cls.name]["subscriptions"].append((name, port, messages))
-        except IndexError:
-            print(f"Not enough ports to configure {cls.name}")
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.events["test_connection"] = self.check_connection
@@ -48,6 +27,7 @@ class Worker(PydraObject, ProcessMixIn):
 
     @LOGGED
     def connected(self):
+        """Logs that worker has received the 'test_connection' event."""
         return dict(event=True)
 
     def exit(self, *args, **kwargs):

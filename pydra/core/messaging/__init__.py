@@ -2,7 +2,7 @@ from .serializers import *
 import time
 
 __all__ = ["PydraMessage",
-           "EXIT", "MESSAGE", "EVENT", "TIMESTAMPED", "INDEXED", "FRAME", "LOGGED", "LOGINFO", "TRIGGER"]
+           "EXIT", "MESSAGE", "EVENT", "DATA", "TIMESTAMPED", "INDEXED", "FRAME", "LOGGED", "INFO", "TRIGGER"]
 
 
 class PydraMessage:
@@ -205,6 +205,7 @@ class DataMessage(PydraMessage):
         return [self.flag, source, t, self.data_flags]
 
 
+DATA = DataMessage
 TIMESTAMPED = DataMessage(b"t")
 INDEXED = DataMessage(b"i")
 FRAME = DataMessage(b"f")
@@ -229,7 +230,7 @@ class LoggedMessage(PydraMessage):
 LOGGED = LoggedMessage()
 
 
-LOGINFO = PydraMessage(float, str, str, dict)
+INFO = PydraMessage(float, str, str, dict)
 
 
 class TriggerMessage(PydraMessage):
