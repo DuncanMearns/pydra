@@ -236,7 +236,7 @@ class TimestampedThread(Thread):
         return
 
 
-class ThreadGroup:
+class PipelineSaver:
 
     def __init__(self, name, members):
         self.name = name

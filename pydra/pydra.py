@@ -1,5 +1,6 @@
 import time
-from pydra.core import Saver, PydraObject
+from pydra.core import PydraObject
+from pydra.core.saving import Saver
 from pydra.core.messaging import *
 from pathlib import Path
 import os
@@ -37,6 +38,20 @@ config = {
 
 
 class Pydra(PydraObject):
+    """Main pydra class.
+
+    Parameters
+    ----------
+    connections : dict
+        A pre-configured dictionary containing information about 0MQ ports to be used used by pydra objects in the
+        network. Should be contained in the config file.
+    modules : list
+        A list of modules to launch with pydra. Should be contained in the config file.
+
+    Attributes
+    ----------
+
+    """
 
     name = "pydra"
 
@@ -69,7 +84,7 @@ class Pydra(PydraObject):
             # Add subscriptions to other workers
             for sub in worker.subscriptions:
                 port = config["connections"][sub]["port"]
-                config["connections"][worker.name]["subscriptions"].append((worker.name,
+                config["connections"][worker.name]["subscriptions"].append((sub,
                                                                             port,
                                                                             (EVENT, DATA)))
         # Return configuration
@@ -79,19 +94,8 @@ class Pydra(PydraObject):
         self.connections = connections
         self.modules = modules
         super().__init__(connections=connections, *args, **kwargs)
-        # Start saver
-        groups = {}
-        for module in self.modules:
-            try:
-                group = module["group"]
-            except KeyError:
-                group = ""
-            if group in groups:
-                groups[group].append(module["name"])
-            else:
-                groups[group] = [module["name"]]
         # Start saver and wait for it to respond
-        self.saver = Saver.start(groups, None, connections=connections)
+        self.saver = Saver.start(self.pipelines, connections=connections)
         self.zmq_receiver.recv_multipart()
         # Start module workers
         print("Saver ready. Starting modules...", end=" ")
@@ -105,6 +109,18 @@ class Pydra(PydraObject):
         self.working_dir = Path(working_dir)
         filename = kwargs.get("filename", "default_filename")
         self.filename = filename
+
+    @property
+    def pipelines(self):
+        pipelines = {}
+        for module in self.modules:
+            name = module["worker"].name
+            pipeline = module["worker"].pipeline
+            if  pipeline in pipelines:
+                pipelines[pipeline].append(name)
+            else:
+                pipelines[pipeline] = [name]
+        return pipelines
 
     @EXIT
     def exit(self):
@@ -121,19 +137,15 @@ class Pydra(PydraObject):
         """Broadcasts a start_recording event."""
         return "stop_recording", {}
 
-    @LOGGED
-    @EVENT
     def set_working_directory(self, directory):
-        """Broadcasts a logged set_working_directory event."""
+        """Sets the working directory and broadcasts a logged set_working_directory event."""
         self.working_dir = directory
-        return "set_working_directory", dict(directory=str(self.working_dir))
+        self.send_event("set_working_directory", directory=str(self.working_dir))
 
-    @LOGGED
-    @EVENT
     def set_filename(self, filename):
-        """Broadcasts a logged set_filename event."""
+        """Sets the filename and broadcasts a logged set_filename event."""
         self.filename = filename
-        return "set_filename", dict(filename=str(self.filename))
+        self.send_event("set_filename", filename=str(self.filename))
 
     def query(self, query_type: str):
         """General method for sending any request to the saver.
@@ -172,6 +184,22 @@ class Pydra(PydraObject):
             return True, event_data
         return False, events
 
+    def request_messages(self):
+        """Request messages from saver."""
+        messages = self.query("messages")
+        if len(messages):
+            message_data = self.decode_message(messages)
+            message_data = [message[:3] for message in message_data]
+            return True, message_data
+        return False, messages
+
+    # def receive_events(self):
+    #     events = self.query("events")
+    #     events = self.decode_message(events)
+    #     for (t, source, event, kwargs) in events:
+    #         if event in self.events:
+    #             self.events[event](**kwargs)
+
     def test_connections(self, timeout=10.):
         """Checks that all workers in the network are receiving messages from pydra.
 
@@ -184,7 +212,7 @@ class Pydra(PydraObject):
         t0 = time.time()
         t_timeout = t0 + timeout
         # Create a dictionary with the connection status of each worker
-        connected = dict([(module["name"], False) for module in self.modules])
+        connected = dict([(module["worker"].name, False) for module in self.modules])
         # loop as long as workers are not connected or until the timeout has passed
         while (time.time() < t_timeout) and (not all(connected.values())):
             time.sleep(0.1)
@@ -206,10 +234,3 @@ class Pydra(PydraObject):
         else:
             for module in filter(lambda x: not connected[x], connected):  # provide diagnostic info for user
                 print(f"Module {module} did not respond within {timeout} seconds. Check connections in config.")
-
-    def receive_events(self):
-        events = self.query("events")
-        events = self.decode_message(events)
-        for (t, source, event, kwargs) in events:
-            if event in self.events:
-                self.events[event](**kwargs)

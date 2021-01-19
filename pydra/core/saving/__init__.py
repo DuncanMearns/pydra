@@ -1,16 +1,39 @@
-from ..base import PydraObject
-from ..process import ProcessMixIn
-from ..messaging import *
-from ..messaging.serializers import *
-from .threading import ThreadGroup
+from pydra.core import PydraObject
+from pydra.core.process import ProcessMixIn
+from pydra.core.messaging import *
+from pydra.core.messaging.serializers import *
+from .threading import PipelineSaver
 import zmq
 
 
 class Saver(PydraObject, ProcessMixIn):
+    """Singleton Saver class that integrates and handles incoming messages from all workers.
+
+    Parameters
+    ----------
+    pipelines : dict
+        Dictionary of workers (as a list of names) assigned to each pipeline (keys). Passed from pydra pipelines
+        property.
+
+    Attributes
+    ----------
+    log : list
+        Logged messages from all pydra objects.
+    worker_events : list
+        Copy of events that workers have received.
+    messages : list
+        List of messages received from all pydra objects.
+    recording : bool
+        Stores whether data are currently being recorded and saved.
+    savers : list
+        List that stores all PipelineSaver objects.
+    targets : dict
+        A dictionary that maps data received from workers to the appropiate PipelineSaver object.
+    """
 
     name = "saver"
 
-    def __init__(self, groups, video_params, *args, **kwargs):
+    def __init__(self, pipelines: dict, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Add log message handling
         self.msg_handlers["log"] = self.handle_log
@@ -28,25 +51,25 @@ class Saver(PydraObject, ProcessMixIn):
         self.events["start_recording"] = self.start_recording
         self.events["stop_recording"] = self.stop_recording
         self.recording = False
-        # Groups
-        self.groups = []
+        # Create pipelines for handling data
+        self.savers = []
         self.targets = {}
-        for name, members in groups.items():
-            group = ThreadGroup(name, members)
-            self.groups.append(group)
+        for name, members in pipelines.items():
+            saver = PipelineSaver(name, members)
+            self.savers.append(saver)
             for member in members:
-                self.targets[member] = group
-        # Video params
-        self.video_params = video_params
+                self.targets[member] = saver
 
     def setup(self):
-        self.zmq_sender.send(b"")  # send empty byte to pydra
+        """Sends an empty byte to pydra"""
+        self.zmq_sender.send(b"")
 
     def _process(self):
         """Receive messages from workers."""
         self.poll()
 
     def exit(self, *args, **kwargs):
+        """Terminates the process loop."""
         self.close()
 
     def handle_log(self, name, data, **kwargs):
@@ -72,10 +95,8 @@ class Saver(PydraObject, ProcessMixIn):
         """Fulfills a request from pydra for messages."""
         while len(self.messages):
             source, t, m = self.messages.pop(0)
-            d = {"source": source,
-                 "timestamp": t,
-                 "message": m}
-            self.zmq_sender.send(serialize_dict(d), zmq.SNDMORE)
+            serialized = INFO.encode(t, source, m, dict())
+            self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
         self.zmq_sender.send(b"")
 
     def query_log(self):
@@ -83,58 +104,58 @@ class Saver(PydraObject, ProcessMixIn):
         for item in self.log:
             serialized = INFO.encode(*item)
             self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
-        self.zmq_sender.send_multipart([b""])
+        self.zmq_sender.send(b"")
 
     def query_events(self):
         """Fulfills a request from pydra for worker events."""
         for event in self.worker_events:
             serialized = INFO.encode(*event)
             self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
-        self.zmq_sender.send_multipart([b""])
+        self.zmq_sender.send(b"")
         self.worker_events = []
 
     def query_data(self):
         """Fulfills a request from pydra for data."""
-        for group in self.groups:
+        for group in self.savers:
             if group.frame:
                 name = serialize_string(group.name)
                 frame = group.frame
                 data = group.flush()
                 self.zmq_sender.send_multipart([name, frame, data], zmq.SNDMORE)
-        self.zmq_sender.send_multipart([b""])
+        self.zmq_sender.send(b"")
 
     def recv_message(self, s, **kwargs):
         self.messages.append((kwargs["source"], kwargs["timestamp"], s))
 
     def recv_timestamped(self, t, data, **kwargs):
         self.targets[kwargs["source"]].update(kwargs["source"], "timestamped", t, data)
-        if kwargs["save"] and self.recording:
-            self.targets[kwargs["source"]].save_timestamped(kwargs["source"], t, data)
+        # if kwargs["save"] and self.recording:
+        #     self.targets[kwargs["source"]].save_timestamped(kwargs["source"], t, data)
         return
 
     def recv_indexed(self, t, i, data, **kwargs):
         self.targets[kwargs["source"]].update(kwargs["source"], "indexed", t, i, data)
-        if kwargs["save"] and self.recording:
-            self.targets[kwargs["source"]].save_indexed(kwargs["source"], t, i, data)
+        # if kwargs["save"] and self.recording:
+        #     self.targets[kwargs["source"]].save_indexed(kwargs["source"], t, i, data)
         return
 
     def recv_frame(self, t, i, frame, **kwargs):
         self.targets[kwargs["source"]].update(kwargs["source"], "frame", t, i, frame)
-        if kwargs["save"] and self.recording:
-            self.targets[kwargs["source"]].save_frame(kwargs["source"], t, i, frame)
+        # if kwargs["save"] and self.recording:
+        #     self.targets[kwargs["source"]].save_frame(kwargs["source"], t, i, frame)
         return
 
     def start_recording(self, directory: str = None, filename: str = None, **kwargs):
-        for group in self.groups:
-            group.start(directory, filename)
+        for pipeline in self.savers:
+            pipeline.start(directory, filename)
         # Set recording to True
         self.recording = True
         return
 
     def stop_recording(self, **kwargs):
         # Stop all saving groups
-        for group in self.groups:
-            group.stop()
+        for pipeline in self.savers:
+            pipeline.stop()
         # Set recording to False
         self.recording = False
         return

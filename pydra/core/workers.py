@@ -1,13 +1,25 @@
-from .base import PydraObject
-from .process import ProcessMixIn
-from .messaging import EXIT, EVENT, LOGGED
+from pydra.core import PydraObject
+from pydra.core.process import ProcessMixIn
+from pydra.core.messaging import LOGGED
 
 
 class Worker(PydraObject, ProcessMixIn):
-    """Base worker class. Receives and handles messages. Runs in a separate process."""
+    """Base worker class. Receives and handles messages. Runs in a separate process.
+
+    Class Attributes
+    ----------------
+    name : str
+        A unique string identifying the worker. Must be specified in all subclasses.
+    subscriptions : list of str
+        Names of other workers in the network from which this one can receive data and events.
+    pipeline : str
+        The name of the pipeline to which this worker belongs. Only necessary if there are multiple data streams that
+        need to be saved separately.
+    """
 
     name = "worker"
     subscriptions = []
+    pipeline = ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

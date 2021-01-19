@@ -166,6 +166,13 @@ class TextMessage(PydraMessage):
     def __init__(self):
         super().__init__(str)
 
+    def serializer(self, args):
+        """Method called by wrapper to serialize the message and tags before sending over zmq."""
+        obj, method, result = args
+        out = self.message_tags(obj)
+        out += self.encode(result)
+        return out
+
 
 MESSAGE = TextMessage()
 
@@ -230,7 +237,7 @@ class LoggedMessage(PydraMessage):
 LOGGED = LoggedMessage()
 
 
-INFO = PydraMessage(float, str, str, dict)
+INFO = PydraMessage(float, str, str, dict, np.ndarray)
 
 
 class TriggerMessage(PydraMessage):
