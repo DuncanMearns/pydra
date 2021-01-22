@@ -2,6 +2,8 @@ import time
 from pydra.core import PydraObject
 from pydra.core.saving import Saver
 from pydra.core.messaging import *
+from pydra.utilities import *
+from pydra.gui import *
 from pathlib import Path
 import os
 
@@ -56,7 +58,7 @@ class Pydra(PydraObject):
     name = "pydra"
 
     @staticmethod
-    def configure(config, ports):
+    def configure(config, ports, manual=False):
         # Add modules
         modules = config["modules"]
         # Connect saver to pydra
@@ -87,6 +89,9 @@ class Pydra(PydraObject):
                 config["connections"][worker.name]["subscriptions"].append((sub,
                                                                             port,
                                                                             (EVENT, DATA)))
+        if manual:
+            connections = NetworkConfiguration.run(config["connections"])
+            config["connections"] = connections
         # Return configuration
         return config
 
@@ -109,6 +114,9 @@ class Pydra(PydraObject):
         self.working_dir = Path(working_dir)
         filename = kwargs.get("filename", "default_filename")
         self.filename = filename
+
+    def __str__(self):
+        return format_zmq_connections(self.connections)
 
     @property
     def pipelines(self):
