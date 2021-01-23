@@ -3,9 +3,6 @@ from PyQt5 import QtCore
 
 class StateEnabled:
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def setIdle(self):
         for child in self.children():
             if issubclass(type(child), StateEnabled):

@@ -11,13 +11,31 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         super().__init__(*args, **kwargs)
         # Give app access to pydra
         self.pydra = pydra
+        self.setWindowTitle("Pydra - Experiment Control")
         # Create the state machine
         self._create_state_machine()
         # ==========================
 
+        # Create menubar
+        self.setMenuBar(QtWidgets.QMenuBar())
+        self.windowMenu = self.menuWidget().addMenu("Window")
+
         # Add toolbar
         self.recording_toolbar = RecordingToolbar(parent=self)
         self.addToolBar(self.recording_toolbar)
+
+        # Create display widget
+        self.displays = QtWidgets.QWidget()
+        self.setCentralWidget(self.displays)
+
+        # Add module widgets
+        self.worker_widgets = {}
+        for module in self.pydra.modules:
+            if "widget" in module.keys():
+                name = module["worker"].name
+                self.worker_widgets[name] = module["widget"](name=name, parent=self)
+        for name, widget in self.worker_widgets.items():
+            self.addDockWidget(QtCore.Qt.RightDockWidgetArea, widget)
 
         # =======================
         # Start the state machine
