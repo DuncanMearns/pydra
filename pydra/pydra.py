@@ -95,6 +95,15 @@ class Pydra(PydraObject):
         # Return configuration
         return config
 
+    @staticmethod
+    def start(**config):
+        pydra = Pydra(**config)
+        app = QtWidgets.QApplication([])
+        win = MainWindow(pydra)
+        win.show()
+        app.exec_()
+        pydra.exit()
+
     def __init__(self, connections: dict, modules: list = None, *args, **kwargs):
         self.connections = connections
         self.modules = modules
@@ -147,7 +156,9 @@ class Pydra(PydraObject):
 
     def set_working_directory(self, directory):
         """Sets the working directory and broadcasts a logged set_working_directory event."""
-        self.working_dir = directory
+        self.working_dir = Path(directory)
+        if not self.working_dir.exists():
+            self.working_dir.mkdir(parents=True)
         self.send_event("set_working_directory", directory=str(self.working_dir))
 
     def set_filename(self, filename):
