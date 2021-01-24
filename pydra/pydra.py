@@ -6,6 +6,7 @@ from pydra.utilities import *
 from pydra.gui import *
 from pathlib import Path
 import os
+import numpy as np
 
 
 ports = [
@@ -56,6 +57,8 @@ class Pydra(PydraObject):
     """
 
     name = "pydra"
+
+    PIPELINE_DATA = PydraMessage(str, dict, np.ndarray)
 
     @staticmethod
     def configure(config, ports, manual=False):
@@ -114,7 +117,7 @@ class Pydra(PydraObject):
         # Start module workers
         print("Saver ready. Starting modules...", end=" ")
         for module in self.modules:
-            module["worker"].start(connections=connections, **module["params"])
+            module["worker"].start(connections=connections, **module.get("params", dict()))
         print("done.")
         # Test connections to workers
         self.test_connections()
@@ -131,12 +134,12 @@ class Pydra(PydraObject):
     def pipelines(self):
         pipelines = {}
         for module in self.modules:
-            name = module["worker"].name
+            worker = module["worker"]
             pipeline = module["worker"].pipeline
             if  pipeline in pipelines:
-                pipelines[pipeline].append(name)
+                pipelines[pipeline].append(worker)
             else:
-                pipelines[pipeline] = [name]
+                pipelines[pipeline] = [worker]
         return pipelines
 
     @EXIT
@@ -211,6 +214,13 @@ class Pydra(PydraObject):
             message_data = [message[:3] for message in message_data]
             return True, message_data
         return False, messages
+
+    def request_data(self):
+        """Request data from saver."""
+        data = self.query("data")
+        pipeline_data = [self.PIPELINE_DATA.decode(*data[(3 * i):(3 * i) + 3]) for i in range(len(data) // 3)]
+        for (name, data, frame) in pipeline_data:
+            yield name, data, frame
 
     # def receive_events(self):
     #     events = self.query("events")

@@ -2,6 +2,7 @@ from .connections import NetworkConfiguration
 
 from PyQt5 import QtCore, QtWidgets, QtGui, Qt
 from .toolbar import RecordingToolbar
+from .pipeline import PlotterWidget
 from .states import StateEnabled
 
 
@@ -37,9 +38,29 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         for name, widget in self.worker_widgets.items():
             self.addDockWidget(QtCore.Qt.RightDockWidgetArea, widget)
 
+        # Create plotters
+        self.plotter = PlotterWidget()
+        self.setCentralWidget(self.plotter)
+        for pipeline, workers in self.pydra.pipelines.items():
+            params = []
+            for worker in workers:
+                params.extend([".".join([worker.name, param]) for param in worker.plot])
+            self.plotter.addPlotter(pipeline, params)
+
+        # Plotting update timer
+        self.update_interval = 30
+        self.update_timer = QtCore.QTimer()
+        self.update_timer.setInterval(self.update_interval)
+        self.update_timer.timeout.connect(self.update_plots)
+        self.update_timer.start()
+
         # =======================
         # Start the state machine
         self._start_state_machine()
+
+    def update_plots(self):
+        for pipeline, data, frame in self.pydra.request_data():
+            self.plotter.updatePlots(pipeline, data, frame)
 
     @QtCore.pyqtSlot()
     def setIdle(self):

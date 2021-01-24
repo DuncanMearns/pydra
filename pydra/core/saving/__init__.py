@@ -58,7 +58,7 @@ class Saver(PydraObject, ProcessMixIn):
             saver = PipelineSaver(name, members)
             self.savers.append(saver)
             for member in members:
-                self.targets[member] = saver
+                self.targets[member.name] = saver
 
     def setup(self):
         """Sends an empty byte to pydra"""
@@ -116,15 +116,15 @@ class Saver(PydraObject, ProcessMixIn):
 
     def query_data(self):
         """Fulfills a request from pydra for data."""
-        for group in self.savers:
-            if group.frame:
-                name = serialize_string(group.name)
-                frame = group.frame
-                data = group.flush()
-                self.zmq_sender.send_multipart([name, frame, data], zmq.SNDMORE)
+        for pipeline in self.savers:
+            name = serialize_string(pipeline.name)
+            data = pipeline.flush()
+            frame = pipeline.frame or serialize_array(np.empty([], dtype="binary"))
+            self.zmq_sender.send_multipart([name, data, frame], zmq.SNDMORE)
         self.zmq_sender.send(b"")
 
     def recv_message(self, s, **kwargs):
+        """Adds messages recevied from workers to the message log."""
         self.messages.append((kwargs["source"], kwargs["timestamp"], s))
 
     def recv_timestamped(self, t, data, **kwargs):
@@ -146,16 +146,18 @@ class Saver(PydraObject, ProcessMixIn):
         return
 
     def start_recording(self, directory: str = None, filename: str = None, **kwargs):
-        for pipeline in self.savers:
-            pipeline.start(directory, filename)
+        print("START RECORDING")
+        # for pipeline in self.savers:
+        #     pipeline.start(directory, filename)
         # Set recording to True
         self.recording = True
         return
 
     def stop_recording(self, **kwargs):
+        print("STOP RECORDING")
         # Stop all saving groups
-        for pipeline in self.savers:
-            pipeline.stop()
+        # for pipeline in self.savers:
+        #     pipeline.stop()
         # Set recording to False
         self.recording = False
         return

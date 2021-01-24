@@ -1,6 +1,9 @@
 from pydra.core.messaging.serializers import deserialize_string
 
 
+__all__ = ["format_zmq_connections"]
+
+
 def format_zmq_connections(connections):
     header = "\n".join(["=" * len("connections"), "connections".upper(), "=" * len("connections"), ""])
     parts = [header]

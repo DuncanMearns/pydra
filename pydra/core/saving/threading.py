@@ -237,8 +237,33 @@ class TimestampedThread(Thread):
 
 
 class PipelineSaver:
+    """Class for saving data from workers belonging to the same pipeline.
 
-    def __init__(self, name, members):
+    This class receives incoming data from the pydra saver object with a call to its update method. Class contains
+    various threads, queues and caches for storing and saving data.
+
+    Parameters
+    ----------
+    name : str
+        The name of the pipeline.
+    members : list
+        A list of worker object types that belong to the pipeline.
+
+    Attributes
+    ----------
+    frame_q, indexed_q, timestamped_q : queue.Queue
+        Queues data of different types for saving by different threads.
+    frame : np.ndarray
+        A copy of the last frame received by the pipeline.
+    timestamps : deque
+        A queue that stores timestamps of incoming frames. Used to compute an actual frame rate for data acquisition.
+    data_cache : dict
+        A dictionary containing a copy of data received for workers.
+    fourcc : str
+        Codec for video compression.
+    """
+
+    def __init__(self, name: str, members: list):
         self.name = name
         self.members = members
         # Queues
@@ -252,18 +277,22 @@ class PipelineSaver:
         self.fourcc = "XVID"
 
     @property
-    def frame_rate(self):
+    def frame_rate(self) -> float:
+        """Returns the actual frame rate of data acquisition."""
         return len(self.timestamps) / (self.timestamps[-1] - self.timestamps[0])
 
     @property
-    def frame_size(self):
+    def frame_size(self) -> tuple:
+        """Returns the (width, height) of the last frame received."""
         return deserialize_array(self.frame).shape[:2][::-1]
 
     @property
-    def is_color(self):
+    def is_color(self) -> bool:
+        """Returns whether incoming frames are color."""
         return deserialize_array(self.frame).ndim > 2
 
     def update(self, source, dtype, *args):
+        """Called by pydra saver object when new data are received from workers."""
         t = deserialize_float(args[0])
         i = None
         if dtype == "frame":
@@ -291,8 +320,9 @@ class PipelineSaver:
             if i is not None:
                 self.data_cache[source]["index"] = [i]
                 if data:
+                    self.data_cache[source]["data"] = {}
                     for key, val in data.items():
-                        self.data_cache[source]["data"] = {key: [val]}
+                        self.data_cache[source]["data"][key] = [val]
 
     def flush(self):
         serialized = serialize_dict(self.data_cache)
@@ -300,16 +330,20 @@ class PipelineSaver:
         return serialized
 
     def save_frame(self, source, t, i, frame):
+        """Parses frame data into appropriate queues for saving."""
         self.frame_q.put((source, frame))
         self.indexed_q.put((source, t, i, "null".encode("utf-8")))
 
     def save_indexed(self, source, t, i, data):
+        """Puts indexed data into appropriate queue for saving."""
         self.indexed_q.put((source, t, i, data))
 
     def save_timestamped(self, source, t, data):
+        """Puts timestamped data into appropriate queue for saving."""
         self.timestamped_q.put((source, t, data))
 
     def start(self, directory, filename):
+        """Starts threads for saving incoming data."""
         # Base name
         directory = Path(directory)
         if not directory.exists():
@@ -327,6 +361,7 @@ class PipelineSaver:
         self.timestamped_thread.start()
 
     def stop(self):
+        """Terminates and joins saving threads."""
         # Send termination signal
         self.timestamped_q.put(b"")
         self.indexed_q.put(b"")

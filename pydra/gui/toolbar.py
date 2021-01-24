@@ -131,7 +131,8 @@ class FileNamingWidget(QtWidgets.QGroupBox, StateEnabled):
     def setIdle(self):
         self.editor.setEnabled(True)
         self.autonaming.setEnabled(True)
-        self.spinbox.setEnabled(True)
+        if self.autonaming_enabled:
+            self.spinbox.setEnabled(True)
 
 
 def checked(method):
