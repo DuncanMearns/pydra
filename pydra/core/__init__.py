@@ -90,7 +90,7 @@ class PydraObject:
             "message": self.handle_message,
             "event": self.handle_event,
             "data": self.handle_data,
-            "trigger": self.send_trigger
+            "trigger": self.handle_trigger
         }
         # Create events
         self.events = {}
@@ -173,9 +173,15 @@ class PydraObject:
         print(f"{self.name} received from {kwargs.get('source', 'UNKNOWN')} at {kwargs.get('timestamp', 0.0)}:\n{s}")
 
     @TRIGGER
-    def send_trigger(self, *args, **kwargs):
+    def send_trigger(self):
         """Simple method for implementing sending trigger messages."""
         return ()
+
+    def handle_trigger(self, *args, **kwargs):
+        self.recv_trigger(kwargs["source"], kwargs["timestamp"])
+
+    def recv_trigger(self, source, t):
+        pass
 
     @EVENT
     def send_event(self, event_name, **kwargs):

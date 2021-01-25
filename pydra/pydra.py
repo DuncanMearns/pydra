@@ -89,7 +89,7 @@ class Pydra(PydraObject):
                 port = config["connections"][sub]["port"]
                 config["connections"][worker.name]["subscriptions"].append((sub,
                                                                             port,
-                                                                            (EVENT, DATA)))
+                                                                            (EVENT, DATA, TRIGGER)))
         if manual:
             connections = NetworkConfiguration.run(config["connections"])
             config["connections"] = connections
