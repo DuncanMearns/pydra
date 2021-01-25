@@ -1,5 +1,3 @@
-from ..messaging import *
-from ..messaging.serializers import *
 import threading
 import queue
 import cv2
@@ -96,10 +94,8 @@ class FrameThread(Thread):
         ----------
         source : str
             The source of the video frames. Parameter not used and exists only for consistency with other classes.
-        frame : bytes
-            A pickled numpy array.
+        frame : np.ndarray
         """
-        frame = deserialize_array(frame)
         self.writer.write(frame)
 
     def cleanup(self):
@@ -142,47 +138,50 @@ class IndexedThread(Thread):
         ----------
         source : str
             The source (i.e. worker name) of the data.
-        t : bytes
-            Serialized timestamp (float).
-        i : bytes
-            Serialized index (int).
-        data : bytes
-            Serialized data (dict).
+        t : float
+        i : int
+        data : dict
         """
-        t, i, data = INDEXED.decode(t, i, data)   # deserialize data
-        try:
-            self.data[source]["time"].append(t)   # append timestamp
-            self.data[source]["index"].append(i)  # append index
-            if data:
-                for key, val in data.items():
-                    self.data[source]["data"][key].append(val)  # append data values (if they exist)
-        except KeyError:  # create a new dictionary if data is received from a source for the first time
-            self.data[source] = dict(time=[t], index=[i])
-            if data:
-                for key, val in data.items():
-                    self.data[source]["data"] = {key: [val]}
+        for param, val in data.items():  # add parameter values to the data dictionary with key source.param
+            k = ".".join([source, param])
+            if k in self.data:
+                self.data[k].append((t, i, val))
+            else:
+                self.data[k] = [(t, i, val)]
+        else:  # if no data parameters, add "time" and "index" to the data dictionary
+            try:
+                self.data["time"].append(t)
+                self.data["index"].append(i)
+            except KeyError:
+                self.data["time"] = [t]
+                self.data["index"] = [i]
 
     def cleanup(self):
         """Saves data to a csv file as a pandas DataFrame.
 
-        The output DataFrame has a single index, and a timestamp column for each source that fed the thread during
-        saving (denoted source_t). Data values are stored in columns, similarly prefixed with the source name. This
-        allows multiple workers to feed the same saving thread without causing namespace collisions.
+        The output DataFrame has a single index, and a time column. Data values are stored in the columns, and are
+        named source.param. This allows multiple workers to feed the same thread without causing namespace collisions.
         """
-        dfs = []
-        for source, data in self.data.items():
-            if "data" in data:
-                df = pd.DataFrame(data["data"], index=data["index"])
-                col_map = {}
-                for col in df.columns:
-                    col_map[col] = "_".join([source, col])
-                df.rename(columns=col_map, inplace=True)
-            else:
-                df = pd.DataFrame(index=data["index"])
-            df[source + "_t"] = data["time"]
-            dfs.append(df)
-        df = pd.concat(dfs, axis=1)
-        df.to_csv(self.path)
+        if self.data:
+            dfs = []
+            try:  # if data dict has a "time" and "index" key, add these to the DataFrame
+                t = self.data.pop("time")
+                i = self.data.pop("index")
+                df = pd.DataFrame(dict(time=t), index=i)
+                dfs.append(df)
+            except KeyError:
+                t, i = None, None
+            for param, data in self.data.items():
+                t_param, i_param, vals = zip(*data)
+                df_data = {param: vals}
+                if not t:  # if data dict did not have "time" and "index" keys, take from first param instead
+                    t = t_param
+                    df_data["time"] = t
+                df = pd.DataFrame(df_data, index=i_param)  # create df with param data and index
+                dfs.append(df)
+            # combine all data together into a single DataFrame and save as a csv
+            df = pd.concat(dfs, axis=1)
+            df.to_csv(self.path)
 
 
 class TimestampedThread(Thread):
@@ -216,24 +215,40 @@ class TimestampedThread(Thread):
         ----------
         source : str
             The source (i.e. worker name) of the data.
-        t : bytes
-            Serialized timestamp (float).
-        data : bytes
-            Serialized data (dict).
+        t : float
+        data : dict
         """
-        t, data = TIMESTAMPED.decode(t, data)
-        try:
-            self.data[source]["time"].append(t)
-            for key, val in data.items():
-                self.data[source][key].append(val)
-        except KeyError:
-            self.data[source] = dict(time=[t])
-            for key, val in data.items():
-                self.data[source][key] = [val]
+        for param, val in data.items():
+            k = ".".join([source, param])
+            if k in self.data:
+                self.data[k].append((t, val))
+            else:
+                self.data[k] = [(t, val)]
 
     def cleanup(self):
-        """Not yet implemented."""
-        return
+        """Saves data to a csv file as a pandas DataFrame."""
+        if self.data:
+            dfs = []
+            for param, data in self.data.items():
+                t, vals = zip(*data)
+                df = pd.DataFrame({
+                    "time": t,
+                    param: vals
+                })
+                dfs.append(df)
+            # combine all data together into a single DataFrame and save as a csv
+            df = pd.concat(dfs, axis=0, ignore_index=True)
+            df.sort_values(by=["time"], inplace=True)
+            df.to_csv(self.path, index=False)
+
+
+def saver(method):
+    """Decorator that sends data to the appropriate saving method when recording."""
+    def wrapper(obj, source, dtype, *args):
+        if obj.recording:
+            obj.save_methods[dtype](source, *args)
+        method(obj, source, dtype, *args)
+    return wrapper
 
 
 class PipelineSaver:
@@ -270,6 +285,13 @@ class PipelineSaver:
         self.frame_q = queue.Queue()
         self.indexed_q = queue.Queue()
         self.timestamped_q = queue.Queue()
+        # Save methods
+        self.recording = False
+        self.save_methods = {
+            "frame": self.save_frame,
+            "indexed": self.save_indexed,
+            "timestamped": self.save_timestamped
+        }
         # Data handling
         self.frame = None
         self.timestamps = deque(maxlen=1000)
@@ -284,55 +306,56 @@ class PipelineSaver:
     @property
     def frame_size(self) -> tuple:
         """Returns the (width, height) of the last frame received."""
-        return deserialize_array(self.frame).shape[:2][::-1]
+        return self.frame.shape[:2][::-1]
 
     @property
     def is_color(self) -> bool:
         """Returns whether incoming frames are color."""
-        return deserialize_array(self.frame).ndim > 2
+        return self.frame.ndim > 2
 
+    @saver
     def update(self, source, dtype, *args):
         """Called by pydra saver object when new data are received from workers."""
-        t = deserialize_float(args[0])
-        i = None
+        # create cache for storing all data from a given source
+        if source not in self.data_cache:
+            self.data_cache[source] = {
+                "time": [],
+                "index": [],
+                "data": {},
+                "events": []
+            }
+        # parse arguments
         if dtype == "frame":
+            t, i, frame = args
             self.timestamps.append(t)
-            i = deserialize_int(args[1])
-            self.frame = args[2]
-            data = None
+            self.frame = frame
+            data = {}
         elif dtype == "indexed":
-            i = deserialize_int(args[1])
-            data = deserialize_dict(args[2])
+            t, i, data = args
         elif dtype == "timestamped":
-            data = deserialize_dict(args[1])
+            t, data = args
+            self.data_cache[source]["events"] = [(t, data)]
+            return
         else:
             return
-        if source in self.data_cache:
-            self.data_cache[source]["time"].append(t)
-            if i is not None:
-                self.data_cache[source]["index"].append(i)
-            if data:
-                for key, val in data.items():
-                    self.data_cache[source]["data"][key].append(val)
-        else:
-            self.data_cache[source] = {}
-            self.data_cache[source]["time"] = [t]
-            if i is not None:
-                self.data_cache[source]["index"] = [i]
-                if data:
-                    self.data_cache[source]["data"] = {}
-                    for key, val in data.items():
-                        self.data_cache[source]["data"][key] = [val]
+        # update indexed data in cache
+        self.data_cache[source]["time"].append(t)
+        self.data_cache[source]["index"].append(i)
+        for key, val in data.items():
+            try:
+                self.data_cache[source]["data"][key].append(val)
+            except KeyError:
+                self.data_cache[source]["data"][key] = [val]
 
     def flush(self):
-        serialized = serialize_dict(self.data_cache)
+        data_cache = self.data_cache.copy()
         self.data_cache = {}
-        return serialized
+        return data_cache
 
     def save_frame(self, source, t, i, frame):
         """Parses frame data into appropriate queues for saving."""
         self.frame_q.put((source, frame))
-        self.indexed_q.put((source, t, i, "null".encode("utf-8")))
+        self.indexed_q.put((source, t, i, {}))
 
     def save_indexed(self, source, t, i, data):
         """Puts indexed data into appropriate queue for saving."""
@@ -344,21 +367,28 @@ class PipelineSaver:
 
     def start(self, directory, filename):
         """Starts threads for saving incoming data."""
-        # Base name
+        # Create filepath from directory and pipeline
         directory = Path(directory)
         if not directory.exists():
             directory.mkdir(parents=True)
-        filename = str(directory.joinpath(filename + self.name))
+        if self.name:
+            filename = "_".join([filename, self.name])
+        filepath = str(directory.joinpath(filename))
         # Frame thread
-        self.frame_thread = FrameThread(filename + ".avi", self.frame_q, int(self.frame_rate), self.frame_size,
-                                        self.fourcc, self.is_color)
-        self.frame_thread.start()
+        if self.frame is not None:
+            self.frame_thread = FrameThread(filepath + ".avi", self.frame_q, int(self.frame_rate), self.frame_size,
+                                            self.fourcc, self.is_color)
+            self.frame_thread.start()
+        else:
+            self.frame_thread = None
         # Indexed thread
-        self.indexed_thread = IndexedThread(filename + ".csv", self.indexed_q)
+        self.indexed_thread = IndexedThread(filepath + ".csv", self.indexed_q)
         self.indexed_thread.start()
         # Timestamped thread
-        self.timestamped_thread = TimestampedThread(filename + "_events.csv", self.timestamped_q)
+        self.timestamped_thread = TimestampedThread(filepath + "_events.csv", self.timestamped_q)
         self.timestamped_thread.start()
+        # Set recording to True
+        self.recording = True
 
     def stop(self):
         """Terminates and joins saving threads."""
@@ -369,4 +399,7 @@ class PipelineSaver:
         # Join threads
         self.timestamped_thread.join()
         self.indexed_thread.join()
-        self.frame_thread.join()
+        if self.frame_thread:
+            self.frame_thread.join()
+        # Set recording to False
+        self.recording = False

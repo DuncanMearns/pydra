@@ -50,7 +50,6 @@ class Saver(PydraObject, ProcessMixIn):
         # Recording events
         self.events["start_recording"] = self.start_recording
         self.events["stop_recording"] = self.stop_recording
-        self.recording = False
         # Create pipelines for handling data
         self.savers = []
         self.targets = {}
@@ -117,10 +116,14 @@ class Saver(PydraObject, ProcessMixIn):
     def query_data(self):
         """Fulfills a request from pydra for data."""
         for pipeline in self.savers:
-            name = serialize_string(pipeline.name)
+            name = pipeline.name
             data = pipeline.flush()
-            frame = pipeline.frame or serialize_array(np.empty([], dtype="binary"))
-            self.zmq_sender.send_multipart([name, data, frame], zmq.SNDMORE)
+            if pipeline.frame is not None:
+                frame = pipeline.frame
+            else:
+                frame = np.empty([], dtype="uint8")
+            serialized = DATAINFO.encode(name, data, frame)
+            self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
         self.zmq_sender.send(b"")
 
     def recv_message(self, s, **kwargs):
@@ -129,35 +132,19 @@ class Saver(PydraObject, ProcessMixIn):
 
     def recv_timestamped(self, t, data, **kwargs):
         self.targets[kwargs["source"]].update(kwargs["source"], "timestamped", t, data)
-        # if kwargs["save"] and self.recording:
-        #     self.targets[kwargs["source"]].save_timestamped(kwargs["source"], t, data)
-        return
 
     def recv_indexed(self, t, i, data, **kwargs):
         self.targets[kwargs["source"]].update(kwargs["source"], "indexed", t, i, data)
-        # if kwargs["save"] and self.recording:
-        #     self.targets[kwargs["source"]].save_indexed(kwargs["source"], t, i, data)
-        return
 
     def recv_frame(self, t, i, frame, **kwargs):
         self.targets[kwargs["source"]].update(kwargs["source"], "frame", t, i, frame)
-        # if kwargs["save"] and self.recording:
-        #     self.targets[kwargs["source"]].save_frame(kwargs["source"], t, i, frame)
-        return
 
     def start_recording(self, directory: str = None, filename: str = None, **kwargs):
         print("START RECORDING")
-        # for pipeline in self.savers:
-        #     pipeline.start(directory, filename)
-        # Set recording to True
-        self.recording = True
-        return
+        for pipeline in self.savers:
+            pipeline.start(directory, filename)
 
     def stop_recording(self, **kwargs):
         print("STOP RECORDING")
-        # Stop all saving groups
-        # for pipeline in self.savers:
-        #     pipeline.stop()
-        # Set recording to False
-        self.recording = False
-        return
+        for pipeline in self.savers:
+            pipeline.stop()
