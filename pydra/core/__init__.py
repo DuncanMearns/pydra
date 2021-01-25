@@ -246,10 +246,13 @@ class PydraObject:
         """Handles data messages (TIMESTAMPED, INDEXED, or FRAME) received from other objects."""
         flags = kwargs["flags"]
         if "t" in flags:
+            data = TIMESTAMPED.decode(*data)
             self.recv_timestamped(*data, **kwargs)
         elif "i" in flags:
+            data = INDEXED.decode(*data)
             self.recv_indexed(*data, **kwargs)
         elif "f" in flags:
+            data = FRAME.decode(*data)
             self.recv_frame(*data, **kwargs)
 
     def recv_timestamped(self, t, data, **kwargs):
@@ -258,10 +261,8 @@ class PydraObject:
 
         Parameters
         ----------
-        t : bytes
-            Byte representation of the timestamp (float) associated with the data.
-        data : bytes
-            Byte representation of the data (dictionary).
+        t : float
+        data : dict
 
         Other Parameters
         ----------------
@@ -273,25 +274,17 @@ class PydraObject:
             Time at which the message was sent.
         flags : str
             Additional flags received along with the message.
-
-        Notes
-        -----
-        To decode messages use:
-        >>> t, data = TIMESTAMPED.decode(t, data)
         """
-        return
+        pass
 
     def recv_indexed(self, t, i, data, **kwargs):
         """Method for handling serialized indexed data received from other objects. May be re-implemented in subclasses.
 
         Parameters
         ----------
-        t : bytes
-            Byte representation of the timestamp (float) associated with the data.
-        i : bytes
-            Byte representation of the of the index (int) associated with the data.
-        data : bytes
-            Byte representation of the data (dictionary).
+        t : float
+        i : int
+        data : dict
 
         Other Parameters
         ----------------
@@ -303,25 +296,17 @@ class PydraObject:
             Time at which the message was sent.
         flags : str
             Additional flags received along with the message.
-
-        Notes
-        -----
-        To decode messages use:
-        >>> t, i, data = INDEXED.decode(t, i, data)
         """
-        return
+        pass
 
     def recv_frame(self, t, i, frame, **kwargs):
         """Method for handling serialized frame data received from other objects. May be re-implemented in subclasses.
 
         Parameters
         ----------
-        t : bytes
-            Byte representation of the timestamp (float) associated with the data.
-        i : bytes
-            Byte representation of the of the index (int) associated with the data.
-        frame : bytes
-            Byte representation of the frame (np.ndarray).
+        t : float
+        i : int
+        frame : np.ndarray
 
         Other Parameters
         ----------------
@@ -333,10 +318,5 @@ class PydraObject:
             Time at which the message was sent.
         flags : str
             Additional flags received along with the message.
-
-        Notes
-        -----
-        To decode messages use:
-        >>> t, i, frame = FRAME.decode(t, i, frame)
         """
-        return
+        pass

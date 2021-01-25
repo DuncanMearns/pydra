@@ -58,8 +58,6 @@ class Pydra(PydraObject):
 
     name = "pydra"
 
-    PIPELINE_DATA = PydraMessage(str, dict, np.ndarray)
-
     @staticmethod
     def configure(config, ports, manual=False):
         # Add modules
@@ -218,7 +216,7 @@ class Pydra(PydraObject):
     def request_data(self):
         """Request data from saver."""
         data = self.query("data")
-        pipeline_data = [self.PIPELINE_DATA.decode(*data[(3 * i):(3 * i) + 3]) for i in range(len(data) // 3)]
+        pipeline_data = [DATAINFO.decode(*data[(3 * i):(3 * i) + 3]) for i in range(len(data) // 3)]
         for (name, data, frame) in pipeline_data:
             yield name, data, frame
 

@@ -1,6 +1,6 @@
 from .connections import NetworkConfiguration
 
-from PyQt5 import QtCore, QtWidgets, QtGui, Qt
+from PyQt5 import QtCore, QtWidgets
 from .toolbar import RecordingToolbar
 from .pipeline import PlotterWidget
 from .states import StateEnabled
