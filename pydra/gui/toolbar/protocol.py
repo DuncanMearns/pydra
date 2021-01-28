@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
-from .states import StateEnabled
-from .display import *
+from pydra.gui.states import StateEnabled
 
 
 class EventWidget(QtWidgets.QWidget):
@@ -41,10 +40,13 @@ class TimerWidget(QtWidgets.QWidget):
         return self.spinbox.value()
 
 
-class ProtocolWidget(QtWidgets.QGroupBox):
+class ProtocolBuilder(QtWidgets.QGroupBox):
 
-    def __init__(self, *args, **kwargs):
+    default_events = ("start_recording", "stop_recording")
+
+    def __init__(self, events, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.events = [event for event in events.items() if event[0] not in self.default_events]
         self.setTitle("Protocol")
         self.setLayout(QtWidgets.QGridLayout())
         # List of widgets
@@ -99,7 +101,7 @@ class ProtocolWidget(QtWidgets.QGroupBox):
         self.updateUI()
 
     def add_event(self):
-        self.widgets.append(EventWidget(self.parent().events))
+        self.widgets.append(EventWidget(self.events))
         self.updateUI()
 
     def add_timer(self):
@@ -115,18 +117,16 @@ class ProtocolWidget(QtWidgets.QGroupBox):
         return [widget.value for widget in self.widgets]
 
 
-class ProtocolBuilder(QtWidgets.QWidget):
+class ProtocolWindow(QtWidgets.QDockWidget):
 
     save_protocol = QtCore.pyqtSignal(str, list)
 
-    default_events = ("start_recording", "stop_recording")
-
     def __init__(self, events, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.events = [event for event in events.items() if event[0] not in self.default_events]
         self.setWindowTitle("Protocol builder")
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setAlignment(QtCore.Qt.AlignTop)
+        self.setWidget(QtWidgets.QWidget())
+        self.widget().setLayout(QtWidgets.QVBoxLayout())
+        self.widget().layout().setAlignment(QtCore.Qt.AlignTop)
         # BUTTONS
         self.buttons_widget = QtWidgets.QWidget()
         self.buttons_widget.setLayout(QtWidgets.QHBoxLayout())
@@ -137,18 +137,17 @@ class ProtocolBuilder(QtWidgets.QWidget):
         self.save_button = QtWidgets.QPushButton("SAVE")
         self.save_button.clicked.connect(self.saveProtocol)
         for button in (self.new_button, self.load_button, self.save_button):
-            button.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
             self.buttons_widget.layout().addWidget(button)
-        self.layout().addWidget(self.buttons_widget, alignment=QtCore.Qt.AlignTop)
+        self.widget().layout().addWidget(self.buttons_widget, alignment=QtCore.Qt.AlignTop)
         # PROTOCOL NAME
         self.name_widget = QtWidgets.QWidget()
         self.name_widget.setLayout(QtWidgets.QFormLayout())
         self.name_editor = QtWidgets.QLineEdit()
         self.name_widget.layout().addRow("Name:", self.name_editor)
-        self.layout().addWidget(self.name_widget, alignment=QtCore.Qt.AlignTop)
+        self.widget().layout().addWidget(self.name_widget, alignment=QtCore.Qt.AlignTop)
         # PROTOCOL
-        self.protocol_widget = ProtocolWidget(parent=self)
-        self.layout().addWidget(self.protocol_widget, alignment=QtCore.Qt.AlignTop)
+        self.protocol_widget = ProtocolBuilder(events)
+        self.widget().layout().addWidget(self.protocol_widget, alignment=QtCore.Qt.AlignTop)
 
     @property
     def name(self) -> str:
@@ -169,23 +168,6 @@ class ProtocolBuilder(QtWidgets.QWidget):
         self.protocol_widget.clear()
 
 
-class RunButton(QtWidgets.QPushButton, StateEnabled):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__("RUN", *args, **kwargs)
-        self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPlay')))
-        self.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
-
-    def enterProtocol(self):
-        self.setEnabled(True)
-        self.setText("RUN")
-        self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPlay')))
-
-    def exitProtocol(self):
-        self.setText("STOP")
-        self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaStop')))
-
-
 class SpinboxWidget(QtWidgets.QWidget):
 
     def __init__(self, label, minVal=0, suffix: str=None, *args, **kwargs):
@@ -202,11 +184,18 @@ class SpinboxWidget(QtWidgets.QWidget):
         return self.spinbox.value()
 
 
-class RepetitionsWidget(QtWidgets.QWidget):
+class ProtocolWidget(QtWidgets.QGroupBox, StateEnabled):
+
+    clicked = QtCore.pyqtSignal()
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__("Protocol", *args, **kwargs)
+        # Layout
         self.setLayout(QtWidgets.QHBoxLayout())
+        # Protocol builder button
+        self.builder_button = QtWidgets.QPushButton("Protocol...")
+        self.builder_button.clicked.connect(self.buttonClicked)
+        self.layout().addWidget(self.builder_button)
         # N repetitions
         self.repetitions_widget = SpinboxWidget("Repetitions", minVal=1)
         self.layout().addWidget(self.repetitions_widget)
@@ -214,28 +203,9 @@ class RepetitionsWidget(QtWidgets.QWidget):
         self.interval_widget = SpinboxWidget("Interval", suffix="s")
         self.layout().addWidget(self.interval_widget)
 
-
-class ProtocolToolbar(QtWidgets.QToolBar, StateEnabled):
-
-    clicked = QtCore.pyqtSignal()
-
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-        # Protocol builder button
-        self.builder_button = QtWidgets.QPushButton("Protocol...")
-        self.builder_button.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
-        self.builder_button.clicked.connect(self.show_builder)
-        self.addWidget(self.builder_button)
-        # Run button
-        self.run_button = RunButton()
-        self.run_button.clicked.connect(self.clickRun)
-        self.addWidget(self.run_button)
-        # Repetitions widget
-        self.repetitions = RepetitionsWidget()
-        self.addWidget(self.repetitions)
-
-    def show_builder(self):
-        self.parent().protocol_builder.show()
-
-    def clickRun(self):
+    def buttonClicked(self):
         self.clicked.emit()
+
+    @property
+    def value(self) -> (int, int):
+        return self.repetitions_widget.value, self.interval_widget.value

@@ -6,7 +6,7 @@ from pydra.utilities import *
 from pydra.gui import *
 from pathlib import Path
 import os
-import numpy as np
+from PyQt5 import QtCore
 
 
 ports = [
@@ -124,6 +124,8 @@ class Pydra(PydraObject):
         self.working_dir = Path(working_dir)
         filename = kwargs.get("filename", "default_filename")
         self.filename = filename
+        # Get protocols
+        self.protocols = kwargs.get("protocols", {})
 
     def __str__(self):
         return format_zmq_connections(self.connections)
@@ -156,14 +158,14 @@ class Pydra(PydraObject):
         return "stop_recording", {}
 
     def set_working_directory(self, directory):
-        """Sets the working directory and broadcasts a logged set_working_directory event."""
+        """Sets the working directory and broadcasts a set_working_directory event."""
         self.working_dir = Path(directory)
         if not self.working_dir.exists():
             self.working_dir.mkdir(parents=True)
         self.send_event("set_working_directory", directory=str(self.working_dir))
 
     def set_filename(self, filename):
-        """Sets the filename and broadcasts a logged set_filename event."""
+        """Sets the filename and broadcasts a set_filename event."""
         self.filename = filename
         self.send_event("set_filename", filename=str(self.filename))
 
@@ -243,7 +245,7 @@ class Pydra(PydraObject):
         # loop as long as workers are not connected or until the timeout has passed
         while (time.time() < t_timeout) and (not all(connected.values())):
             time.sleep(0.1)
-            self.send_event("test_connection")  # send a test_connection event
+            self.send_event("_test_connection")  # send a test_connection event
             ret, events = self.request_events()  # receive logged events
             if ret:
                 # check for "connected" events from unconnected workers
@@ -261,3 +263,20 @@ class Pydra(PydraObject):
         else:
             for module in filter(lambda x: not connected[x], connected):  # provide diagnostic info for user
                 print(f"Module {module} did not respond within {timeout} seconds. Check connections in config.")
+
+    @property
+    def worker_events(self):
+        """Returns a dictionary of events implemented by workers in the network."""
+        self.send_event("_events_info")
+        time.sleep(1.0)
+        ret, workers = self.request_events()
+        events = {}
+        if ret:
+            for (t, worker, _, events_dict) in workers:
+                worker_events = events_dict["events"]
+                for event in worker_events:
+                    if event in events:
+                        events[event].append(worker)
+                    else:
+                        events[event] = [worker]
+        return events

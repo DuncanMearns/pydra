@@ -24,14 +24,15 @@ class Worker(PydraObject, ProcessMixIn):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.events["test_connection"] = self.check_connection
+        self.events["_test_connection"] = self._check_connection
+        self.events["_events_info"] = self._events_info
         self._connected = 0
 
     def _process(self):
         """Handles all messages received over network from 0MQ."""
         self.poll()
 
-    def check_connection(self, **kwargs):
+    def _check_connection(self, **kwargs):
         """Called by the 'test_connection' event. Informs pydra that 0MQ connections have been established and worker is
         receiving messages."""
         if not self._connected:
@@ -42,6 +43,10 @@ class Worker(PydraObject, ProcessMixIn):
     def connected(self):
         """Logs that worker has received the 'test_connection' event."""
         return dict(event=True)
+
+    @LOGGED
+    def _events_info(self, **kwargs):
+        return dict(event=True, events=[key for key in self.events if not key.startswith("_")])
 
     def exit(self, *args, **kwargs):
         """Sets the exit_flag when EXIT signal is received, causing process to terminate ."""

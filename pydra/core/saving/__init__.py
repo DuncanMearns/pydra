@@ -50,6 +50,7 @@ class Saver(PydraObject, ProcessMixIn):
         # Recording events
         self.events["start_recording"] = self.start_recording
         self.events["stop_recording"] = self.stop_recording
+        self.recording = False
         # Create pipelines for handling data
         self.savers = []
         self.targets = {}
@@ -69,6 +70,8 @@ class Saver(PydraObject, ProcessMixIn):
 
     def exit(self, *args, **kwargs):
         """Terminates the process loop."""
+        if self.recording:
+            self.stop_recording()
         self.close()
 
     def handle_log(self, name, data, **kwargs):
@@ -143,8 +146,11 @@ class Saver(PydraObject, ProcessMixIn):
         print("START RECORDING")
         for pipeline in self.savers:
             pipeline.start(directory, filename)
+        self.recording = True
 
     def stop_recording(self, **kwargs):
         print("STOP RECORDING")
-        for pipeline in self.savers:
-            pipeline.stop()
+        if self.recording:
+            for pipeline in self.savers:
+                pipeline.stop()
+            self.recording = False
