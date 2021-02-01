@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
-from pydra.gui.states import StateEnabled
+from .states import StateEnabled
 
 
 class EventWidget(QtWidgets.QWidget):

@@ -66,9 +66,14 @@ class ProcessMixIn:
         """Called repeatedly in a while loop for as long as the exit_flag is not set."""
         return
 
+    def cleanup(self):
+        """Called immediately before process terminates."""
+        return
+
     def run(self):
         """Calls setup, and then enters an endless loop that calls the _process method for as long as the exit_flag is
         not set."""
         self.setup()
         while not self.exit_flag:
             self._process()
+        self.cleanup()

@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
-from pydra.gui.states import StateEnabled
+from ..states import StateEnabled
 
 
 class DirectoryWidget(QtWidgets.QGroupBox, StateEnabled):
@@ -102,7 +102,7 @@ class FileNamingWidget(QtWidgets.QGroupBox, StateEnabled):
         self.autonaming.setEnabled(False)
         self.spinbox.setEnabled(False)
 
-    def exitRecord(self):
+    def endRecord(self, i):
         if self.autonaming_enabled:
             self.spinbox.setValue(self.spinbox.value() + 1)
 

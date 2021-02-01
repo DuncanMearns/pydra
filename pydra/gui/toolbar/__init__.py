@@ -1,7 +1,9 @@
 from PyQt5 import QtWidgets, QtCore
-from pydra.gui.states import StateEnabled
+
+from ..states import StateEnabled
+from ..protocol import ProtocolWidget
 from .file_naming import DirectoryWidget, FileNamingWidget
-from .protocol import ProtocolWidget
+
 from pathlib import Path
 
 
@@ -64,6 +66,7 @@ class RecordingToolbar(QtWidgets.QToolBar, StateEnabled):
         # File naming widget
         self.filename_widget = FileNamingWidget()
         self.addWidget(self.filename_widget)
+        self.addSeparator()
         # Protocol widget
         self.protocol_widget = ProtocolWidget()
         self.protocol_widget.clicked.connect(self.show_protocol)

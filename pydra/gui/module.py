@@ -8,6 +8,9 @@ class ModuleWidget(QtWidgets.QDockWidget, StateEnabled):
         super().__init__(*args, **kwargs)
         self.setParent(parent)
         self.setWindowTitle(name)
+        self.setMinimumWidth(250)
+        self.setMinimumHeight(100)
+        self.setMaximumHeight(300)
         self.name = name
         # Add to parent window menu
         self.displayAction = QtWidgets.QAction(name, self.parent())

@@ -1,8 +1,8 @@
 from .serializers import *
 import time
 
-__all__ = ["PydraMessage",
-           "EXIT", "MESSAGE", "EVENT", "DATA", "TIMESTAMPED", "INDEXED", "FRAME", "LOGGED", "INFO", "DATAINFO", "TRIGGER"]
+__all__ = ["PydraMessage", "EXIT", "MESSAGE", "EVENT", "DATA", "TIMESTAMPED", "INDEXED", "FRAME", "LOGGED", "INFO",
+           "DATAINFO", "TRIGGER"]
 
 
 class PydraMessage:

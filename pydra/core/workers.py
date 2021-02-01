@@ -1,4 +1,4 @@
-from pydra.core import PydraObject
+from pydra.core.base import PydraObject
 from pydra.core.process import ProcessMixIn
 from pydra.core.messaging import LOGGED
 
@@ -15,6 +15,8 @@ class Worker(PydraObject, ProcessMixIn):
     pipeline : str
         The name of the pipeline to which this worker belongs. Only necessary if there are multiple data streams that
         need to be saved separately.
+    plot : iterable
+        An iterable of named variables published by the worker that should be plotted in the gui.
     """
 
     name = "worker"
@@ -70,48 +72,48 @@ class Acquisition(Worker):
         return
 
 
-class RemoteReceiver(Worker):
-
-    name = "receiver"
-
-    @classmethod
-    def configure(cls, zmq_config, ports, subscriptions=()):
-        # Create dictionary for storing config info
-        try:
-            assert "receiver" in zmq_config[cls.name]
-        except AssertionError:
-            raise ValueError(f"zmq_config for {cls.name} must contain a 'receiver' key")
-        super(RemoteReceiver, cls).configure(zmq_config, ports, subscriptions)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def poll_remote(self):
-        ret = self.zmq_receiver.poll(0)
-        if ret:
-            parts = self.zmq_receiver.recv_multipart()
-            self.recv_remote(*parts)
-
-    def recv_remote(self, *args):
-        return
-
-    def _process(self):
-        self.poll_remote()
-        super()._process()
-
-
-class RemoteSender(Worker):
-
-    name = "sender"
-
-    @classmethod
-    def configure(cls, zmq_config, ports, subscriptions=()):
-        # Create dictionary for storing config info
-        try:
-            assert "sender" in zmq_config[cls.name]
-        except AssertionError:
-            raise ValueError(f"zmq_config for {cls.name} must contain a 'sender' key")
-        super(RemoteSender, cls).configure(zmq_config, ports, subscriptions)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+# class RemoteReceiver(Worker):
+#
+#     name = "receiver"
+#
+#     @classmethod
+#     def configure(cls, zmq_config, ports, subscriptions=()):
+#         # Create dictionary for storing config info
+#         try:
+#             assert "receiver" in zmq_config[cls.name]
+#         except AssertionError:
+#             raise ValueError(f"zmq_config for {cls.name} must contain a 'receiver' key")
+#         super(RemoteReceiver, cls).configure(zmq_config, ports, subscriptions)
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#
+#     def poll_remote(self):
+#         ret = self.zmq_receiver.poll(0)
+#         if ret:
+#             parts = self.zmq_receiver.recv_multipart()
+#             self.recv_remote(*parts)
+#
+#     def recv_remote(self, *args):
+#         return
+#
+#     def _process(self):
+#         self.poll_remote()
+#         super()._process()
+#
+#
+# class RemoteSender(Worker):
+#
+#     name = "sender"
+#
+#     @classmethod
+#     def configure(cls, zmq_config, ports, subscriptions=()):
+#         # Create dictionary for storing config info
+#         try:
+#             assert "sender" in zmq_config[cls.name]
+#         except AssertionError:
+#             raise ValueError(f"zmq_config for {cls.name} must contain a 'sender' key")
+#         super(RemoteSender, cls).configure(zmq_config, ports, subscriptions)
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)

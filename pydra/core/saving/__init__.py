@@ -1,4 +1,4 @@
-from pydra.core import PydraObject
+from pydra.core.base import PydraObject
 from pydra.core.process import ProcessMixIn
 from pydra.core.messaging import *
 from pydra.core.messaging.serializers import *
@@ -28,7 +28,7 @@ class Saver(PydraObject, ProcessMixIn):
     savers : list
         List that stores all PipelineSaver objects.
     targets : dict
-        A dictionary that maps data received from workers to the appropiate PipelineSaver object.
+        A dictionary that maps data received from workers to the appropriate PipelineSaver object.
     """
 
     name = "saver"
@@ -143,12 +143,14 @@ class Saver(PydraObject, ProcessMixIn):
         self.targets[kwargs["source"]].update(kwargs["source"], "frame", t, i, frame)
 
     def start_recording(self, directory: str = None, filename: str = None, **kwargs):
+        """Implements a start_recording event. Starts saving data."""
         print("START RECORDING")
         for pipeline in self.savers:
             pipeline.start(directory, filename)
         self.recording = True
 
     def stop_recording(self, **kwargs):
+        """Implements a stop_recording event. Stops saving data."""
         print("STOP RECORDING")
         if self.recording:
             for pipeline in self.savers:

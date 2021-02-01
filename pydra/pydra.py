@@ -1,12 +1,12 @@
-import time
-from pydra.core import PydraObject
-from pydra.core.saving import Saver
+from pydra.core import PydraObject, Saver
 from pydra.core.messaging import *
 from pydra.utilities import *
 from pydra.gui import *
+
+import time
 from pathlib import Path
 import os
-from PyQt5 import QtCore
+from PyQt5.QtWidgets import QApplication
 
 
 ports = [
@@ -35,7 +35,9 @@ config = {
 
     },
 
-    "modules": []
+    "modules": [],
+
+    "trigger": None,
 
 }
 
@@ -53,7 +55,13 @@ class Pydra(PydraObject):
 
     Attributes
     ----------
-
+    saver : Saver
+        Process containing the saver object.
+    working_dir : Path
+        Path to the working directory where data are saved.
+    filename : str
+        Basename for naming files.
+    protocols : dict
     """
 
     name = "pydra"
@@ -96,15 +104,6 @@ class Pydra(PydraObject):
         # Return configuration
         return config
 
-    @staticmethod
-    def start(**config):
-        pydra = Pydra(**config)
-        app = QtWidgets.QApplication([])
-        win = MainWindow(pydra)
-        win.show()
-        app.exec_()
-        pydra.exit()
-
     def __init__(self, connections: dict, modules: list = None, *args, **kwargs):
         self.connections = connections
         self.modules = modules
@@ -126,12 +125,25 @@ class Pydra(PydraObject):
         self.filename = filename
         # Get protocols
         self.protocols = kwargs.get("protocols", {})
+        # Get trigger
+        self.trigger = kwargs.get("trigger", None)
+
+    @staticmethod
+    def start(**config):
+        """Launch the pydra GUI"""
+        pydra = Pydra(**config)
+        app = QApplication([])
+        win = MainWindow(pydra)
+        win.show()
+        app.exec_()
+        pydra.exit()
 
     def __str__(self):
         return format_zmq_connections(self.connections)
 
     @property
     def pipelines(self):
+        """Returns a dictionary that maps pipeline names to a list of workers."""
         pipelines = {}
         for module in self.modules:
             worker = module["worker"]
@@ -235,7 +247,8 @@ class Pydra(PydraObject):
         Parameters
         ----------
         timeout : float
-            Maximum time to wait for workers to respond (seconds)."""
+            Maximum time to wait for workers to respond (seconds).
+        """
         print("Testing connections...")
         # Get the current time and timeout time
         t0 = time.time()
