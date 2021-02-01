@@ -28,7 +28,6 @@ class TestWorker(Worker):
 
     @MESSAGE
     def recv_frame(self, t, i, frame, **kwargs):
-        t, i, frame = FRAME.decode(t, i, frame)
         return f"{self.name} received frame {i} at time {t} from {kwargs['source']}"
 
 
