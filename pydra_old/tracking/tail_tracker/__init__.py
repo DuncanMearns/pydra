@@ -56,7 +56,7 @@ class TailPlotter(Plotter):
     def __init__(self, parent, name):
         super().__init__(parent, name)
         # Add tail point plot to main display
-        self.points_data = self.parent.plots["main"].plot([], [], pen=None, symbol='o')
+        self.points_data = self.parent.plot_data["main"].plot([], [], pen=None, symbol='o')
         # Add tail angle data to tracking plot
         self.cache_size = 5000
         self.cache = deque(maxlen=self.cache_size)

@@ -53,8 +53,8 @@ class OptogeneticsPlotter(Plotter):
 
     def reset(self):
         for linked in self.linked_plots:
-            if linked in [name for name in self.parent.plots.keys()]:
-                self.plot.setXLink(self.parent.plots[linked])
+            if linked in [name for name in self.parent.plot_data.keys()]:
+                self.plot.setXLink(self.parent.plot_data[linked])
                 self.linked = True
                 break
         self.t0 = 0

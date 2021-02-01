@@ -118,7 +118,7 @@ class SavingWidget(PluginWidget):
 
     @QtCore.pyqtSlot()
     def filename_changed(self):
-        self.plugin.change_filename(self.filename_text)
+        self.plugin.change_basename(self.filename_text)
         self.update_output_text()
 
     def change_working_directory(self):

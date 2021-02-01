@@ -162,7 +162,7 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
             self.stop()
         self.toolbar.idle()
         for name, widget in self.dock_widgets.items():
-            widget.idle()
+            widget.enterIdle()
 
     @QtCore.pyqtSlot()
     def live(self):
@@ -179,7 +179,7 @@ class PydraApp(QtWidgets.QMainWindow, Pydra):
         self.handler.set_saving(True)
         self.toolbar.record()
         for name, widget in self.dock_widgets.items():
-            widget.record()
+            widget.enterRunning()
         self.start()
 
     def start(self):
