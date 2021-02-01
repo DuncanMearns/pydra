@@ -2,7 +2,25 @@ from PyQt5 import QtCore
 import zmq
 
 
-class ExternalTrigger(QtCore.QThread):
+class Trigger(QtCore.QThread):
+    """Base class for receiving triggers in PyQt.
+
+    Trigger objects are a type of QtCore.QThread that contain their own event loop. The event loop is started when the
+    object is called.
+
+    Parameters
+    ----------
+    timeout : int (optional)
+        The timeout time of the trigger (in milliseconds).
+
+    Notes
+    -----
+    When the thread begins, a setup method is called (allowing for resetting of attributes etc.). While the event loop
+    is running, the Trigger object constantly checks whether a trigger has been received (via the check method). If a
+    trigger has been received, the triggered signal may be emitted. If a timeout time has been specified, the thread
+    will terminate after the specified time has elapsed. The class also implements an interrupt method, that allows the
+    thread to be terminated by signal from another thread.
+    """
 
     timeout = QtCore.pyqtSignal()
     triggered = QtCore.pyqtSignal()
@@ -29,20 +47,26 @@ class ExternalTrigger(QtCore.QThread):
         self.exec()
 
     def setup(self):
+        """Called after the thread starts but before the event loop starts. May be overridden in subclasses."""
         print("waiting for trigger")
 
     def check(self):
+        """Method to check for the trigger. Should be overridden in subclasses."""
         self.triggered.emit()
 
+    @QtCore.pyqtSlot()
     def timed_out(self):
+        """Emits a timeout signal if the timeout time has elapsed, then tnterrupts the thread."""
         self.timeout.emit()
         self.interrupt()
 
     def interrupt(self):
+        """Terminates the thread. Subclasses should include call to super."""
         self.quit()
 
 
-class FreeRunningMode(ExternalTrigger):
+class FreeRunningMode(Trigger):
+    """A dummy Trigger class that never emits a triggered signal."""
 
     def __init__(self):
         super().__init__(timeout=None)
@@ -54,7 +78,14 @@ class FreeRunningMode(ExternalTrigger):
         pass
 
 
-class ZMQTrigger(ExternalTrigger):
+class ZMQTrigger(Trigger):
+    """Class for receiving triggers over 0MQ.
+
+    Parameters
+    ----------
+    port : str
+        The port over which to listen for triggers in a PUB/SUB pattern.
+    """
 
     def __init__(self, port, timeout=None):
         super().__init__(timeout)
