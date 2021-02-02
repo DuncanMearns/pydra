@@ -40,7 +40,7 @@ necessary.
 ---
 
 At the heart of Pydra's functionality are the
-[`PydraObject`](pydra/core/base.py) and 
+[`PydraObject`](../pydra/core/base.py) and 
 [`PydraMessage`](pydra/core/messaging/__init__.py)
 classes. Pydra objects handle messaging between processes using 0MQ sockets. Pydra messages provide a means for messages
 to be sent between, and interpreted by, Pydra objects. 
@@ -79,7 +79,7 @@ functions within the Pydra network. The main message types are:
 Other message types - such as `LOGGED` and `INFO` - serve more specialized functions in communications between
 specific kinds of Pydra object.
 
-Pydra objects can pass data to other via `DATA` messages. There are three data formats that Pydra can handle. These
+Pydra objects can pass data to each other via `DATA` messages. There are three data formats that Pydra can handle. These
 are:
 
 | Name          | Flags     | Signature             | Description                                               |
@@ -133,7 +133,7 @@ program is restarted.
 # PydraObjects
 
 ---
-This section provides more details about each type of PydraObject.
+This section provides more details about each type of `PydraObject`.
 
 ## Worker
 
@@ -182,7 +182,7 @@ parameters passed from `Pydra`), its `run` method is immediately called. The `ru
    immediately without blocking. Therefore, overrides of the `_process` method must always include a call to super().
    
 3. Finally, after the `EXIT` signal has been received from `Pydra`, the event loop terminates, and the worker calls its 
-   `cleanup` method. After cleanup, the process will join the main process.
+   `cleanup` method. After cleanup, the process is free to join the main process.
    
 The `setup`, `_process` and `cleanup` methods can all be overridden in subclasses of `Worker`, with the caveats 
 mentioned above.
@@ -193,7 +193,7 @@ types can be created and sent using decorators, for convenience the base `PydraO
 broadcasting common message types. Broadcast messages are received by other "subscribed" workers, and by the `Saver`.
 
 `EVENT` messages can be sent with the `send_event` method. This takes a string (the event name) and optional keyword
-arguments that will be passed to receiver's corresponding method.
+arguments that will be passed to the receiver's corresponding method.
 
 `DATA` messages can be sent with one of three methods:
 
@@ -218,7 +218,7 @@ _"source"_ of every message is included within the keyword arguments passed to e
 
 If the functionality of a `Worker` is significantly affected by whom it receives messages from, consider distributing 
 the tasks among multiple separate workers, provided the processing power of the computer allows it (remember - every
-worker runs in its own process!). Workers can be assigned to [pipelines](#pipelines) to ensure that like data are saved
+worker runs in its own process). Workers can be assigned to [pipelines](#pipelines) to ensure that like data are saved
 together.
 
 Finally, messages that are destined for the main `Pydra` object need to be decorated with the `LOGGED` message type. 
