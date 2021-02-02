@@ -130,6 +130,9 @@ If a `Worker` gets stuck in an endless loop (or crashes), it can become inaccess
 exited. If this happens, 0MQ sockets might still be open, preventing them from being reused and causing crashes when the
 program is restarted.
 
+### Overview of Pydra's structure:
+![overview](overview.png)
+
 ---
 
 # PydraObjects
