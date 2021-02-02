@@ -111,6 +111,9 @@ Thus, the Pydra network forms a loop:
 
 Within the network of `Workers`, connections can be as simple or complicated as required, providing maximum flexibility.
 
+PydraObjects and their inputs / outputs: 
+![PydraObjects](pydra_cheatsheet.png)
+
 ### Processes in Pydra
 
 The main `Pydra` object is typically instantiated in the main process. The `Worker` and `Saver` instances, however, each
