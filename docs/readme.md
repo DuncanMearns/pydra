@@ -6,10 +6,9 @@ Pydra also provides a Graphical User Interface built with PyQt.
 
 _Pydra_ is a portmanteau of Python and hydra.
 
+---
 
 # ZeroMQ
-
----
 
 The Pydra network and messaging functionality is provided through the ZeroMQ library. ZeroMQ is a very general library
 that allows messages to be passed over network ports (typically TCP). A comprehensive guide can be found 
@@ -35,13 +34,13 @@ finicky. For simple networks running on a single computer, Pydra can configure e
 more complex network architectures involving multiple computers or triggers, manual configuration of the 0MQ network is
 necessary.
 
-# Messaging in Pydra
-
 ---
+
+# Messaging in Pydra
 
 At the heart of Pydra's functionality are the
 [`PydraObject`](../pydra/core/base.py) and 
-[`PydraMessage`](pydra/core/messaging/__init__.py)
+[`PydraMessage`](../pydra/core/messaging/__init__.py)
 classes. Pydra objects handle messaging between processes using 0MQ sockets. Pydra messages provide a means for messages
 to be sent between, and interpreted by, Pydra objects. 
 
@@ -88,14 +87,13 @@ are:
 | INDEXED       | DATA, i   | (float, int, dict)    | Timestamped, indexed data (e.g. tracking coordinate data) |
 | TIMESTAMPED   | DATA, t   | (float, dict)         | Timestamped data not associated with any particular index |
 
+---
 
 # Structure of Pydra
 
----
-
 Pydra is, in essence, a network of processes connected over 0MQ. Each process contains a Pydra object and runs an event
-loop. Each network contains a single instance of the main [`Pydra`](#pydra-class) class and a single instance of the
-[`Saver`](#saver-class) class. In addition, the network may contain any number of [`Worker`](#worker-class) instances.
+loop. Each network contains a single instance of the main [`Pydra`](#pydra) class and a single instance of the
+[`Saver`](#saver) class. In addition, the network may contain any number of [`Worker`](#worker) instances.
 
 `Pydra` has access to all other processes in the network. `Pydra` broadcasts `EVENT` messages to all other processes,
 as well as providing the `EXIT` signal. This broadcast is achieved via a PUB-SUB pattern over a port that all other
@@ -117,8 +115,8 @@ Within the network of `Workers`, connections can be as simple or complicated as 
 
 The main `Pydra` object is typically instantiated in the main process. The `Worker` and `Saver` instances, however, each
 run in their own processes. This is achieved via the 
-[`ProcessMixIn`](pydra/core/process.py) and 
-[`PydraProcess`](pydra/core/process.py) classes.
+[`ProcessMixIn`](../pydra/core/process.py) and 
+[`PydraProcess`](../pydra/core/process.py) classes.
 A `PydraProcess` runs an event loop within a process. The process contains a single instance of either a `Worker` or a 
 `Saver` object. As the event loop runs, all ports that the object subscribes to are continuously checked for new 
 messages. Once a message is received, it is passed to the appropriate handler. Handler methods _must_ return (ideally 
@@ -129,15 +127,15 @@ If a `Worker` gets stuck in an endless loop (or crashes), it can become inaccess
 exited. If this happens, 0MQ sockets might still be open, preventing them from being reused and causing crashes when the
 program is restarted.
 
+---
 
 # PydraObjects
 
----
 This section provides more details about each type of `PydraObject`.
 
 ## Worker
 
-The [`Worker`](pydra/core/workers.py) is the main class that users need to worry about and work with. The base class 
+The [`Worker`](../pydra/core/workers.py) is the main class that users need to worry about and work with. The base class 
 provides the bare minimum required to function within the Pydra network. More specific use cases are also provided by 
 Pydra.
 
