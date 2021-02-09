@@ -35,4 +35,4 @@ config["trigger"] = ZMQTrigger("tcp://localhost:6002")
 
 if __name__ == "__main__":
     config = Pydra.configure(config, ports)
-    pydra = Pydra.start(working_dir="D:\pydra_tests", **config)
+    pydra = Pydra.run(working_dir="D:\pydra_tests", **config)

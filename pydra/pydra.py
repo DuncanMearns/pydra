@@ -3,10 +3,12 @@ from pydra.core.messaging import *
 from pydra.utilities import *
 from pydra.gui import *
 
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
 import time
 from pathlib import Path
 import os
 from PyQt5.QtWidgets import QApplication
+import sys
 
 
 ports = [
@@ -42,7 +44,7 @@ config = {
 }
 
 
-class Pydra(PydraObject):
+class Pydra(PydraObject, QObject):
     """Main pydra class.
 
     Parameters
@@ -65,6 +67,9 @@ class Pydra(PydraObject):
     """
 
     name = "pydra"
+
+    _cmd = pyqtSignal()
+    _exit = pyqtSignal()
 
     @staticmethod
     def configure(config, ports, manual=False):
@@ -104,7 +109,7 @@ class Pydra(PydraObject):
         # Return configuration
         return config
 
-    def __init__(self, connections: dict, modules: list = None, *args, **kwargs):
+    def __init__(self, connections: dict, modules: list = None, gui: bool = True, *args, **kwargs):
         self.connections = connections
         self.modules = modules
         super().__init__(connections=connections, *args, **kwargs)
@@ -114,7 +119,7 @@ class Pydra(PydraObject):
         # Start module workers
         print("Saver ready. Starting modules...", end=" ")
         for module in self.modules:
-            module["worker"].start(connections=connections, **module.get("params", dict()))
+            module["worker"].run(connections=connections, **module.get("params", dict()))
         print("done.")
         # Test connections to workers
         self.test_connections()
@@ -128,18 +133,33 @@ class Pydra(PydraObject):
         # Get trigger
         self.trigger = kwargs.get("trigger", None)
 
+        # GUI
+        if gui:
+            self.window = MainWindow(self)
+            self.window.show()
+        else:
+            self._exit.connect(self.exit)
+            self._exit.connect(QApplication.instance().quit, Qt.QueuedConnection)
+            self._cmd.connect(self.stdin)
+            self._cmd.emit()
+
     @staticmethod
-    def start(**config):
-        """Launch the pydra GUI"""
+    def run(**config):
+        """Start the Qt event loop"""
+        app = QApplication(sys.argv)
         pydra = Pydra(**config)
-        app = QApplication([])
-        win = MainWindow(pydra)
-        win.show()
-        app.exec_()
-        pydra.exit()
+        sys.exit(app.exec())
 
     def __str__(self):
         return format_zmq_connections(self.connections)
+
+    def stdin(self):
+        line = sys.stdin.readline()
+        if line.rstrip().lower() == "exit":
+            print("exiting...")
+            self._exit.emit()
+            return
+        self._cmd.emit()
 
     @property
     def pipelines(self):
@@ -148,7 +168,7 @@ class Pydra(PydraObject):
         for module in self.modules:
             worker = module["worker"]
             pipeline = module["worker"].pipeline
-            if  pipeline in pipelines:
+            if pipeline in pipelines:
                 pipelines[pipeline].append(worker)
             else:
                 pipelines[pipeline] = [worker]
