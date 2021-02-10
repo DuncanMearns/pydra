@@ -1,47 +1,15 @@
-from pydra.core import PydraObject, Saver
+from pydra.core import PydraObject, Saver, Protocol, Trigger
 from pydra.core.messaging import *
 from pydra.utilities import *
 from pydra.gui import *
 
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QApplication
+
 import time
 from pathlib import Path
 import os
-from PyQt5.QtWidgets import QApplication
 import sys
-
-
-ports = [
-    ("tcp://*:5555", "tcp://localhost:5555"),
-    ("tcp://*:5556", "tcp://localhost:5556"),
-    ("tcp://*:5557", "tcp://localhost:5557"),
-    ("tcp://*:5558", "tcp://localhost:5558"),
-    ("tcp://*:5559", "tcp://localhost:5559")
-]
-
-
-config = {
-
-    "connections": {
-
-        "pydra": {
-            "publisher": "tcp://*:6000",
-            "receiver": "tcp://localhost:6001",
-            "port": "tcp://localhost:6000"
-        },
-
-        "saver": {
-            "sender": "tcp://*:6001",
-            "subscriptions": []
-        },
-
-    },
-
-    "modules": [],
-
-    "trigger": None,
-
-}
 
 
 class Pydra(PydraObject, QObject):
@@ -54,6 +22,8 @@ class Pydra(PydraObject, QObject):
         network. Should be contained in the config file.
     modules : list
         A list of modules to launch with pydra. Should be contained in the config file.
+    gui : bool (default=True)
+        Whether to start the graphical user interface.
 
     Attributes
     ----------
@@ -63,51 +33,22 @@ class Pydra(PydraObject, QObject):
         Path to the working directory where data are saved.
     filename : str
         Basename for naming files.
+    trigger : Trigger
     protocols : dict
     """
 
     name = "pydra"
 
+    starting_protocol = pyqtSignal(str, int, int)
     _cmd = pyqtSignal()
     _exit = pyqtSignal()
 
     @staticmethod
-    def configure(config, ports, manual=False):
-        # Add modules
-        modules = config["modules"]
-        # Connect saver to pydra
-        pydra_port = config["connections"]["pydra"]["port"]
-        config["connections"]["saver"]["subscriptions"].append(("pydra", pydra_port, (EXIT, EVENT, LOGGED)))
-        # Assign ports to workers
-        for module in modules:
-            worker = module["worker"]
-            worker_config = {}
-            pub, sub = ports.pop(0)
-            worker_config["publisher"] = pub
-            worker_config["port"] = sub
-            config["connections"][worker.name] = worker_config
-            # Add saver subscription
-            config["connections"]["saver"]["subscriptions"].append((worker.name,
-                                                                    worker_config["port"],
-                                                                    (MESSAGE, LOGGED, DATA)))
-        # Add connections for subscriptions
-        for module in modules:
-            worker = module["worker"]
-            # Add subscription to pydra
-            config["connections"][worker.name]["subscriptions"] = [("pydra",
-                                                                    pydra_port,
-                                                                    (EXIT, EVENT))]
-            # Add subscriptions to other workers
-            for sub in worker.subscriptions:
-                port = config["connections"][sub]["port"]
-                config["connections"][worker.name]["subscriptions"].append((sub,
-                                                                            port,
-                                                                            (EVENT, DATA, TRIGGER)))
-        if manual:
-            connections = NetworkConfiguration.run(config["connections"])
-            config["connections"] = connections
-        # Return configuration
-        return config
+    def run(**config):
+        """Start the Qt event loop"""
+        app = QApplication(sys.argv)
+        pydra = Pydra(**config)
+        sys.exit(app.exec())
 
     def __init__(self, connections: dict, modules: list = None, gui: bool = True, *args, **kwargs):
         self.connections = connections
@@ -119,7 +60,7 @@ class Pydra(PydraObject, QObject):
         # Start module workers
         print("Saver ready. Starting modules...", end=" ")
         for module in self.modules:
-            module["worker"].run(connections=connections, **module.get("params", dict()))
+            module["worker"].start(connections=connections, **module.get("params", dict()))
         print("done.")
         # Test connections to workers
         self.test_connections()
@@ -128,38 +69,23 @@ class Pydra(PydraObject, QObject):
         self.working_dir = Path(working_dir)
         filename = kwargs.get("filename", "default_filename")
         self.filename = filename
-        # Get protocols
-        self.protocols = kwargs.get("protocols", {})
         # Get trigger
         self.trigger = kwargs.get("trigger", None)
-
-        # GUI
+        # Get protocols
+        self.protocols = kwargs.get("protocols", {})
+        self.freerunning_mode()
+        # Start GUI or command line interface
         if gui:
             self.window = MainWindow(self)
             self.window.show()
         else:
-            self._exit.connect(self.exit)
-            self._exit.connect(QApplication.instance().quit, Qt.QueuedConnection)
-            self._cmd.connect(self.stdin)
-            self._cmd.emit()
-
-    @staticmethod
-    def run(**config):
-        """Start the Qt event loop"""
-        app = QApplication(sys.argv)
-        pydra = Pydra(**config)
-        sys.exit(app.exec())
+            self.no_gui_mode()
+        # Connect exit signal
+        self._exit.connect(self.exit)
+        self._exit.connect(QApplication.instance().quit, Qt.QueuedConnection)
 
     def __str__(self):
         return format_zmq_connections(self.connections)
-
-    def stdin(self):
-        line = sys.stdin.readline()
-        if line.rstrip().lower() == "exit":
-            print("exiting...")
-            self._exit.emit()
-            return
-        self._cmd.emit()
 
     @property
     def pipelines(self):
@@ -201,7 +127,7 @@ class Pydra(PydraObject, QObject):
         self.filename = filename
         self.send_event("set_filename", filename=str(self.filename))
 
-    def query(self, query_type: str):
+    def _query(self, query_type: str):
         """General method for sending any request to the saver.
 
         Parameters
@@ -224,7 +150,7 @@ class Pydra(PydraObject, QObject):
 
     def request_log(self):
         """Request info from saver log."""
-        log = self.query("log")
+        log = self._query("log")
         if len(log):
             log = self.decode_message(log)
             return True, log
@@ -232,7 +158,7 @@ class Pydra(PydraObject, QObject):
 
     def request_events(self):
         """Request info from saver about worker events."""
-        events = self.query("events")
+        events = self._query("events")
         if len(events):
             event_data = self.decode_message(events)
             return True, event_data
@@ -240,7 +166,7 @@ class Pydra(PydraObject, QObject):
 
     def request_messages(self):
         """Request messages from saver."""
-        messages = self.query("messages")
+        messages = self._query("messages")
         if len(messages):
             message_data = self.decode_message(messages)
             message_data = [message[:3] for message in message_data]
@@ -249,7 +175,7 @@ class Pydra(PydraObject, QObject):
 
     def request_data(self):
         """Request data from saver."""
-        data = self.query("data")
+        data = self._query("data")
         pipeline_data = [DATAINFO.decode(*data[(3 * i):(3 * i) + 3]) for i in range(len(data) // 3)]
         for (name, data, frame) in pipeline_data:
             yield name, data, frame
@@ -313,3 +239,102 @@ class Pydra(PydraObject, QObject):
                     else:
                         events[event] = [worker]
         return events
+
+    def freerunning_mode(self):
+        """Returns a free-running protocol."""
+        events = []
+        if self.trigger:
+            events.append(self.trigger)
+        events.append(self.start_recording)
+        self.protocol = Protocol.build("no protocol", 0, 0, events, freerun=True, interrupt=self.stop_recording)
+
+    def new_protocol(self, name, events):
+        self.protocols[name] = events
+
+    def build_protocol(self, name, n_reps, interval):
+        """Builds a pre-existing protocol for running with the given repetitions and interval."""
+        try:
+            events = self.protocols[name]
+            protocol = []
+            if self.trigger:
+                protocol.append(self.trigger)
+            protocol.append(self.start_recording)
+            for event in events:
+                if isinstance(event, str):
+                    protocol.append((self.send_event, (event,), {}))
+                elif isinstance(event, int):
+                    protocol.append(int(event * 1000))
+            protocol.append(self.stop_recording)
+            self.protocol = Protocol.build(name, n_reps, interval, protocol, interrupt=self.stop_recording)
+        except KeyError:
+            self.freerunning_mode()
+            print(f"Protocol {name} is not defined. Entering free-running mode.")
+
+    @pyqtSlot()
+    def run_protocol(self):
+        """Runs the current protocol."""
+        self.starting_protocol.emit(self.protocol.name, self.protocol.repetitions, self.protocol.interval)
+        self.protocol()
+
+    @pyqtSlot()
+    def end_protocol(self):
+        """Ends the current protocol if interrupted before completion."""
+        if self.protocol.running():
+            self.protocol.interrupt()
+
+    def no_gui_mode(self):
+        self._cmd.connect(self.stdin)
+        self._cmd.emit()
+
+    def stdin(self):
+        line = sys.stdin.readline()
+        line = line.rstrip()
+        if line.lower() == "exit":
+            print("exiting...")
+            self._exit.emit()
+            return
+        elif line in dir(self):
+            attr = getattr(self, line)
+            if callable(attr):
+                attr()
+            else:
+                print(attr)
+        self._cmd.emit()
+
+    @staticmethod
+    def configure(config, ports, manual=False):
+        # Add modules
+        modules = config["modules"]
+        # Connect saver to pydra
+        pydra_port = config["connections"]["pydra"]["port"]
+        config["connections"]["saver"]["subscriptions"].append(("pydra", pydra_port, (EXIT, EVENT, LOGGED)))
+        # Assign ports to workers
+        for module in modules:
+            worker = module["worker"]
+            worker_config = {}
+            pub, sub = ports.pop(0)
+            worker_config["publisher"] = pub
+            worker_config["port"] = sub
+            config["connections"][worker.name] = worker_config
+            # Add saver subscription
+            config["connections"]["saver"]["subscriptions"].append((worker.name,
+                                                                    worker_config["port"],
+                                                                    (MESSAGE, LOGGED, DATA)))
+        # Add connections for subscriptions
+        for module in modules:
+            worker = module["worker"]
+            # Add subscription to pydra
+            config["connections"][worker.name]["subscriptions"] = [("pydra",
+                                                                    pydra_port,
+                                                                    (EXIT, EVENT))]
+            # Add subscriptions to other workers
+            for sub in worker.subscriptions:
+                port = config["connections"][sub]["port"]
+                config["connections"][worker.name]["subscriptions"].append((sub,
+                                                                            port,
+                                                                            (EVENT, DATA, TRIGGER)))
+        if manual:
+            connections = NetworkConfiguration.run(config["connections"])
+            config["connections"] = connections
+        # Return configuration
+        return config

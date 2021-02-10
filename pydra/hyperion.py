@@ -140,7 +140,7 @@ def show_cameras():
     pydra.send_event("set_params", target="tailcam", exposure=3, frame_size=(300, 300), gain=4)
     pydra.send_event("set_params", target="jawcam", exposure=0.5, frame_size=(300, 200))
     while True:
-        data = pydra.query("data")
+        data = pydra._query("data")
         if len(data):
             data = [datamsg.decode(*data[(3 * i):(3 * i) + 3]) for i in range(len(data) // 3)]
             for name, frame, _ in data:

@@ -1,9 +1,8 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 from .toolbar import RecordingToolbar
 from .plotting import PlotterWidget
 from .states import StateEnabled
 from .protocol import ProtocolWindow
-from pydra.core.protocol import Protocol
 
 
 class MainWindow(QtWidgets.QMainWindow, StateEnabled):
@@ -19,8 +18,6 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         super().__init__(*args, **kwargs)
         # Give app access to pydra
         self.pydra = pydra
-        # Get the trigger object from pydra
-        self.trigger = self.pydra.trigger
 
         # Set window title
         self.setWindowTitle("Pydra - Experiment Control")
@@ -32,8 +29,6 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         self.setMenuBar(QtWidgets.QMenuBar())
         self.windowMenu = self.menuWidget().addMenu("Window")
 
-        # Create a protocol object
-        self.protocol = self.no_protocol()
         # Get worker events for building protocols
         self.worker_events = self.pydra.worker_events
         self.protocol_window = ProtocolWindow(self.worker_events, self)
@@ -43,10 +38,10 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         # Add toolbar for recording
         self.recording_toolbar = RecordingToolbar(parent=self)
         self.addToolBar(self.recording_toolbar)
-        self.idleState.addTransition(self.recording_toolbar.clicked, self.runningState)
-        self.runningState.addTransition(self.recording_toolbar.clicked, self.idleState)
+        self.idleState.addTransition(self.recording_toolbar.record, self.runningState)
+        self.runningState.addTransition(self.recording_toolbar.record, self.idleState)
         self.runningState.entered.connect(self.run_protocol)
-        self.runningState.exited.connect(self.end_protocol)
+        self.runningState.exited.connect(self.pydra.end_protocol)
 
         # Create display widget
         self.displays = QtWidgets.QWidget()
@@ -81,54 +76,24 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         # Start the state machine
         self._start_state_machine()
 
-    def no_protocol(self):
-        """Returns a free-running protocol."""
-        protocol = Protocol("no protocol", 0, 0)
-        if self.trigger:
-            protocol.addTrigger(self.trigger)
-        protocol.addEvent(self.pydra.start_recording)
-        protocol.freeRunningMode()
-        return protocol
-
-    def build_protocol(self):
-        """Creates a new protocol."""
-        events = self.protocol_window.protocol
-        n_reps, interval = self.recording_toolbar.protocol_widget.value
-        if len(events):
-            # Build protocol
-            self.protocol = Protocol("protocol", n_reps, interval)
-            if self.trigger:
-                self.protocol.addTrigger(self.trigger)
-            self.protocol.addEvent(self.pydra.start_recording)
-            for event in events:
-                if isinstance(event, str):
-                    self.protocol.addEvent(self.pydra.send_event, event)
-                elif isinstance(event, int):
-                    self.protocol.addTimer(int(event * 1000))
-            self.protocol.addEvent(self.pydra.stop_recording)
-            self.runningState.addTransition(self.protocol.completed, self.idleState)
-        else:
-            self.protocol = self.no_protocol()
-        self.protocol.started.connect(self.startRecord)
-        self.protocol.finished.connect(self.endRecord)
-        self.protocol.interrupted.connect(self.pydra.stop_recording)
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        self.pydra._exit.emit()
+        a0.accept()
 
     @QtCore.pyqtSlot(str, list)
     def addProtocol(self, name, protocol):
-        """Adds a new protocol to pydra. NOT FULLY IMPLEMENTED."""
-        self.pydra.protocols[name] = protocol
+        """Adds a new protocol to pydra."""
+        self.pydra.new_protocol(name, protocol)
+        self.recording_toolbar.protocol_widget.update_protocol(name)
 
-    @QtCore.pyqtSlot()
     def run_protocol(self):
-        """Builds and runs a new protocol."""
-        self.build_protocol()
-        self.protocol()
-
-    @QtCore.pyqtSlot()
-    def end_protocol(self):
-        """Ends the current protocol if interrupted before completion."""
-        if self.protocol.running():
-            self.protocol.interrupt()
+        n_reps, interval = self.recording_toolbar.protocol_widget.value
+        name = self.protocol_window.name
+        self.pydra.build_protocol(name, n_reps, interval)
+        self.runningState.addTransition(self.pydra.protocol.completed, self.idleState)
+        self.pydra.protocol.started.connect(self.startRecord)
+        self.pydra.protocol.finished.connect(self.endRecord)
+        self.pydra.run_protocol()
 
     @QtCore.pyqtSlot()
     def update_plots(self):

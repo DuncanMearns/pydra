@@ -128,6 +128,28 @@ class Protocol(QtCore.QObject):
     started = QtCore.pyqtSignal(int)
     interrupted = QtCore.pyqtSignal()
 
+    @classmethod
+    def build(cls, name: str, reps: int, interval: int, events: list,
+              freerun: bool = False, interrupt: callable = None):
+        """Builds a protocol object from a list of events."""
+        protocol = cls(name, reps, interval)
+        for event in events:
+            try:
+                event, args, kwargs = event
+            except TypeError:
+                args, kwargs = (), {}
+            if isinstance(event, Trigger):
+                protocol.addTrigger(event)
+            elif callable(event):
+                protocol.addEvent(event, *args, **kwargs)
+            elif isinstance(event, int):
+                protocol.addTimer(event)
+        if freerun:
+            protocol.freeRunningMode()
+        if interrupt:
+            protocol.interrupted.connect(interrupt)
+        return protocol
+
     def __init__(self, name, repetitions, interval):
         super().__init__()
         self.name = name
@@ -234,3 +256,18 @@ class Protocol(QtCore.QObject):
     def running(self):
         """Returns whether the protocol is running (includes repetitions and inter-rep intervals)."""
         return self.flag
+
+    def setInterval(self, sec):
+        """Can be used to reset the interval."""
+        if not self.running():
+            self.interval = sec
+            self.timer.setInterval(int(self.interval * 1000))
+        else:
+            raise UserWarning("Cannot set the interval for a running protocol.")
+
+    def setRepetitions(self, n):
+        """Can be used to reset the number of repetitions."""
+        if not self.running():
+            self.repetitions = n
+        else:
+            raise UserWarning("Cannot set number of repetitions for a running protocol.")

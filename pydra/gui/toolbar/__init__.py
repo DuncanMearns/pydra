@@ -1,8 +1,9 @@
 from PyQt5 import QtWidgets, QtCore
 
 from ..states import StateEnabled
-from ..protocol import ProtocolWidget
-from .file_naming import DirectoryWidget, FileNamingWidget
+from .directory_widget import DirectoryWidget
+from .file_naming import FileNamingWidget
+from .protocol_widget import ProtocolWidget
 
 from pathlib import Path
 
@@ -47,7 +48,7 @@ def checked(method):
 
 class RecordingToolbar(QtWidgets.QToolBar, StateEnabled):
 
-    clicked = QtCore.pyqtSignal()
+    record = QtCore.pyqtSignal()
 
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
@@ -56,7 +57,7 @@ class RecordingToolbar(QtWidgets.QToolBar, StateEnabled):
         self.setMovable(False)
         # Record button
         self.record_button = RecordButton()
-        self.record_button.clicked.connect(self.clickRecord)
+        self.record_button.clicked.connect(self.record_button_clicked)
         self.addWidget(self.record_button)
         self.addSeparator()
         # Directory widget
@@ -69,7 +70,7 @@ class RecordingToolbar(QtWidgets.QToolBar, StateEnabled):
         self.addSeparator()
         # Protocol widget
         self.protocol_widget = ProtocolWidget()
-        self.protocol_widget.clicked.connect(self.show_protocol)
+        self.protocol_widget.editor_clicked.connect(self.show_protocol)
         self.addWidget(self.protocol_widget)
         # Signals
         self.directory_widget.changed.connect(self.set_working_directory)
@@ -87,5 +88,5 @@ class RecordingToolbar(QtWidgets.QToolBar, StateEnabled):
         self.parent().protocol_window.show()
 
     @QtCore.pyqtSlot()
-    def clickRecord(self):
-        self.clicked.emit()
+    def record_button_clicked(self):
+        self.record.emit()

@@ -1,1 +1,2 @@
-from .pydra import Pydra, ports, config
+from .pydra import Pydra
+from .configuration import config, ports

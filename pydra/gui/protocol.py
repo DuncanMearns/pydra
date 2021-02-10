@@ -1,5 +1,4 @@
 from PyQt5 import QtWidgets, QtCore
-from .states import StateEnabled
 
 
 class EventWidget(QtWidgets.QWidget):
@@ -47,6 +46,10 @@ class ProtocolBuilder(QtWidgets.QGroupBox):
     def __init__(self, events, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.events = [event for event in events.items() if event[0] not in self.default_events]
+        self.initUI()
+        self.updateUI()
+
+    def initUI(self):
         self.setTitle("Protocol")
         self.setLayout(QtWidgets.QGridLayout())
         # List of widgets
@@ -66,8 +69,6 @@ class ProtocolBuilder(QtWidgets.QGroupBox):
         # Stop recording
         self.stop_recording = QtWidgets.QPushButton("stop_recording")
         self.stop_recording.setEnabled(False)
-        # Update UI
-        self.updateUI()
 
     def updateUI(self):
         # Clear widgets
@@ -166,46 +167,3 @@ class ProtocolWindow(QtWidgets.QDockWidget):
     def newProtocol(self):
         self.name_editor.setText("")
         self.protocol_widget.clear()
-
-
-class SpinboxWidget(QtWidgets.QWidget):
-
-    def __init__(self, label, minVal=0, suffix: str=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.setLayout(QtWidgets.QFormLayout())
-        self.spinbox = QtWidgets.QSpinBox()
-        self.spinbox.setMinimum(minVal)
-        if suffix is not None:
-            self.spinbox.setSuffix(f" {suffix}")
-        self.layout().addRow(f"{label}: ", self.spinbox)
-
-    @property
-    def value(self):
-        return self.spinbox.value()
-
-
-class ProtocolWidget(QtWidgets.QGroupBox, StateEnabled):
-
-    clicked = QtCore.pyqtSignal()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__("Protocol", *args, **kwargs)
-        # Layout
-        self.setLayout(QtWidgets.QHBoxLayout())
-        # Protocol builder button
-        self.builder_button = QtWidgets.QPushButton("Protocol...")
-        self.builder_button.clicked.connect(self.buttonClicked)
-        self.layout().addWidget(self.builder_button)
-        # N repetitions
-        self.repetitions_widget = SpinboxWidget("Repetitions", minVal=1)
-        self.layout().addWidget(self.repetitions_widget)
-        # Interval
-        self.interval_widget = SpinboxWidget("Interval", suffix="s")
-        self.layout().addWidget(self.interval_widget)
-
-    def buttonClicked(self):
-        self.clicked.emit()
-
-    @property
-    def value(self) -> (int, int):
-        return self.repetitions_widget.value, self.interval_widget.value

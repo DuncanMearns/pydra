@@ -125,7 +125,7 @@ def ximea_test():
     pydra.send_event("set_params", frame_rate=300, exposure=1, frame_size=(100, 100))
     pydra.start_recording()
     for f in range(100):
-        result = pydra.query("data")
+        result = pydra._query("data")
         result = result[:-1]
         if len(result):
             name, frame, data = result
