@@ -98,3 +98,5 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         """Updates plots with data received from pydra."""
         for pipeline, data, frame in self.pydra.request_data():
             self.plotter.updatePlots(pipeline, data, frame)
+            for worker, params in data.items():
+                self.worker_widgets[worker].updateData(**params)

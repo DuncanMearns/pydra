@@ -83,8 +83,8 @@ class Pydra(PydraObject, QObject):
             self._cmd.connect(self.stdin)
             self._cmd.emit()
         # Connect exit signal
-        self._about_to_exit.connect(self.cleanup, Qt.QueuedConnection)
         self._about_to_exit.connect(QApplication.instance().quit, Qt.QueuedConnection)
+        self._about_to_exit.connect(self.cleanup)
 
     def __str__(self):
         return format_zmq_connections(self.connections)

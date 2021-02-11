@@ -31,3 +31,6 @@ class ModuleWidget(QtWidgets.QDockWidget, StateEnabled):
 
     def send_event(self, event_name, **kwargs):
         self.parent().pydra.send_event(event_name, target=self.name, **kwargs)
+
+    def updateData(self, **params):
+        return
