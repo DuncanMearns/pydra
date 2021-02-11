@@ -31,8 +31,7 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
 
         # Get worker events for building protocols
         self.worker_events = self.pydra.worker_events
-        self.protocol_window = ProtocolWindow(self.worker_events, self)
-        self.protocol_window.save_protocol.connect(self.addProtocol)
+        self.protocol_window = ProtocolWindow(self.worker_events, self.pydra.protocols, parent=self)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.protocol_window)
 
         # Add toolbar for recording
@@ -77,19 +76,18 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         self._start_state_machine()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        self.pydra._exit.emit()
+        self.pydra.exit()
         a0.accept()
-
-    @QtCore.pyqtSlot(str, list)
-    def addProtocol(self, name, protocol):
-        """Adds a new protocol to pydra."""
-        self.pydra.new_protocol(name, protocol)
-        self.recording_toolbar.protocol_widget.update_protocol(name)
 
     def run_protocol(self):
         n_reps, interval = self.recording_toolbar.protocol_widget.value
         name = self.protocol_window.name
-        self.pydra.build_protocol(name, n_reps, interval)
+        if name:
+            protocol = self.protocol_window.protocol
+            self.pydra.build_protocol(name, n_reps, interval, protocol)
+        else:
+            self.pydra.freerunning_mode()
+        self.recording_toolbar.protocol_widget.update_protocol(name)
         self.runningState.addTransition(self.pydra.protocol.completed, self.idleState)
         self.pydra.protocol.started.connect(self.startRecord)
         self.pydra.protocol.finished.connect(self.endRecord)

@@ -16,7 +16,7 @@ class AcquisitionWorker(Acquisition):
         self.i = 0
         self.events["set_value"] = self.set_value
 
-    def set_value(self, value, **kwargs):
+    def set_value(self, value=0, **kwargs):
         self.value = value
         print(f"{self.name}.value was set to: {self.value}")
 

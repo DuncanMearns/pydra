@@ -39,14 +39,14 @@ class Pydra(PydraObject, QObject):
 
     name = "pydra"
 
-    starting_protocol = pyqtSignal(str, int, int)
     _cmd = pyqtSignal()
-    _exit = pyqtSignal()
+    _about_to_exit = pyqtSignal()
 
     @staticmethod
     def run(**config):
         """Start the Qt event loop"""
         app = QApplication(sys.argv)
+        app.setQuitOnLastWindowClosed(False)
         pydra = Pydra(**config)
         sys.exit(app.exec())
 
@@ -72,17 +72,19 @@ class Pydra(PydraObject, QObject):
         # Get trigger
         self.trigger = kwargs.get("trigger", None)
         # Get protocols
-        self.protocols = kwargs.get("protocols", {})
+        self.protocols = kwargs.get("protocols", self.working_dir)
         self.freerunning_mode()
         # Start GUI or command line interface
+        self.window = None
         if gui:
             self.window = MainWindow(self)
             self.window.show()
         else:
-            self.no_gui_mode()
+            self._cmd.connect(self.stdin)
+            self._cmd.emit()
         # Connect exit signal
-        self._exit.connect(self.exit)
-        self._exit.connect(QApplication.instance().quit, Qt.QueuedConnection)
+        self._about_to_exit.connect(self.cleanup, Qt.QueuedConnection)
+        self._about_to_exit.connect(QApplication.instance().quit, Qt.QueuedConnection)
 
     def __str__(self):
         return format_zmq_connections(self.connections)
@@ -103,7 +105,19 @@ class Pydra(PydraObject, QObject):
     @EXIT
     def exit(self):
         """Broadcasts an exit signal."""
+        self._about_to_exit.emit()
         return ()
+
+    def cleanup(self):
+        # TODO: implement cleaning up (i.e. joining processes)
+        print("Exiting...")
+        time.sleep(1.0)
+        # print("Cleaning up connections...")
+        # for module in self.modules:
+        #     module["worker"].join()
+        #     print(f"Module {module['worker'].name} joined")
+        # self.saver.join()
+        # print("Saver joined.")
 
     @EVENT
     def start_recording(self):
@@ -180,13 +194,6 @@ class Pydra(PydraObject, QObject):
         for (name, data, frame) in pipeline_data:
             yield name, data, frame
 
-    # def receive_events(self):
-    #     events = self.query("events")
-    #     events = self.decode_message(events)
-    #     for (t, source, event, kwargs) in events:
-    #         if event in self.events:
-    #             self.events[event](**kwargs)
-
     def test_connections(self, timeout=10.):
         """Checks that all workers in the network are receiving messages from pydra.
 
@@ -248,13 +255,9 @@ class Pydra(PydraObject, QObject):
         events.append(self.start_recording)
         self.protocol = Protocol.build("no protocol", 0, 0, events, freerun=True, interrupt=self.stop_recording)
 
-    def new_protocol(self, name, events):
-        self.protocols[name] = events
-
-    def build_protocol(self, name, n_reps, interval):
+    def build_protocol(self, name, n_reps, interval, events):
         """Builds a pre-existing protocol for running with the given repetitions and interval."""
         try:
-            events = self.protocols[name]
             protocol = []
             if self.trigger:
                 protocol.append(self.trigger)
@@ -273,7 +276,6 @@ class Pydra(PydraObject, QObject):
     @pyqtSlot()
     def run_protocol(self):
         """Runs the current protocol."""
-        self.starting_protocol.emit(self.protocol.name, self.protocol.repetitions, self.protocol.interval)
         self.protocol()
 
     @pyqtSlot()
@@ -282,16 +284,12 @@ class Pydra(PydraObject, QObject):
         if self.protocol.running():
             self.protocol.interrupt()
 
-    def no_gui_mode(self):
-        self._cmd.connect(self.stdin)
-        self._cmd.emit()
-
     def stdin(self):
         line = sys.stdin.readline()
         line = line.rstrip()
         if line.lower() == "exit":
             print("exiting...")
-            self._exit.emit()
+            self.exit()
             return
         elif line in dir(self):
             attr = getattr(self, line)

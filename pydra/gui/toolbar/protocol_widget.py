@@ -64,10 +64,10 @@ class ProtocolWidget(QtWidgets.QGroupBox, StateEnabled):
             self.protocol_label.setText("Free-running mode")
 
     def startRecord(self, i):
-        self.progress_label.setText(f"Runing protocol: {self.protocol} | Repetition: {i}/{self.n_repetitions}")
+        self.progress_label.setText(f"Running protocol: {self.protocol} | Repetition: {i}/{self.n_repetitions}")
 
     def endRecord(self, i):
-        self.progress_label.setText(f"Runing protocol: {self.protocol} | Waiting...")
+        self.progress_label.setText(f"Running protocol: {self.protocol} | Waiting...")
 
     def enterRunning(self):
         self.n_repetitions, self.interval = self.value

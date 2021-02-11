@@ -1,4 +1,6 @@
 from PyQt5 import QtWidgets, QtCore
+from pathlib import Path
+import json
 
 
 class EventWidget(QtWidgets.QWidget):
@@ -20,6 +22,13 @@ class EventWidget(QtWidgets.QWidget):
         text = ", ".join(self.events[i][1])
         self.workers_label.setText(text)
 
+    def set(self, name):
+        try:
+            idx = [e[0] for e in self.events].index(name)
+        except ValueError:
+            idx = 0
+        self.combo_box.setCurrentIndex(idx)
+
     @property
     def value(self):
         return self.events[self.combo_box.currentIndex()][0]
@@ -33,6 +42,9 @@ class TimerWidget(QtWidgets.QWidget):
         self.spinbox = QtWidgets.QSpinBox()
         self.layout().addWidget(self.spinbox)
         self.layout().addWidget(QtWidgets.QLabel("seconds"))
+
+    def set(self, val):
+        self.spinbox.setValue(val)
 
     @property
     def value(self):
@@ -120,9 +132,7 @@ class ProtocolBuilder(QtWidgets.QGroupBox):
 
 class ProtocolWindow(QtWidgets.QDockWidget):
 
-    save_protocol = QtCore.pyqtSignal(str, list)
-
-    def __init__(self, events, *args, **kwargs):
+    def __init__(self, events, directory, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("Protocol builder")
         self.setWidget(QtWidgets.QWidget())
@@ -149,6 +159,8 @@ class ProtocolWindow(QtWidgets.QDockWidget):
         # PROTOCOL
         self.protocol_widget = ProtocolBuilder(events)
         self.widget().layout().addWidget(self.protocol_widget, alignment=QtCore.Qt.AlignTop)
+        # Directory
+        self.cwd = str(directory)
 
     @property
     def name(self) -> str:
@@ -159,11 +171,37 @@ class ProtocolWindow(QtWidgets.QDockWidget):
         return self.protocol_widget.protocol
 
     def saveProtocol(self):
-        self.save_protocol.emit(self.name, self.protocol)
+        name = self.name
+        if not name:
+            print("Protocol must have a name.")
+            return
+        protocol = self.protocol
+        path, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Save protocol', self.cwd, "json files (*.json)")
+        path = Path(path)
+        self.cwd = str(path.parent)
+        with open(path, "w") as p:
+            json.dump({name: protocol}, p)
 
     def loadProtocol(self):
-        return
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, 'Open protocol', self.cwd, "json files (*.json)")
+        path = Path(path)
+        self.cwd = str(path.parent)
+        with open(path, "rb") as p:
+            protocols = json.load(p)
+        name = list(protocols.keys())[0]
+        protocol = protocols[name]
+        self.setProtocol(name, protocol)
 
     def newProtocol(self):
         self.name_editor.setText("")
         self.protocol_widget.clear()
+
+    def setProtocol(self, name, events):
+        self.name_editor.setText(name)
+        self.protocol_widget.clear()
+        for event in events:
+            if isinstance(event, str):
+                self.protocol_widget.add_event()
+            elif isinstance(event, int):
+                self.protocol_widget.add_timer()
+            self.protocol_widget.widgets[-1].set(event)
