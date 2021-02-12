@@ -40,14 +40,18 @@ class Pydra(PydraObject, QObject):
     name = "pydra"
 
     _cmd = pyqtSignal()
-    _about_to_exit = pyqtSignal()
+    _exiting = pyqtSignal()
 
     @staticmethod
-    def run(**config):
+    def run(gui=True, **config):
         """Start the Qt event loop"""
         app = QApplication(sys.argv)
-        app.setQuitOnLastWindowClosed(False)
         pydra = Pydra(**config)
+        if gui:
+            pydra.startUI()
+        else:
+            pydra.startCmd()
+        print("Starting Qt event loop.")
         sys.exit(app.exec())
 
     def __init__(self, connections: dict, modules: list = None, gui: bool = True, *args, **kwargs):
@@ -59,8 +63,10 @@ class Pydra(PydraObject, QObject):
         self.zmq_receiver.recv_multipart()
         # Start module workers
         print("Saver ready. Starting modules...", end=" ")
+        self._workers = []
         for module in self.modules:
-            module["worker"].start(connections=connections, **module.get("params", dict()))
+            process = module["worker"].start(connections=connections, **module.get("params", dict()))
+            self._workers.append(process)
         print("done.")
         # Test connections to workers
         self.test_connections()
@@ -74,17 +80,8 @@ class Pydra(PydraObject, QObject):
         # Get protocols
         self.protocols = kwargs.get("protocols", self.working_dir)
         self.freerunning_mode()
-        # Start GUI or command line interface
-        self.window = None
-        if gui:
-            self.window = MainWindow(self)
-            self.window.show()
-        else:
-            self._cmd.connect(self.stdin)
-            self._cmd.emit()
-        # Connect exit signal
-        self._about_to_exit.connect(QApplication.instance().quit, Qt.QueuedConnection)
-        self._about_to_exit.connect(self.cleanup)
+        # Connect _exiting signal to QApplication.quit
+        self._exiting.connect(QApplication.instance().quit)
 
     def __str__(self):
         return format_zmq_connections(self.connections)
@@ -105,19 +102,26 @@ class Pydra(PydraObject, QObject):
     @EXIT
     def exit(self):
         """Broadcasts an exit signal."""
-        self._about_to_exit.emit()
         return ()
 
-    def cleanup(self):
-        # TODO: implement cleaning up (i.e. joining processes)
+    def startUI(self):
+        self.window = MainWindow(self)
+        self.window.show()
+
+    def startCmd(self):
+        self._cmd.connect(self.stdin, Qt.QueuedConnection)
+        self._cmd.emit()
+
+    def shutdown(self):
         print("Exiting...")
-        time.sleep(1.0)
-        # print("Cleaning up connections...")
-        # for module in self.modules:
-        #     module["worker"].join()
-        #     print(f"Module {module['worker'].name} joined")
-        # self.saver.join()
-        # print("Saver joined.")
+        self.exit()
+        print("Cleaning up connections...")
+        for process in self._workers:
+            process.join()
+            print(f"Module {process.worker_type.name} joined")
+        self.saver.join()
+        print("Saver joined.")
+        self._exiting.emit()
 
     @EVENT
     def start_recording(self):
@@ -285,11 +289,11 @@ class Pydra(PydraObject, QObject):
             self.protocol.interrupt()
 
     def stdin(self):
-        line = sys.stdin.readline()
+        # line = sys.stdin.readline()
+        line = input(">>> ")
         line = line.rstrip()
         if line.lower() == "exit":
-            print("exiting...")
-            self.exit()
+            self.shutdown()
             return
         elif line in dir(self):
             attr = getattr(self, line)

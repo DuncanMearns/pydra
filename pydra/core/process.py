@@ -53,6 +53,7 @@ class ProcessMixIn:
         """Launches the object in a separate process. Parameters are the same as the constructor."""
         process = PydraProcess(cls, args, kwargs)
         process.start()
+        return process
 
     def close(self):
         """Sets the exit_flag, causing process to terminate."""

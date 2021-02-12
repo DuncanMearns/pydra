@@ -76,7 +76,7 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         self._start_state_machine()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        self.pydra.exit()
+        self.pydra.shutdown()
         a0.accept()
 
     def run_protocol(self):
@@ -99,4 +99,5 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         for pipeline, data, frame in self.pydra.request_data():
             self.plotter.updatePlots(pipeline, data, frame)
             for worker, params in data.items():
-                self.worker_widgets[worker].updateData(**params)
+                if worker in self.worker_widgets:
+                    self.worker_widgets[worker].updateData(**params)
