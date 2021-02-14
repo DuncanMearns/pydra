@@ -5,9 +5,7 @@ from PyQt5 import QtWidgets, QtGui
 class ModuleWidget(QtWidgets.QDockWidget, StateEnabled):
 
     def __init__(self, name, parent, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.setParent(parent)
-        self.setWindowTitle(name)
+        super().__init__(name, parent)
         self.setMinimumWidth(250)
         self.setMinimumHeight(100)
         self.setMaximumHeight(300)

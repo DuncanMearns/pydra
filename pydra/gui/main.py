@@ -51,7 +51,8 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         for module in self.pydra.modules:
             if "widget" in module.keys():
                 name = module["worker"].name
-                self.worker_widgets[name] = module["widget"](name=name, parent=self)
+                params = module["params"]
+                self.worker_widgets[name] = module["widget"](name=name, parent=self, params=params)
         for name, widget in self.worker_widgets.items():
             self.addDockWidget(QtCore.Qt.RightDockWidgetArea, widget)
 

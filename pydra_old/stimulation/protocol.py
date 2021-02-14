@@ -49,7 +49,7 @@ class StimulationProtocol(ProtocolWorker):
             self.stimulation_on()
         self.counter += 1
         if self.counter < len(self.timers):
-            self.timers[self.counter].start()
+            self.timers[self.counter].run()
 
     def cleanup(self):
         for timer in self.timers:

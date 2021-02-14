@@ -29,15 +29,13 @@ class PikeCamera(CameraAcquisition):
 
         # Start camera
         self.camera.open()
-
-        # Set params
-        self.camera.Width = self.width
-        self.camera.Height = self.height
-        self.camera.AcquisitionFrameRate = self.frame_rate
-        self.camera.ExposureTime = self.exposure
-        self.camera.Gain = self.gain
-
-        self.frame = self.cam.new_frame()
+        self.set_params(
+            frame_rate=self.frame_rate,
+            frame_size=self.frame_size,
+            exposure=self.exposure,
+            gain=self.gain
+        )
+        self.frame = self.camera.new_frame()
         self.frame.announce()
 
         self.camera.start_capture()
@@ -52,6 +50,38 @@ class PikeCamera(CameraAcquisition):
         except VimbaException:
             frame = self.empty()
         return frame
+
+    def set_frame_rate(self, fps: float) -> bool:
+        try:
+            self.camera.AcquisitionFrameRate = fps
+            return super().set_frame_rate(fps)
+        except VimbaException:
+            return False
+
+    def set_frame_size(self, width: int, height: int) -> bool:
+        try:
+            self.camera.Width = width
+            self.camera.Height = height
+            return super().set_frame_size(width, height)
+        except VimbaException:
+            return False
+
+    def set_offsets(self, x, y) -> bool:
+        return False
+
+    def set_exposure(self, msec: int) -> bool:
+        try:
+            self.camera.ExposureTime = msec
+            super().set_exposure(msec)
+        except VimbaException:
+            return False
+
+    def set_gain(self, gain: float) -> bool:
+        try:
+            self.camera.Gain = gain
+            return super().set_gain(gain)
+        except VimbaException:
+            return False
 
     def cleanup(self):
         self.frame.wait_for_capture(self.timeout_ms)

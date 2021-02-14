@@ -1,21 +1,6 @@
 from PyQt5 import QtWidgets, QtCore
 from ..states import StateEnabled
-
-
-class SpinboxWidget(QtWidgets.QWidget):
-
-    def __init__(self, label, minVal=0, suffix: str=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.setLayout(QtWidgets.QFormLayout())
-        self.spinbox = QtWidgets.QSpinBox()
-        self.spinbox.setMinimum(minVal)
-        if suffix is not None:
-            self.spinbox.setSuffix(f" {suffix}")
-        self.layout().addRow(f"{label}: ", self.spinbox)
-
-    @property
-    def value(self):
-        return self.spinbox.value()
+from ..widgets import SpinboxWidget
 
 
 class ProtocolWidget(QtWidgets.QGroupBox, StateEnabled):

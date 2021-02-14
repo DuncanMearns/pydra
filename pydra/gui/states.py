@@ -3,6 +3,9 @@ from PyQt5 import QtCore
 
 class StateEnabled:
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def _create_state_machine(self):
         """Creates the state machine. Should only be called once at the beginning of the main window constructor."""
         # State machine
