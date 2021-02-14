@@ -1,4 +1,4 @@
-from ..worker import CameraAcquisition
+from pydra.modules.cameras.workers._base import CameraAcquisition
 
 
 class XimeaCamera(CameraAcquisition):
@@ -12,7 +12,7 @@ class XimeaCamera(CameraAcquisition):
     def setup(self):
         """ """
         try:
-            from ximea import xiapi
+            from pydra.modules.cameras.camera_workers.ximea import xiapi
             self.camera = xiapi.Camera(self.id)
         except NameError:
             raise Exception(

@@ -1,6 +1,5 @@
 from .widget import CameraWidget
-from .ximea import XimeaCamera
-from .pike import PikeCamera
+from .workers import *
 
 
 __all__ = ["PIKE", "XIMEA"]

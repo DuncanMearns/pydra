@@ -1,6 +1,6 @@
 from pydra.core import PydraObject, Saver, Protocol, Trigger
 from pydra.core.messaging import *
-from pydra.utilities import *
+from pydra.utilities.string_formatting import *
 from pydra.gui import *
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal, pyqtSlot
@@ -39,12 +39,12 @@ class Pydra(PydraObject, QObject):
 
     name = "pydra"
 
-    _cmd = pyqtSignal()
-    _exiting = pyqtSignal()
+    _cmd = pyqtSignal()  # signal emitted to receive command line inputs
+    _exiting = pyqtSignal()  # signal emitted just before exit
 
     @staticmethod
     def run(gui=True, **config):
-        """Start the Qt event loop"""
+        """Instantiates the pydra main class and starts the Qt event loop."""
         app = QApplication(sys.argv)
         pydra = Pydra(**config)
         if gui:
@@ -105,14 +105,17 @@ class Pydra(PydraObject, QObject):
         return ()
 
     def startUI(self):
+        """Starts up the user interface."""
         self.window = MainWindow(self)
         self.window.show()
 
     def startCmd(self):
+        """Start receiving command line inputs."""
         self._cmd.connect(self.stdin, Qt.QueuedConnection)
         self._cmd.emit()
 
     def shutdown(self):
+        """Ends and joins worker process for proper exiting."""
         print("Exiting...")
         self.exit()
         print("Cleaning up connections...")
@@ -289,7 +292,6 @@ class Pydra(PydraObject, QObject):
             self.protocol.interrupt()
 
     def stdin(self):
-        # line = sys.stdin.readline()
         line = input(">>> ")
         line = line.rstrip()
         if line.lower() == "exit":

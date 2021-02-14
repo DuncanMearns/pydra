@@ -3,7 +3,7 @@ try:
     from pymba.vimbaexception import VimbaException
 except ImportError:
     pass
-from ..worker import CameraAcquisition
+from pydra.modules.cameras.workers._base import CameraAcquisition
 
 
 class PikeCamera(CameraAcquisition):
