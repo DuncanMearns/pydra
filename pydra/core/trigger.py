@@ -95,15 +95,18 @@ class ZMQTrigger(Trigger):
         self._triggered = False
         self.ctx = zmq.Context.instance()
         self.sock = self.ctx.socket(zmq.SUB)
-        self.sock.connect(self.port)
         self.sock.setsockopt(zmq.SUBSCRIBE, b"")
+        self.sock.connect(self.port)
         super().setup()
 
     def check(self):
         try:
             if self.sock.poll(0):
-                self.triggered.emit()
-                self.interrupt()
+                ret = self.sock.recv()
+                if ret:
+                    print("trigger received")
+                    self.triggered.emit()
+                    self.interrupt()
         except zmq.error.ZMQError:
             pass
 
