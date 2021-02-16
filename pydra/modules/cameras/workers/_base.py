@@ -81,27 +81,28 @@ class CameraAcquisition(Acquisition):
 
     @LOGGED
     def set_params(self, **kwargs):
+        print("SETTING PARAMS")
         new_params = {}
         if ("target" in kwargs) and (kwargs["target"] != self.name):
             pass
         else:
             if "frame_rate" in kwargs:
                 if self.set_frame_rate(kwargs["frame_rate"]):
-                    new_params["frame_rate"] = kwargs["frame_rate"]
+                    new_params["frame_rate"] = self.frame_rate
             if "frame_size" in kwargs:
                 w, h = kwargs["frame_size"]
                 if self.set_frame_size(w, h):
-                    new_params["frame_size"] = (w, h)
+                    new_params["frame_size"] = self.frame_size
             if "offsets" in kwargs:
                 x, y = kwargs["offsets"]
                 if self.set_offsets(x, y):
-                    new_params["offsets"] = (x, y)
+                    new_params["offsets"] = self.offsets
             if "exposure" in kwargs:
                 if self.set_exposure(kwargs["exposure"]):
-                    new_params["exposure"] = kwargs["exposure"]
+                    new_params["exposure"] = self.exposure
             if "gain" in kwargs:
                 if self.set_gain(kwargs["gain"]):
-                    new_params["gain"] = kwargs["gain"]
+                    new_params["gain"] = self.gain
         return new_params
 
     def reset_frame_number(self, **kwargs):

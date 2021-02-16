@@ -1,10 +1,11 @@
 try:
     from pymba import Vimba
-    from pymba.vimbaexception import VimbaException
+    from pymba import VimbaException
 except ImportError:
     pass
 from pydra.modules.cameras.workers._base import CameraAcquisition
-
+import numpy as np
+import time
 
 class PikeCamera(CameraAcquisition):
     """Class for controlling an AVT camera.
@@ -19,28 +20,36 @@ class PikeCamera(CameraAcquisition):
         self.id = 0
         self.timeout_ms = 1000  # Set timeout for frame acquisition. Give this as input?
         self.frame = None
+        # Start vimba
+        self._vimba = Vimba()
+        self._vimba.startup()
+
+    def start_acquisition(self):
+        self.frame = self.camera.new_frame()
+        self.frame.announce()
+        self.frame.queue_for_capture()
+        self.camera.start_capture()
+        self.camera.run_feature_command("AcquisitionStart")
+
+    def stop_acquisition(self):
+        self.camera.run_feature_command("AcquisitionStop")
+        self.camera.end_capture()
+        self.camera.flush_capture_queue()
+        self.camera.revoke_all_frames()
 
     def setup(self):
-        self.vimba = Vimba()
-        self.vimba.startup()
-
-        camera_ids = self.vimba.camera_ids()
-        self.camera = self.vimba.camera(camera_ids[self.id])
+        # Open camera
+        camera_ids = self._vimba.camera_ids()
+        self.camera = self._vimba.camera(camera_ids[self.id])
+        self.camera.open()
 
         # Start camera
-        self.camera.open()
+        self.start_acquisition()
         self.set_params(
-            frame_rate=self.frame_rate,
             frame_size=self.frame_size,
             exposure=self.exposure,
             gain=self.gain
         )
-        self.frame = self.camera.new_frame()
-        self.frame.announce()
-
-        self.camera.start_capture()
-        self.frame.queue_for_capture()
-        self.camera.run_feature_command("AcquisitionStart")
 
     def read(self):
         try:
@@ -48,7 +57,7 @@ class PikeCamera(CameraAcquisition):
             self.frame.queue_for_capture()
             frame = self.frame.buffer_data_numpy()
         except VimbaException:
-            frame = self.empty()
+            frame = np.zeros(self.frame_size[::-1], dtype="uint8")
         return frame
 
     def set_frame_rate(self, fps: float) -> bool:
@@ -59,21 +68,28 @@ class PikeCamera(CameraAcquisition):
             return False
 
     def set_frame_size(self, width: int, height: int) -> bool:
+        self.stop_acquisition()
+        width = width - (width % 4)
+        height = height - (height % 2)
         try:
             self.camera.Width = width
             self.camera.Height = height
-            return super().set_frame_size(width, height)
+            ret = super().set_frame_size(width, height)
         except VimbaException:
-            return False
+            print("Cannot set frame size to", width, height)
+            ret = False
+        self.start_acquisition()
+        return ret
 
     def set_offsets(self, x, y) -> bool:
         return False
 
     def set_exposure(self, msec: int) -> bool:
         try:
-            self.camera.ExposureTime = msec
-            super().set_exposure(msec)
+            self.camera.ExposureTime = msec * 1000
+            return super().set_exposure(msec)
         except VimbaException:
+            print("Cannot set exposure")
             return False
 
     def set_gain(self, gain: float) -> bool:
@@ -81,11 +97,13 @@ class PikeCamera(CameraAcquisition):
             self.camera.Gain = gain
             return super().set_gain(gain)
         except VimbaException:
+            print("Cannot set gain")
             return False
 
     def cleanup(self):
-        self.frame.wait_for_capture(self.timeout_ms)
-        self.camera.run_feature_command("AcquisitionStop")
-        self.camera.end_capture()
-        self.camera.revoke_all_frames()
-        self.vimba.shutdown()
+        print("stopping acquisition")
+        self.stop_acquisition()
+        print("closing camera")
+        self.camera.close()
+        print("shutting down vimba")
+        self._vimba.shutdown()
