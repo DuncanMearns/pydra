@@ -5,7 +5,7 @@ except ImportError:
     pass
 from pydra.modules.cameras.workers._base import CameraAcquisition
 import numpy as np
-import time
+
 
 class PikeCamera(CameraAcquisition):
     """Class for controlling an AVT camera.
@@ -76,7 +76,6 @@ class PikeCamera(CameraAcquisition):
             self.camera.Height = height
             ret = super().set_frame_size(width, height)
         except VimbaException:
-            print("Cannot set frame size to", width, height)
             ret = False
         self.start_acquisition()
         return ret
@@ -84,12 +83,11 @@ class PikeCamera(CameraAcquisition):
     def set_offsets(self, x, y) -> bool:
         return False
 
-    def set_exposure(self, msec: int) -> bool:
+    def set_exposure(self, u: int) -> bool:
         try:
-            self.camera.ExposureTime = msec * 1000
-            return super().set_exposure(msec)
+            self.camera.ExposureTime = u
+            return super().set_exposure(u)
         except VimbaException:
-            print("Cannot set exposure")
             return False
 
     def set_gain(self, gain: float) -> bool:
@@ -97,7 +95,6 @@ class PikeCamera(CameraAcquisition):
             self.camera.Gain = gain
             return super().set_gain(gain)
         except VimbaException:
-            print("Cannot set gain")
             return False
 
     def cleanup(self):

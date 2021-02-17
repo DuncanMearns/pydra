@@ -71,8 +71,8 @@ class CameraAcquisition(Acquisition):
         self.offsets = (x, y)
         return True
 
-    def set_exposure(self, msec: int) -> bool:
-        self.exposure = msec
+    def set_exposure(self, u: int) -> bool:
+        self.exposure = u
         return True
 
     def set_gain(self, gain: float) -> bool:
@@ -86,23 +86,18 @@ class CameraAcquisition(Acquisition):
         if ("target" in kwargs) and (kwargs["target"] != self.name):
             pass
         else:
-            if "frame_rate" in kwargs:
-                if self.set_frame_rate(kwargs["frame_rate"]):
-                    new_params["frame_rate"] = self.frame_rate
-            if "frame_size" in kwargs:
-                w, h = kwargs["frame_size"]
-                if self.set_frame_size(w, h):
-                    new_params["frame_size"] = self.frame_size
-            if "offsets" in kwargs:
-                x, y = kwargs["offsets"]
-                if self.set_offsets(x, y):
-                    new_params["offsets"] = self.offsets
-            if "exposure" in kwargs:
-                if self.set_exposure(kwargs["exposure"]):
-                    new_params["exposure"] = self.exposure
-            if "gain" in kwargs:
-                if self.set_gain(kwargs["gain"]):
-                    new_params["gain"] = self.gain
+            for param in ("frame_rate", "frame_size", "offsets", "exposure", "gain"):
+                if param in kwargs:
+                    val = kwargs[param]
+                    setter = getattr(self, "_".join(["set", param]))
+                    try:
+                        ret = setter(*val)
+                    except TypeError:
+                        ret = setter(val)
+                    if ret:
+                        new_params["param"] = val
+                    else:
+                        print(f"Param {param} could not be set to {val}")
         return new_params
 
     def reset_frame_number(self, **kwargs):

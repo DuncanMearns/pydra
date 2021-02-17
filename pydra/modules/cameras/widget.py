@@ -1,21 +1,6 @@
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore
 from pydra.gui import ModuleWidget
 from pydra.gui.widgets import SpinboxWidget, DoubleSpinboxWidget
-
-
-# class ValueEditor(QtWidgets.QLineEdit):
-#
-#     valueChanged = QtCore.pyqtSignal()
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.setPlaceholderText(self.text())
-#         self.editingFinished.connect(self.change_value)
-#
-#     @QtCore.pyqtSlot()
-#     def change_value(self):
-#         self.setPlaceholderText(self.text())
-#         self.valueChanged.emit()
 
 
 class FrameSizeWidget(QtWidgets.QGroupBox):
@@ -81,7 +66,8 @@ class ExposureWidget(QtWidgets.QGroupBox):
         exposure = kwargs.get("exposure", None)
         min_exposure = kwargs.get("min_exposure", 1)
         max_exposure = kwargs.get("max_exposure", 1000)
-        self.exposure_editor = SpinboxWidget("Exposure", minVal=min_exposure, maxVal=max_exposure, suffix="ms")
+        self.exposure_editor = DoubleSpinboxWidget("Exposure", minVal=min_exposure, maxVal=max_exposure,
+                                                   dec=3, suffix="ms")
         if exposure is not None:
             self.exposure_editor.setValue(exposure, emit=False)
         self.exposure_editor.valueChanged.connect(self.change_exposure)
@@ -96,9 +82,9 @@ class ExposureWidget(QtWidgets.QGroupBox):
         self.gain_editor.valueChanged.connect(self.change_gain)
         self.layout().addWidget(self.gain_editor, alignment=QtCore.Qt.AlignLeft)
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(float)
     def change_exposure(self, val):
-        self.changed("exposure", val)
+        self.changed("exposure", int(val * 1000))  # convert ms to us
 
     @QtCore.pyqtSlot(float)
     def change_gain(self, val):
@@ -127,14 +113,14 @@ class CameraWidget(ModuleWidget):
         self.exposure_widget = ExposureWidget(**params)
         self.exposure_widget.param_changed.connect(self.param_changed)
         self.widget().layout().addWidget(self.exposure_widget)
-        # # Set validators
-        # self.int_editors = (self.frame_width_editor, self.frame_height_editor, self.exposure_editor, self.gain_editor)
-        # for editor in self.int_editors:
-        #     editor.setValidator(QtGui.QIntValidator())
-        # self.frame_rate_editor.setValidator(QtGui.QDoubleValidator(decimals=2))
-        # self.param_changed()  # call this to ensure saver is properly updated
 
     @QtCore.pyqtSlot(str, object)
     def param_changed(self, param, new_val):
         new_params = {param: new_val}
         self.send_event("set_params", **new_params)
+
+    def enterRunning(self):
+        self.setEnabled(False)
+
+    def enterIdle(self):
+        self.setEnabled(True)
