@@ -40,6 +40,7 @@ class TimerWidget(QtWidgets.QWidget):
         super().__init__(*args, **kwargs)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.spinbox = QtWidgets.QSpinBox()
+        self.spinbox.setMaximum(999)
         self.layout().addWidget(self.spinbox)
         self.layout().addWidget(QtWidgets.QLabel("seconds"))
 
