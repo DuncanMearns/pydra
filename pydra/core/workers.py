@@ -44,11 +44,11 @@ class Worker(PydraObject, ProcessMixIn):
     @LOGGED
     def connected(self):
         """Logs that worker has received the 'test_connection' event."""
-        return dict(event=True)
+        return dict()
 
     @LOGGED
     def _events_info(self, **kwargs):
-        return dict(event=True, events=[key for key in self.events if not key.startswith("_")])
+        return dict(events=[key for key in self.events if not key.startswith("_")])
 
     def exit(self, *args, **kwargs):
         """Sets the exit_flag when EXIT signal is received, causing process to terminate ."""

@@ -73,7 +73,7 @@ class AcquisitionWidget(ModuleWidget):
     def enterIdle(self):
         self.setEnabled(True)
 
-    def updateData(self, data, frame=None, **displays):
+    def updatePlots(self, data, frame=None, **displays):
         self._display.show(frame)
 
 
@@ -126,7 +126,7 @@ class TrackingDisplay(DisplayProxy):
 
     display = TrackingPlotter
 
-    def updateData(self, data, frame=None, **displays):
+    def updatePlots(self, data, frame=None, **displays):
         self._display.update(**data)
 
 

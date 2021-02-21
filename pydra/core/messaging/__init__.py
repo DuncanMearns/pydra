@@ -1,8 +1,8 @@
 from .serializers import *
 import time
 
-__all__ = ["PydraMessage", "EXIT", "MESSAGE", "EVENT", "DATA", "TIMESTAMPED", "INDEXED", "FRAME", "LOGGED", "INFO",
-           "DATAINFO", "TRIGGER"]
+__all__ = ["PydraMessage", "EXIT", "MESSAGE", "EVENT", "DATA", "TIMESTAMPED", "INDEXED", "FRAME", "LOGGED",
+           "EVENT_INFO", "DATA_INFO", "TRIGGER"]
 
 
 class PydraMessage:
@@ -237,8 +237,8 @@ class LoggedMessage(PydraMessage):
 LOGGED = LoggedMessage()
 
 
-INFO = PydraMessage(float, str, str, dict, np.ndarray)
-DATAINFO = PydraMessage(str, dict, np.ndarray)
+EVENT_INFO = PydraMessage(float, str, str, dict, np.ndarray)
+DATA_INFO = PydraMessage(str, dict, np.ndarray)
 
 
 class TriggerMessage(PydraMessage):

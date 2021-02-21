@@ -165,41 +165,38 @@ class Pydra(PydraObject, QObject):
         return result[:-1]
 
     @staticmethod
-    def decode_message(msg):
+    def decode_message(msg, msg_type):
         """Decode INFO messages from saver."""
-        return [INFO.decode(*msg[(4 * i):(4 * i) + 4]) for i in range(len(msg) // 4)]
-
-    def request_log(self):
-        """Request info from saver log."""
-        log = self._query("log")
-        if len(log):
-            log = self.decode_message(log)
-            return True, log
-        return False, log
+        if msg_type is EVENT_INFO:
+            return [EVENT_INFO.decode(*msg[(4 * i):(4 * i) + 4]) for i in range(len(msg) // 4)]
+        elif msg_type is DATA_INFO:
+            return [DATA_INFO.decode(*msg[(3 * i):(3 * i) + 3]) for i in range(len(msg) // 3)]
+        else:
+            return msg
 
     def request_events(self):
         """Request info from saver about worker events."""
         events = self._query("events")
         if len(events):
-            event_data = self.decode_message(events)
+            event_data = self.decode_message(events, EVENT_INFO)
             return True, event_data
         return False, events
+
+    def request_data(self):
+        """Request data from saver."""
+        data = self._query("data")
+        worker_data = self.decode_message(data, DATA_INFO)
+        for (name, data, frame) in worker_data:
+            yield name, data, frame
 
     def request_messages(self):
         """Request messages from saver."""
         messages = self._query("messages")
         if len(messages):
-            message_data = self.decode_message(messages)
+            message_data = self.decode_message(messages, EVENT_INFO)
             message_data = [message[:3] for message in message_data]
             return True, message_data
         return False, messages
-
-    def request_data(self):
-        """Request data from saver."""
-        data = self._query("data")
-        pipeline_data = [DATAINFO.decode(*data[(3 * i):(3 * i) + 3]) for i in range(len(data) // 3)]
-        for (name, data, frame) in pipeline_data:
-            yield name, data, frame
 
     def test_connections(self, timeout=10.):
         """Checks that all workers in the network are receiving messages from pydra.

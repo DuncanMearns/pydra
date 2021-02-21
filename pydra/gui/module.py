@@ -6,10 +6,6 @@ class ModuleWidget(QtWidgets.QDockWidget, StateEnabled):
 
     display = None
 
-    @classmethod
-    def make(cls, name, parent, **kwargs):
-        return cls(name, parent, **kwargs)
-
     def __init__(self, name, parent, *args, **kwargs):
         super().__init__(name, parent)
         self.name = name
@@ -53,7 +49,7 @@ class ModuleWidget(QtWidgets.QDockWidget, StateEnabled):
     def send_event(self, event_name, **kwargs):
         self.parent().pydra.send_event(event_name, target=self.name, **kwargs)
 
-    def updateData(self, data, frame=None, **displays):
+    def updatePlots(self, data, frame=None, **displays):
         return
 
 

@@ -54,7 +54,7 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
             params = module.get("params", {})
             if "widget" in module.keys():
                 # Create control widget
-                widget = module["widget"].make(name=name, parent=self, params=params)
+                widget = module["widget"](name=name, parent=self, params=params)
                 self.worker_widgets[name] = widget
                 # Create plotting widget
                 if widget.display:
@@ -94,7 +94,6 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
     @QtCore.pyqtSlot()
     def update_plots(self):
         """Updates widgets with data received from pydra."""
-        for pipeline, data, frame in self.pydra.request_data():
-            for worker, params in data.items():
-                if worker in self.worker_widgets:
-                    self.worker_widgets[worker].updateData(params, frame, **self.displays)
+        for worker, data, frame in self.pydra.request_data():
+            if worker in self.worker_widgets:
+                self.worker_widgets[worker].updatePlots(data, frame, **self.displays)

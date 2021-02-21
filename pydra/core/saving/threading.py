@@ -322,7 +322,7 @@ class PipelineSaver:
                 "time": [],
                 "index": [],
                 "data": {},
-                "events": []
+                "timestamped": []
             }
         # parse arguments
         if dtype == "frame":
@@ -330,11 +330,12 @@ class PipelineSaver:
             self.timestamps.append(t)
             self.frame = frame
             data = {}
+            self.data_cache[source]["frame"] = frame
         elif dtype == "indexed":
             t, i, data = args
         elif dtype == "timestamped":
             t, data = args
-            self.data_cache[source]["events"] = [(t, data)]
+            self.data_cache[source]["timestamped"] = [(t, data)]
             return
         else:
             return

@@ -37,14 +37,12 @@ class Saver(PydraObject, ProcessMixIn):
         super().__init__(*args, **kwargs)
         # Add log message handling
         self.msg_handlers["log"] = self.handle_log
-        self.log = []
         # Create caches for storing worker messages and events
-        self.worker_events = []
+        self.event_log = []
         self.messages = []
         # Add query events for direct communication with pydra
         self.events["query"] = self._query
         self.events["query_messages"] = self.query_messages
-        self.events["query_log"] = self.query_log
         self.events["query_events"] = self.query_events
         self.events["query_data"] = self.query_data
         # Recording events
@@ -83,9 +81,7 @@ class Saver(PydraObject, ProcessMixIn):
         name, data = LOGGED.decode(name, data)
         timestamp = kwargs["timestamp"]
         source = kwargs["source"]
-        if ("event" in data) and data["event"]:
-            self.worker_events.append((timestamp, source, name, data))
-        self.log.append((timestamp, source, name, data))
+        self.event_log.append((timestamp, source, name, data))
 
     def _query(self, query_type, **kwargs):
         """Handles any query events received from pydra."""
@@ -97,36 +93,27 @@ class Saver(PydraObject, ProcessMixIn):
         """Fulfills a request from pydra for messages."""
         while len(self.messages):
             source, t, m = self.messages.pop(0)
-            serialized = INFO.encode(t, source, m, dict())
-            self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
-        self.zmq_sender.send(b"")
-
-    def query_log(self):
-        """Fulfills a request from pydra for the log."""
-        for item in self.log:
-            serialized = INFO.encode(*item)
+            serialized = EVENT_INFO.encode(t, source, m, dict())
             self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
         self.zmq_sender.send(b"")
 
     def query_events(self):
-        """Fulfills a request from pydra for worker events."""
-        for event in self.worker_events:
-            serialized = INFO.encode(*event)
+        """Fulfills a request from pydra for logged worker events."""
+        for event in self.event_log:
+            serialized = EVENT_INFO.encode(*event)
             self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
         self.zmq_sender.send(b"")
-        self.worker_events = []
+        self.event_log = []
 
     def query_data(self):
         """Fulfills a request from pydra for data."""
         for pipeline in self.savers:
-            name = pipeline.name
-            data = pipeline.flush()
-            if pipeline.frame is not None:
-                frame = pipeline.frame
-            else:
-                frame = np.empty([], dtype="uint8")
-            serialized = DATAINFO.encode(name, data, frame)
-            self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
+            # name = pipeline.name
+            pipeline_data = pipeline.flush()
+            for source, data in pipeline_data.items():
+                frame = data.pop("frame", np.empty([], dtype="uint8"))
+                serialized = DATA_INFO.encode(source, data, frame)
+                self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
         self.zmq_sender.send(b"")
 
     def recv_message(self, s, **kwargs):
