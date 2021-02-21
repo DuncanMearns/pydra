@@ -42,6 +42,8 @@ class Pydra(PydraObject, QObject):
     _cmd = pyqtSignal()  # signal emitted to receive command line inputs
     _exiting = pyqtSignal()  # signal emitted just before exit
 
+    t0 = time.time()  # initialize synchronization clock
+
     @staticmethod
     def run(gui=True, **config):
         """Instantiates the pydra main class and starts the Qt event loop."""
@@ -277,9 +279,14 @@ class Pydra(PydraObject, QObject):
             self.freerunning_mode()
             print(f"Protocol {name} is not defined. Entering free-running mode.")
 
+    @staticmethod
+    def set_clock():
+        Pydra.t0 = time.time()
+
     @pyqtSlot()
     def run_protocol(self):
         """Runs the current protocol."""
+        self.set_clock()
         self.protocol()
 
     @pyqtSlot()
