@@ -1,25 +1,25 @@
 from PyQt5 import QtWidgets
 import pyqtgraph as pg
+from pyqtgraph.dockarea import DockArea, Dock
 import numpy as np
 from collections import deque
 import time
 
 
-class PlotterWidget(QtWidgets.QWidget):
+class DisplayContainer(QtWidgets.QWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setLayout(QtWidgets.QGridLayout())
-        self.pipelines = {}
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self._dock_area = DockArea()
+        self.layout().addWidget(self._dock_area)
+        self.plotters = {}
 
-    def addPlotter(self, name, params):
-        widget = PipelineWidget(name, params)
-        self.pipelines[name] = widget
-        j = self.layout().columnCount()
-        self.layout().addWidget(widget, 0, j)
-
-    def updatePlots(self, name, data, frame):
-        self.pipelines[name].updatePlots(frame, **data)
+    def add(self, name: str, widget) -> None:
+        dock = Dock(name)
+        dock.addWidget(widget)
+        self.plotters[name] = widget
+        self._dock_area.addDock(dock)
 
 
 class PipelineWidget(QtWidgets.QGroupBox):

@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
 from .toolbar import RecordingToolbar
-from .plotting import PlotterWidget
+from .display import DisplayContainer
 from .states import StateEnabled
 from .protocol import ProtocolWindow
 
@@ -43,27 +43,24 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         self.runningState.exited.connect(self.pydra.end_protocol)
 
         # Create display widget
-        self.displays = QtWidgets.QWidget()
-        self.setCentralWidget(self.displays)
+        self.display_container = DisplayContainer()
+        self.setCentralWidget(self.display_container)
 
-        # Add module widgets
+        # Add module widgets and displays
         self.worker_widgets = {}
+        self.displays = {}
         for module in self.pydra.modules:
+            name = module["worker"].name
+            params = module.get("params", {})
             if "widget" in module.keys():
-                name = module["worker"].name
-                params = module["params"]
-                self.worker_widgets[name] = module["widget"](name=name, parent=self, params=params)
-        for name, widget in self.worker_widgets.items():
-            self.addDockWidget(QtCore.Qt.RightDockWidgetArea, widget)
-
-        # Create plotters
-        self.plotter = PlotterWidget()
-        self.setCentralWidget(self.plotter)
-        for pipeline, workers in self.pydra.pipelines.items():
-            params = []
-            for worker in workers:
-                params.extend([".".join([worker.name, param]) for param in worker.plot])
-            self.plotter.addPlotter(pipeline, params)
+                # Create control widget
+                widget = module["widget"].make(name=name, parent=self, params=params)
+                self.worker_widgets[name] = widget
+                # Create plotting widget
+                if widget.display:
+                    display = widget._display
+                    self.display_container.add(name, display)
+                    self.displays[name] = display
 
         # Plotting update timer
         self.update_interval = 30
@@ -96,9 +93,8 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
 
     @QtCore.pyqtSlot()
     def update_plots(self):
-        """Updates plots with data received from pydra."""
+        """Updates widgets with data received from pydra."""
         for pipeline, data, frame in self.pydra.request_data():
-            self.plotter.updatePlots(pipeline, data, frame)
             for worker, params in data.items():
                 if worker in self.worker_widgets:
-                    self.worker_widgets[worker].updateData(**params)
+                    self.worker_widgets[worker].updateData(params, frame, **self.displays)
