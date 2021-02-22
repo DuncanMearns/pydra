@@ -1,30 +1,31 @@
 from .states import StateEnabled
+from .plotter import Plotter
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 
 class ModuleWidget(QtWidgets.QDockWidget, StateEnabled):
 
-    display = None
+    plot = Plotter
 
     def __init__(self, name, parent, *args, **kwargs):
         super().__init__(name, parent)
         self.name = name
         # Set widget parameters
         self._set_widget_params()
-        # Create display widget
-        self._create_display(*args, **kwargs)
+        # Create plotter widget
+        self.create_plotter(*args, **kwargs)
         # Add to parent window
         self._add_to_main()
+
+    def create_plotter(self, *args, **kwargs):
+        self.plotter = None
+        if self.plot:
+            self.plotter = self.plot(*args, **kwargs)
 
     def _set_widget_params(self):
         self.setMinimumWidth(250)
         self.setMinimumHeight(100)
         self.setMaximumHeight(300)
-
-    def _create_display(self, *args, **kwargs):
-        self._display = None
-        if self.display:
-            self._display = self.display(*args, **kwargs)
 
     def _add_to_main(self):
         # Add to dock
@@ -49,7 +50,7 @@ class ModuleWidget(QtWidgets.QDockWidget, StateEnabled):
     def send_event(self, event_name, **kwargs):
         self.parent().pydra.send_event(event_name, target=self.name, **kwargs)
 
-    def updatePlots(self, data, frame=None, **displays):
+    def updatePlots(self, data, frame=None, **plotters):
         return
 
 

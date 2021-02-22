@@ -57,10 +57,10 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
                 widget = module["widget"](name=name, parent=self, params=params)
                 self.worker_widgets[name] = widget
                 # Create plotting widget
-                if widget.display:
-                    display = widget._display
-                    self.display_container.add(name, display)
-                    self.displays[name] = display
+                if widget.plot:
+                    plotter = widget.plotter
+                    self.display_container.add(name, plotter)
+                    self.displays[name] = plotter
 
         # Plotting update timer
         self.update_interval = 30

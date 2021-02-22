@@ -1,11 +1,10 @@
 from pydra import Pydra, ports, config
 from pydra.core import Worker, Acquisition
 from pydra.gui.module import ModuleWidget, DisplayProxy
+from pydra.gui.plotter import Plotter
 from PyQt5 import QtWidgets
-import pyqtgraph as pg
 import numpy as np
 import time
-from collections import deque
 
 
 class AcquisitionWorker(Acquisition):
@@ -32,29 +31,7 @@ class AcquisitionWorker(Acquisition):
         self.i += 1
 
 
-class FrameDisplay(pg.GraphicsLayoutWidget):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        self.image_plot = self.addPlot(row=0, col=0)
-        self.image_plot.setMouseEnabled(False, False)
-        self.image_plot.setAspectLocked()
-        self.image_plot.hideAxis('bottom')
-        self.image_plot.hideAxis('left')
-        self.image = pg.ImageItem()
-        self.image_plot.addItem(self.image)
-
-    def show(self, image):
-        if image.shape:
-            self.image.setImage(image)
-
-
 class AcquisitionWidget(ModuleWidget):
-
-    display = FrameDisplay
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -73,8 +50,12 @@ class AcquisitionWidget(ModuleWidget):
     def enterIdle(self):
         self.setEnabled(True)
 
-    def updatePlots(self, data, frame=None, **displays):
-        self._display.show(frame)
+    def create_plotter(self, *args, **kwargs):
+        super().create_plotter(*args, **kwargs)
+        self.plotter.addImagePlot("video", pen=None, symbol='o')
+
+    def updatePlots(self, data, frame=None, **plotters):
+        self.plotter.updateImage("video", frame)
 
 
 class TrackingWorker(Worker):
@@ -90,44 +71,22 @@ class TrackingWorker(Worker):
         self.send_indexed(t, i, data)
 
 
-class TrackingPlotter(pg.GraphicsLayoutWidget):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__()
-        self.initUI()
-        self.t0 = time.time()
-
-    def initUI(self):
-        # Create param plots
-        self._plotters = {}
-        self.plot_data = {}
-        self.caches = {}
-        for i, param in enumerate(("x", "y")):
-            param_plot = self.addPlot(row=i + 1, col=0, title=param)
-            if len(self._plotters):
-                param_plot.setXLink(self._plotters[list(self._plotters.keys())[0]])
-            plot_data = param_plot.plot([], [])
-            self._plotters[param] = param_plot
-            self.caches[param] = deque(maxlen=10000)
-            self.plot_data[param] = plot_data
-
-    def update(self, **params):
-        t = np.array(params.get("time", [])) - self.t0
-        for data_name, data in params.get("data", {}).items():
-            try:
-                self.caches[data_name].extend(zip(t, data))
-                show_data = np.array(self.caches[data_name])
-                self.plot_data[data_name].setData(show_data[:, 0], show_data[:, 1])
-            except KeyError:
-                pass
-
-
 class TrackingDisplay(DisplayProxy):
 
-    display = TrackingPlotter
+    def create_plotter(self, *args, **kwargs):
+        super().create_plotter(*args, **kwargs)
+        self.plotter.addParamPlot("x")
+        self.plotter.addParamPlot("y")
 
-    def updatePlots(self, data, frame=None, **displays):
-        self._display.update(**data)
+    def updatePlots(self, data, frame=None, **plotters):
+        self.plotter.update(data)
+        # Overlay on video
+        video_plotter = plotters["acquisition"]
+        ps = np.random.rand(5, 2) * 250
+        video_plotter.updateOverlay("video", ps)
+
+    def enterRunning(self):
+        self.plotter.clear_data()
 
 
 ACQUISITION = {
