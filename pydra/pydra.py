@@ -1,6 +1,7 @@
 from pydra.core import PydraObject, Saver, Protocol, Trigger
 from pydra.core.messaging import *
 from pydra.utilities.string_formatting import *
+from pydra.utilities import clock
 from pydra.gui import *
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal, pyqtSlot
@@ -279,14 +280,10 @@ class Pydra(PydraObject, QObject):
             self.freerunning_mode()
             print(f"Protocol {name} is not defined. Entering free-running mode.")
 
-    @staticmethod
-    def set_clock():
-        Pydra.t0 = time.time()
-
     @pyqtSlot()
     def run_protocol(self):
         """Runs the current protocol."""
-        self.set_clock()
+        clock.reset()
         self.protocol()
 
     @pyqtSlot()
