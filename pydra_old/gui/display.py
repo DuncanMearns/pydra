@@ -15,7 +15,7 @@ class Plotter:
 
     @property
     def plot(self):
-        return self.parent.plot_data[self.name]
+        return self.parent._data[self.name]
 
     def reset(self):
         return
