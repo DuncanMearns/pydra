@@ -114,6 +114,13 @@ class CameraWidget(ModuleWidget):
         self.exposure_widget.param_changed.connect(self.param_changed)
         self.widget().layout().addWidget(self.exposure_widget)
 
+    def create_plotter(self, *args, **kwargs):
+        super().create_plotter(*args, **kwargs)
+        self.plotter.addImagePlot("frame")
+
+    def updatePlots(self, data, frame=None, **plotters):
+        self.plotter.updateImage("frame", frame)
+
     @QtCore.pyqtSlot(str, object)
     def param_changed(self, param, new_val):
         new_params = {param: new_val}

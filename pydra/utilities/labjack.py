@@ -22,3 +22,5 @@ class LabJack:
         except KeyError:
             raise Warning(f'{register} if not a valid DAC register (valid registers are: '
                           f'{[key for key in self.registers.keys()]}).')
+        except AttributeError:
+            pass

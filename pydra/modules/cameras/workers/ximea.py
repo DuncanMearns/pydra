@@ -32,6 +32,8 @@ class XimeaCamera(CameraAcquisition):
         self.set_params(
             frame_size=self.frame_size,
             frame_rate=self.frame_rate,
+            exposure=self.exposure,
+            gain=self.gain
         )
 
     def set_frame_rate(self, fps: float) -> bool:

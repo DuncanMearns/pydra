@@ -52,7 +52,7 @@ class Plotter(pg.GraphicsLayoutWidget):
 
     def updateImage(self, name: str, image: np.ndarray):
         if image.shape and name in self.images:
-            self.images[name].setImage(image)
+            self.images[name].setImage(image[::-1].T)
 
     def updateOverlay(self, name: str, data: np.ndarray):
         if name in self.overlay_data:
