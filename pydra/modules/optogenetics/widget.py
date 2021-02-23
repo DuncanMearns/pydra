@@ -81,8 +81,8 @@ class OptogeneticsWidget(ModuleWidget):
             self.send_event("stimulation_on")
         self.laser_state = int(not self.laser_state)
 
-    def updatePlots(self, **params):
-        t, last_update = params["events"][-1]
+    def updatePlots(self, data, frame=None, **plotters):
+        t, last_update = data["events"][-1]
         status = last_update["laser"]
         self.laser_state = status
         if status:
