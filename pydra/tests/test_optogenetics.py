@@ -1,5 +1,5 @@
 from pydra import Pydra, config, ports
-from pydra.modules.labjack import OPTOGENETICS
+from pydra.modules.optogenetics import OPTOGENETICS
 
 
 config["modules"] = [OPTOGENETICS]

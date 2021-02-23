@@ -1,6 +1,6 @@
 from pydra import Pydra, ports, config
 from pydra.core import Worker
-from pydra.utilities import format_zmq_connections
+from pydra.utilities.string_formatting import format_zmq_connections
 import numpy as np
 
 # Name each worker
