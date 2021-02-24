@@ -33,7 +33,7 @@ class EggsWorker(Worker):
     # Every pydra worker must have a unique name
     name = "eggs"
 
-    # Add "foo" to subscriptions to allow Bar to receive data from the corresponding worker
+    # Add "spam" to subscriptions to allow EggsWorker to receive data from the corresponding worker
     subscriptions = ("spam",)
 
     def __init__(self, *args, **kwargs):

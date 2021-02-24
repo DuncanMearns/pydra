@@ -35,7 +35,7 @@ class EggsWorker(Worker):
         self.events["eggs"] = self.eggs_event
 
     def eggs_event(self, **kwargs):
-        """Method called when event called "bar" is received."""
+        """Method called when event called "eggs" is received."""
         print(f"Worker {self.name} received event called 'eggs' from {kwargs['source']}")
 
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     Pydra.configure(config, ports)
     # Create the pydra object
     pydra = Pydra(**config)
-    # Send an event called "foo" to the network
+    # Send an event called "spam" to the network
     pydra.send_event("spam")
     # Sleep for one second
     time.sleep(1.0)
