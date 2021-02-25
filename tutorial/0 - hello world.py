@@ -1,33 +1,33 @@
 """
-Hello world example for Pydra.
-
-In this example, we create a Pydra Worker class called HelloWorld. When we run Pydra, this worker will be migrated to
-a separate process and start receiving events. Whenever an event is received, our worker will check whether it can
-respond to the event and then call a corresponding method. In this example, our worker has a single event called
-"hello_world" which calls the method hello_world.
-
-To use our worker class, we must create a module. Modules are dictionaries, and to include our worker, we must assign
-it to the "worker" key. Note, that this should be the class itself, and not an instance. Modules are added to the config
-dictionary used to initialize Pydra.
-
-Since Pydra runs a 0MQ network, connections between ports must be configured. This is done under the hood when we  call
-Pydra's configure method. This method additionally takes a list of ports that Pydra should use to configure the 0MQ
-network. Most applications of Pydra will first involve configuring the network.
->>> from pydra import Pydra, config, ports
->>> Pydra.configure(config, ports)
-
-To start using Pydra, we create an instance of the Pydra class. The config dictionary is unpacked by Pydra's constructor
-and should be passed using the **kwargs pattern. The Pydra class should only be substantiated once. Instantiating the
-Pydra class will migrate workers to new processes and setup the 0MQ network.
->>> pydra = Pydra(**config)
-
-Once Pydra is configuring and an instance has been instantiated, we can start sending events to the workers we created
-and passed to Pydra in our modules. Calling Pydra's send_event method will allow us to broadcast events to our workers.
->>> pydra.send_event("hello_world")
-
-After we are finished sending events to our workers, we should make sure that all our processes rejoin the main process
-and 0MQ connections are properly closed. Calling Pydra's exit method ensures a clean exit.
->>> pydra.exit()
+# Hello world example for Pydra.
+#
+# In this example, we create a Pydra Worker class called HelloWorld. When we run Pydra, this worker will be migrated to
+# a separate process and start receiving events. Whenever an event is received, our worker will check whether it can
+# respond to the event and then call a corresponding method. In this example, our worker has a single event called
+# "hello_world" which calls the method hello_world.
+#
+# To use our worker class, we must create a module. Modules are dictionaries, and to include our worker, we must assign
+# it to the "worker" key. Note, that this should be the class itself, and not an instance. Modules are added to the config
+# dictionary used to initialize Pydra.
+#
+# Since Pydra runs a 0MQ network, connections between ports must be configured. This is done under the hood when we  call
+# Pydra's configure method. This method additionally takes a list of ports that Pydra should use to configure the 0MQ
+# network. Most applications of Pydra will first involve configuring the network.
+# >>> from pydra import Pydra, config, ports
+# >>> Pydra.configure(config, ports)
+#
+# To start using Pydra, we create an instance of the Pydra class. The config dictionary is unpacked by Pydra's constructor
+# and should be passed using the **kwargs pattern. The Pydra class should only be substantiated once. Instantiating the
+# Pydra class will migrate workers to new processes and setup the 0MQ network.
+# >>> pydra = Pydra(**config)
+#
+# Once Pydra is configuring and an instance has been instantiated, we can start sending events to the workers we created
+# and passed to Pydra in our modules. Calling Pydra's send_event method will allow us to broadcast events to our workers.
+# >>> pydra.send_event("hello_world")
+#
+# After we are finished sending events to our workers, we should make sure that all our processes rejoin the main process
+# and 0MQ connections are properly closed. Calling Pydra's exit method ensures a clean exit.
+# >>> pydra.exit()
 """
 from pydra import Pydra, config, ports
 from pydra.core.workers import Worker
