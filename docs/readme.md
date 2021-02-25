@@ -8,6 +8,10 @@ _Pydra_ is a portmanteau of Python and hydra.
 
 ---
 
+
+![overview](pydra_overview.png)
+
+
 # ZeroMQ
 
 The Pydra network and messaging functionality is provided through the ZeroMQ library. ZeroMQ is a very general library
