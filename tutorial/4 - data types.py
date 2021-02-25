@@ -30,6 +30,7 @@ class DataSender(Worker):
             # Send indexed frame message
             frame = np.random.rand(300, 200)
             self.send_frame(now, self.index, frame)
+            self.index += 1
         else:
             print(f"Data type: {data_type} not understood.")
 

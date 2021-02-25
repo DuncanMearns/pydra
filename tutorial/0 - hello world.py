@@ -86,6 +86,6 @@ if __name__ == "__main__":
     # Sleep for one second
     time.sleep(1.0)
 
-    # Exit (should be called for clean exiting of processes
+    # Exit (should be called for clean exiting of processes)
     print("\nSENDING EXIT SIGNAL\n")
     pydra.exit()
