@@ -9,6 +9,7 @@ Subpackages
 
    pydra.modules.cameras
    pydra.modules.optogenetics
+   pydra.modules.tracking
 
 Module contents
 ---------------

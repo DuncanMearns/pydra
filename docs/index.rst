@@ -24,6 +24,6 @@ Welcome to pydra's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Documentation:
+   :caption: API Guide:
 
-   documentation
+   api_guide

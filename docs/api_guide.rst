@@ -1,7 +1,7 @@
-.. _documentation:
+.. _api_guide:
 
-Documentation
-=============
+API Guide
+=========
 
 .. glossary::
     :py:mod:`pydra`

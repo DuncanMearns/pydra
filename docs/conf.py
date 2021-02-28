@@ -31,6 +31,8 @@ author = 'Duncan Mearns'
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.coverage",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.githubpages",
     "sphinx.ext.napoleon"
 ]
 
