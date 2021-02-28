@@ -69,9 +69,9 @@ pip install opencv-python
 ```
 
 
-## Add pydra to the environment
+## Add Pydra to the environment
 
-If you want to use pydra without modifying the source code, you can add it to the ```pydra_env``` to be used in other
+If you want to use Pydra without modifying the source code, you can add it to the ```pydra_env``` to be used in other
 projects. To do this, make sure your ```pydra_env``` is activated then type:
 
 ```shell
@@ -89,7 +89,7 @@ To install Pydra directly from Github, see answers to
 To install other libraries in Pydra, make sure the environment is activated and then use ```pip install <LIBRARY>``` or
 ```conda install <LIBRARY>```.
 
-## Configuring your IDE for pydra
+## Configuring your IDE for Pydra
 
 To start using Pydra, you will need to set the IDE interpreter for your pydra project to the environment you just
 installed. If you are using PyCharm, you can do this by going to 
@@ -109,9 +109,10 @@ Whew! You should now be able to start using Pydra!
 
 # Getting started
 
-For a comprehensive guide to using Pydra, see the [full documentation]() (LINK COMING SOON).
+To learn the basics (and not-so-basics) of Pydra, you might want to start by working through the [tutorial](tutorial)
+scripts. A basic overview of how to use Pydra is provided below.
 
-To import and run Pydra:
+## Importing and running Pydra
 ```python
 from pydra import Pydra, config, ports
 
@@ -277,3 +278,5 @@ if __name__ == "__main__":
     # Run the Pydra GUI with given configuration, which now includes your worker and an associated widget
     Pydra.run(**config)
 ```
+
+For a comprehensive guide, see the [full documentation]() (LINK COMING SOON).
