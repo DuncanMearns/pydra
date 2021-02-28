@@ -7,6 +7,11 @@ has a Graphical User Interface (GUI) built with PyQt.
 
 For questions about this code, contact Duncan Mearns: mearns@neuro.mpg.de
 
+Contents:
+1. [Installation](#installation)
+2. [Getting started](#getting-started)
+3. [Full documentation]() (link coming soon)
+
 # Installation
 
 ## Clone or fork the github repository
