@@ -54,7 +54,7 @@ class PydraObject:
 
     See Also
     --------
-    pydra.core.pydra.Pydra
+    pydra.pydra.Pydra
     pydra.core.saving.Saver
     pydra.core.workers.Worker
     pydra.core.process
@@ -94,7 +94,7 @@ class PydraObject:
         }
         # Create events
         self.events = {}
-        # Wait for 0MQ connections
+        # Wait for ZeroMQ connections
         time.sleep(1.0)
 
     def _zmq_set_publisher(self, port):

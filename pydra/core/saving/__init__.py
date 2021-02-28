@@ -17,14 +17,12 @@ class Saver(PydraObject, ProcessMixIn):
 
     Attributes
     ----------
-    log : list
-        Logged messages from all pydra objects.
-    worker_events : list
-        Copy of events that workers have received.
+    event_log : list
+        Logged messages from pydra objects.
     messages : list
-        List of messages received from all pydra objects.
+        List of string-type messages received from pydra objects.
     recording : bool
-        Stores whether data are currently being recorded and saved.
+        Stores whether data are currently being saved.
     savers : list
         List that stores all PipelineSaver objects.
     targets : dict
@@ -98,7 +96,7 @@ class Saver(PydraObject, ProcessMixIn):
         self.zmq_sender.send(b"")
 
     def query_events(self):
-        """Fulfills a request from pydra for logged worker events."""
+        """Fulfills a request from pydra for logged events."""
         for event in self.event_log:
             serialized = EVENT_INFO.encode(*event)
             self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
@@ -107,34 +105,37 @@ class Saver(PydraObject, ProcessMixIn):
 
     def query_data(self):
         """Fulfills a request from pydra for data."""
-        for pipeline in self.savers:
-            # name = pipeline.name
-            pipeline_data = pipeline.flush()
-            for source, data in pipeline_data.items():
-                frame = data.pop("frame", np.empty([], dtype="uint8"))
-                serialized = DATA_INFO.encode(source, data, frame)
-                self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)
-        self.zmq_sender.send(b"")
+        for pipeline in self.savers:  # iterate through pipeline objects in the savers attribute
+            pipeline_data = pipeline.flush()  # flush cached data from the pipeline
+            for source, data in pipeline_data.items():  # iterate through data from the cache
+                frame = data.pop("frame", np.empty([], dtype="uint8"))  # get the last frame received, if any
+                serialized = DATA_INFO.encode(source, data, frame)  # serialize the data for sending over ZeroMQ
+                self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)  # send to pydra
+        self.zmq_sender.send(b"")  # send empty byte to let pydra know query has been fulfilled
 
     def recv_message(self, s, **kwargs):
         """Adds messages recevied from workers to the message log."""
         self.messages.append((kwargs["source"], kwargs["timestamp"], s))
 
     def recv_timestamped(self, t, data, **kwargs):
+        """Sends timestamped data messages to the appropriate saver."""
         self.targets[kwargs["source"]].update(kwargs["source"], "timestamped", t, data)
 
     def recv_indexed(self, t, i, data, **kwargs):
+        """Sends indexed data messages to the appropriate saver."""
         self.targets[kwargs["source"]].update(kwargs["source"], "indexed", t, i, data)
 
     def recv_frame(self, t, i, frame, **kwargs):
+        """Sends frame data messages to the appropriate saver."""
         self.targets[kwargs["source"]].update(kwargs["source"], "frame", t, i, frame)
 
     def start_recording(self, directory: str = None, filename: str = None, **kwargs):
         """Implements a start_recording event. Starts saving data."""
         print("START RECORDING")
-        for pipeline in self.savers:
-            pipeline.start(directory, filename)
-        self.recording = True
+        if not self.recording:
+            for pipeline in self.savers:
+                pipeline.start(directory, filename)
+            self.recording = True
 
     def stop_recording(self, **kwargs):
         """Implements a stop_recording event. Stops saving data."""
