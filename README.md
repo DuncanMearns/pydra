@@ -10,7 +10,7 @@ For questions about this code, contact Duncan Mearns: mearns@neuro.mpg.de
 Contents:
 1. [Installation](#installation)
 2. [Getting started](#getting-started)
-3. [Full documentation]() (link coming soon)
+3. [Full documentation](https://duncanmearns.github.io/pydra/)
 
 # Installation
 
@@ -284,4 +284,4 @@ if __name__ == "__main__":
     Pydra.run(**config)
 ```
 
-For a comprehensive guide, see the [full documentation]() (LINK COMING SOON).
+For a comprehensive guide, see the [full documentation](https://duncanmearns.github.io/pydra/).

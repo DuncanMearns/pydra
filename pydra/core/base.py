@@ -27,6 +27,8 @@ class PydraObject:
 
     Attributes
     ----------
+    name : str
+        Unique name of the pydra object. Must be specified in subclasses.
     msg_handlers : dict
         A dictionary that maps ZMQMessage types to appropriate handling methods.
     events : dict
@@ -46,11 +48,6 @@ class PydraObject:
         The zmq.PUSH socket for sending messages.
     zmq_sender : zmq.Socket (only if "receiver" provided in connections)
         The zmq.PULL socket for receiving messages.
-
-    Class Attributes
-    ----------------
-    name : str
-        Unique name of the pydra object. Must be specified in subclasses.
 
     See Also
     --------
