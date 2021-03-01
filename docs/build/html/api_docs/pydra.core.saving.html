@@ -1,0 +1,718 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pydra.core.saving package &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Structure:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../structure/0_overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/1_messaging.html">Messaging in Pydra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/2_network.html">Pydra network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/3_objects.html">PydraObjects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/4_gui.html">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/5_qt.html">Qt events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/6_modules.html">Pydra modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/7_pipelines.html">Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Guide:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>pydra.core.saving package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api_docs/pydra.core.saving.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pydra-core-saving-package">
+<h1>pydra.core.saving package<a class="headerlink" href="#pydra-core-saving-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pydra.core.saving.threading">
+<span id="pydra-core-saving-threading-module"></span><h2>pydra.core.saving.threading module<a class="headerlink" href="#module-pydra.core.saving.threading" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.core.saving.threading.FrameThread">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.core.saving.threading.</span></code><code class="sig-name descname"><span class="pre">FrameThread</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">queue.Queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_rate</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fourcc</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_color</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#FrameThread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.FrameThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pydra.core.saving.threading.Thread" title="pydra.core.saving.threading.Thread"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.core.saving.threading.Thread</span></code></a></p>
+<p>Thread for saving video data using opencv.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – File path where video is to be saved.</p></li>
+<li><p><strong>q</strong> (<em>queue.Queue</em>) – Queue that contains serialized frame data.</p></li>
+<li><p><strong>frame_rate</strong> (<em>float</em>) – Frame rate at which video is to be saved.</p></li>
+<li><p><strong>frame_size</strong> (<em>tuple</em><em> (</em><em>width</em><em>, </em><em>height</em><em>)</em>) – The width and height of the frames.</p></li>
+<li><p><strong>fourcc</strong> (<em>str</em>) – Compression codec.</p></li>
+<li><p><strong>is_color</strong> (<em>bool</em><em> (</em><em>default is False</em><em>)</em>) – Whether frames are in color.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="pydra.core.saving.threading.FrameThread.writer">
+<code class="sig-name descname"><span class="pre">writer</span></code><a class="headerlink" href="#pydra.core.saving.threading.FrameThread.writer" title="Permalink to this definition">¶</a></dt>
+<dd><p>The opencv video writer object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>cv2.VideoWriter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.FrameThread.cleanup">
+<code class="sig-name descname"><span class="pre">cleanup</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#FrameThread.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.FrameThread.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Releases the video writer object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.FrameThread.dump">
+<code class="sig-name descname"><span class="pre">dump</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#FrameThread.dump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.FrameThread.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<em>str</em>) – The source of the video frames. Parameter not used and exists only for consistency with other classes.</p></li>
+<li><p><strong>frame</strong> (<em>np.ndarray</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.FrameThread.setup">
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#FrameThread.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.FrameThread.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates the video writer object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.core.saving.threading.IndexedThread">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.core.saving.threading.</span></code><code class="sig-name descname"><span class="pre">IndexedThread</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#IndexedThread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.IndexedThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pydra.core.saving.threading.Thread" title="pydra.core.saving.threading.Thread"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.core.saving.threading.Thread</span></code></a></p>
+<p>Thread for saving indexed data.</p>
+<p>Data are stored in the data attribute and saved as a pandas DataFrame during cleanup. The data attribute is a
+nested dictionary. The top level contains the source of incoming data. The next level contains three keys: “time”,
+“index” and “data”. The “time” and “index” are lists; “data” is a dictionary of lists for each data parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Csv file path where data is to be saved.</p></li>
+<li><p><strong>q</strong> (<em>queue.Queue</em>) – Queue that contains serialized indexed data.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="pydra.core.saving.threading.IndexedThread.data">
+<code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#pydra.core.saving.threading.IndexedThread.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary where incoming data are stored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.IndexedThread.cleanup">
+<code class="sig-name descname"><span class="pre">cleanup</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#IndexedThread.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.IndexedThread.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves data to a csv file as a pandas DataFrame.</p>
+<p>The output DataFrame has a single index, and a time column. Data values are stored in the columns, and are
+named source.param. This allows multiple workers to feed the same thread without causing namespace collisions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.IndexedThread.dump">
+<code class="sig-name descname"><span class="pre">dump</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#IndexedThread.dump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.IndexedThread.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sorts and places data into the data dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<em>str</em>) – The source (i.e. worker name) of the data.</p></li>
+<li><p><strong>t</strong> (<em>float</em>) – </p></li>
+<li><p><strong>i</strong> (<em>int</em>) – </p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.IndexedThread.setup">
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#IndexedThread.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.IndexedThread.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the data attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.core.saving.threading.PipelineSaver">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.core.saving.threading.</span></code><code class="sig-name descname"><span class="pre">PipelineSaver</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">members</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#PipelineSaver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for saving data from workers belonging to the same pipeline.</p>
+<p>This class receives incoming data from the pydra saver object with a call to its update method. Class contains
+various threads, queues and caches for storing and saving data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the pipeline.</p></li>
+<li><p><strong>members</strong> (<em>list</em>) – A list of worker object types that belong to the pipeline.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt>
+<code class="sig-name descname"><span class="pre">frame_q,</span> <span class="pre">indexed_q,</span> <span class="pre">timestamped_q</span></code></dt>
+<dd><p>Queues data of different types for saving by different threads.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>queue.Queue</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.core.saving.threading.PipelineSaver.frame">
+<code class="sig-name descname"><span class="pre">frame</span></code><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>A copy of the last frame received by the pipeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.core.saving.threading.PipelineSaver.timestamps">
+<code class="sig-name descname"><span class="pre">timestamps</span></code><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.timestamps" title="Permalink to this definition">¶</a></dt>
+<dd><p>A queue that stores timestamps of incoming frames. Used to compute an actual frame rate for data acquisition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>deque</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.core.saving.threading.PipelineSaver.data_cache">
+<code class="sig-name descname"><span class="pre">data_cache</span></code><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.data_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary containing a copy of data received for workers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.core.saving.threading.PipelineSaver.fourcc">
+<code class="sig-name descname"><span class="pre">fourcc</span></code><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.fourcc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Codec for video compression.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.PipelineSaver.flush">
+<code class="sig-name descname"><span class="pre">flush</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#PipelineSaver.flush"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns and clears all cached data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.PipelineSaver.frame_rate">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">frame_rate</span></code><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.frame_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the actual frame rate of data acquisition.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.PipelineSaver.frame_size">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">frame_size</span></code><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.frame_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the (width, height) of the last frame received.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.PipelineSaver.is_color">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_color</span></code><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.is_color" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether incoming frames are color.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.PipelineSaver.save_frame">
+<code class="sig-name descname"><span class="pre">save_frame</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#PipelineSaver.save_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.save_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses frame data into appropriate queues for saving.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.PipelineSaver.save_indexed">
+<code class="sig-name descname"><span class="pre">save_indexed</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#PipelineSaver.save_indexed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.save_indexed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Puts indexed data into appropriate queue for saving.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.PipelineSaver.save_timestamped">
+<code class="sig-name descname"><span class="pre">save_timestamped</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#PipelineSaver.save_timestamped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.save_timestamped" title="Permalink to this definition">¶</a></dt>
+<dd><p>Puts timestamped data into appropriate queue for saving.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.PipelineSaver.start">
+<code class="sig-name descname"><span class="pre">start</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#PipelineSaver.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts threads for saving incoming data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.PipelineSaver.stop">
+<code class="sig-name descname"><span class="pre">stop</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#PipelineSaver.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminates and joins saving threads.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.PipelineSaver.update">
+<code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#PipelineSaver.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.PipelineSaver.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.core.saving.threading.Thread">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.core.saving.threading.</span></code><code class="sig-name descname"><span class="pre">Thread</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">queue.Queue</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#Thread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.Thread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">threading.Thread</span></code></p>
+<p>Base thread class for saving data.</p>
+<p>Implements a run method. The run method calls setup, then enters a loop where the queue is continually checked for
+new data, which are then handled by a dump method. When an exit signal (that evaluates as False) is received, the
+loop exits and a cleanup method is called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – The path where data are to be saved.</p></li>
+<li><p><strong>q</strong> (<em>queue.Queue</em>) – Queue containing data.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pydra.core.saving.threading.Thread.cleanup">
+<code class="sig-name descname"><span class="pre">cleanup</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#Thread.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.Thread.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.Thread.dump">
+<code class="sig-name descname"><span class="pre">dump</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#Thread.dump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.Thread.dump" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.Thread.run">
+<code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#Thread.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.Thread.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method representing the thread’s activity.</p>
+<p>You may override this method in a subclass. The standard run() method
+invokes the callable object passed to the object’s constructor as the
+target argument, if any, with sequential and keyword arguments taken
+from the args and kwargs arguments, respectively.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.Thread.setup">
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#Thread.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.Thread.setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.core.saving.threading.TimestampedThread">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.core.saving.threading.</span></code><code class="sig-name descname"><span class="pre">TimestampedThread</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#TimestampedThread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.TimestampedThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pydra.core.saving.threading.Thread" title="pydra.core.saving.threading.Thread"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.core.saving.threading.Thread</span></code></a></p>
+<p>Thread for saving timestamped data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – File path where data is to be saved.</p></li>
+<li><p><strong>q</strong> (<em>queue.Queue</em>) – Queue that contains serialized timestamped data.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="pydra.core.saving.threading.TimestampedThread.data">
+<code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#pydra.core.saving.threading.TimestampedThread.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary where incoming data are stored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.TimestampedThread.cleanup">
+<code class="sig-name descname"><span class="pre">cleanup</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#TimestampedThread.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.TimestampedThread.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves data to a csv file as a pandas DataFrame.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.TimestampedThread.dump">
+<code class="sig-name descname"><span class="pre">dump</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#TimestampedThread.dump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.TimestampedThread.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sorts and places data into the data dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<em>str</em>) – The source (i.e. worker name) of the data.</p></li>
+<li><p><strong>t</strong> (<em>float</em>) – </p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.threading.TimestampedThread.setup">
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#TimestampedThread.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.TimestampedThread.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the data attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pydra.core.saving.threading.saver">
+<code class="sig-prename descclassname"><span class="pre">pydra.core.saving.threading.</span></code><code class="sig-name descname"><span class="pre">saver</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving/threading.html#saver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.threading.saver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator that sends data to the appropriate saving method when recording.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.core.saving">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pydra.core.saving" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.core.saving.Saver">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.core.saving.</span></code><code class="sig-name descname"><span class="pre">Saver</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipelines</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pydra.core.html#pydra.core.base.PydraObject" title="pydra.core.base.PydraObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.core.base.PydraObject</span></code></a>, <a class="reference internal" href="pydra.core.html#pydra.core.process.ProcessMixIn" title="pydra.core.process.ProcessMixIn"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.core.process.ProcessMixIn</span></code></a></p>
+<p>Singleton Saver class that integrates and handles incoming messages from all workers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pipelines</strong> (<em>dict</em>) – Dictionary of workers (as a list of names) assigned to each pipeline (keys). Passed from pydra pipelines
+property.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="pydra.core.saving.Saver.event_log">
+<code class="sig-name descname"><span class="pre">event_log</span></code><a class="headerlink" href="#pydra.core.saving.Saver.event_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logged messages from pydra objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.core.saving.Saver.messages">
+<code class="sig-name descname"><span class="pre">messages</span></code><a class="headerlink" href="#pydra.core.saving.Saver.messages" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of string-type messages received from pydra objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.core.saving.Saver.recording">
+<code class="sig-name descname"><span class="pre">recording</span></code><a class="headerlink" href="#pydra.core.saving.Saver.recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores whether data are currently being saved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.core.saving.Saver.savers">
+<code class="sig-name descname"><span class="pre">savers</span></code><a class="headerlink" href="#pydra.core.saving.Saver.savers" title="Permalink to this definition">¶</a></dt>
+<dd><p>List that stores all PipelineSaver objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.core.saving.Saver.targets">
+<code class="sig-name descname"><span class="pre">targets</span></code><a class="headerlink" href="#pydra.core.saving.Saver.targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary that maps data received from workers to the appropriate PipelineSaver object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.Saver.exit">
+<code class="sig-name descname"><span class="pre">exit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver.exit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver.exit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Terminates the process loop.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.Saver.handle_log">
+<code class="sig-name descname"><span class="pre">handle_log</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver.handle_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver.handle_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles logged messages.</p>
+<p>The log is a list of messages sent within the pydra network. Each item in the log contains a timestamp when the
+message was sent, the source of the message, the name of the message, and the data contained within the message.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.core.saving.Saver.name">
+<code class="sig-name descname"><span class="pre">name</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'saver'</span></em><a class="headerlink" href="#pydra.core.saving.Saver.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.Saver.query_data">
+<code class="sig-name descname"><span class="pre">query_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver.query_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver.query_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fulfills a request from pydra for data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.Saver.query_events">
+<code class="sig-name descname"><span class="pre">query_events</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver.query_events"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver.query_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fulfills a request from pydra for logged events.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.Saver.query_messages">
+<code class="sig-name descname"><span class="pre">query_messages</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver.query_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver.query_messages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fulfills a request from pydra for messages.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.Saver.recv_frame">
+<code class="sig-name descname"><span class="pre">recv_frame</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver.recv_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver.recv_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends frame data messages to the appropriate saver.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.Saver.recv_indexed">
+<code class="sig-name descname"><span class="pre">recv_indexed</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver.recv_indexed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver.recv_indexed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends indexed data messages to the appropriate saver.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.Saver.recv_message">
+<code class="sig-name descname"><span class="pre">recv_message</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver.recv_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver.recv_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds messages recevied from workers to the message log.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.Saver.recv_timestamped">
+<code class="sig-name descname"><span class="pre">recv_timestamped</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver.recv_timestamped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver.recv_timestamped" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends timestamped data messages to the appropriate saver.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.Saver.setup">
+<code class="sig-name descname"><span class="pre">setup</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends an empty byte to pydra</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.Saver.start_recording">
+<code class="sig-name descname"><span class="pre">start_recording</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver.start_recording"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver.start_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements a start_recording event. Starts saving data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.core.saving.Saver.stop_recording">
+<code class="sig-name descname"><span class="pre">stop_recording</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/saving.html#Saver.stop_recording"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.saving.Saver.stop_recording" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements a stop_recording event. Stops saving data.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
