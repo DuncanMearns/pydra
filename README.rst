@@ -1,4 +1,4 @@
-.. include:: ./docs/source/about.rst
+.. literalinclude:: ./docs/source/about.rst
 
 
 Contents:
@@ -11,11 +11,11 @@ Read the complete user guide `here <https://duncanmearns.github.io/pydra/>`_.
 
 .. _installation:
 
-.. include:: ./docs/source/getting_started/installation.rst
+.. literalinclude:: ./docs/source/getting_started/installation.rst
 
 
 .. _using pydra:
 
-.. include:: ./docs/source/getting_started/using_pydra.rst
+.. literalinclude:: ./docs/source/getting_started/using_pydra.rst
 
 For more details about using pydra, see the complete `User Guide <https://duncanmearns.github.io/pydra/>`_.
