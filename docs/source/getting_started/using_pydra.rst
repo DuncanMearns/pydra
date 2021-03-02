@@ -1,8 +1,10 @@
+.. _using-pydra:
+
 Using Pydra
 ===========
 
-To learn the basics (and not-so-basics) of Pydra, you might want to start by working through the [tutorial](tutorial)
-scripts. A basic overview of how to use Pydra is provided below.
+To learn the basics (and not-so-basics) of Pydra, you might want to start by working through the
+:ref:`tutorial <tutorial-welcome>` scripts. A basic overview of how to use Pydra is provided below.
 
 Importing and running Pydra
 ---------------------------

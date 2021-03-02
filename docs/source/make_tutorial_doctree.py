@@ -7,7 +7,7 @@ def make_tutorial_doctree():
     if not outdir.exists():
         outdir.mkdir()
 
-    path = Path("../../tutorial")
+    path = Path("../../pydra/tutorial")
     for p in path.glob("*.py"):
         name = p.stem
         n, *parts = name.split("_")
