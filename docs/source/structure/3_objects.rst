@@ -70,7 +70,7 @@ sent using decorators, for convenience the base :class:`~pydra.core.base.PydraOb
 broadcasting common message types. Broadcast messages are received by other "subscribed" workers, and by the
 :class:`~pydra.core.saving.Saver`.
 
-EVENT messages can be sent with the :method:`~pydra.core.base.PydraObject.send_event` method. This takes a string
+EVENT messages can be sent with the :meth:`~pydra.core.base.PydraObject.send_event` method. This takes a string
 (the event name) and optional keyword arguments that will be passed to the receiver's corresponding method.
 
 DATA messages can be sent with one of three methods:

@@ -3,20 +3,32 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to pydra's documentation!
-=================================
+
+.. include:: about.rst
+
+
+User Guide
+==========
 
 .. toctree::
    :maxdepth: 2
    :caption: Getting started
    :glob:
 
-   guide/*
+   getting_started/*
 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Structure:
+   :caption: Tutorial
+   :glob:
+
+   tutorial/*
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Structure
    :glob:
 
    structure/*
@@ -24,6 +36,6 @@ Welcome to pydra's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: API Guide:
+   :caption: API Guide
 
    api_guide
