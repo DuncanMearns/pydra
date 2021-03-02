@@ -4,5 +4,5 @@
 Events with arguments
 =====================
 
-.. literalinclude:: ..\..\..\tutorial\2_events_with_arguments.py
+.. literalinclude:: ..\..\..\pydra\tutorial\2_events_with_arguments.py
     :language: python

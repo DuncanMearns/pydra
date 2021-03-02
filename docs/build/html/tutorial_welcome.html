@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Search &mdash; pydra  documentation</title>
+  <title>Welcome! &mdash; pydra  documentation</title>
   
 
   
@@ -23,7 +23,6 @@
   
 
   
-    
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -37,11 +36,11 @@
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
-    <script type="text/javascript" src="_static/searchtools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="#" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Hello world" href="tutorial/0_hello_world.html" />
+    <link rel="prev" title="Using Pydra" href="getting_started/using_pydra.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -68,7 +67,7 @@
 
           
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -92,8 +91,8 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started/using_pydra.html">Using Pydra</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Tutorial</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorial_welcome.html">Welcome!</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Welcome!</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/0_hello_world.html">Hello world</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/1_communication_between_workers.html">Communication between workers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial/2_events_with_arguments.html">Events with arguments</a></li>
@@ -164,10 +163,14 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Search</li>
+      <li>Welcome!</li>
     
     
       <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/tutorial_welcome.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -179,23 +182,29 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search functionality.
-    </p>
-  </div>
-  </noscript>
+  <div class="section" id="welcome">
+<span id="tutorial-welcome"></span><h1>Welcome!<a class="headerlink" href="#welcome" title="Permalink to this headline">¶</a></h1>
+<p>Welcome to Pydra’s tutorial. The scripts in this section are designed to teach you how to use Pydra. To run the scripts,
+you may navigate to the <em>tutorial</em> directory in the pydra project of your python IDE.</p>
+<p>Alternatively, you can activate activate your <code class="docutils literal notranslate"><span class="pre">pydra_env</span></code> environment (see <a class="reference internal" href="getting_started/installation.html#installation"><span class="std std-ref">Installation</span></a>), navigate to your
+installation of pydra and run a tutorial script from the command line with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pydra</span><span class="o">.</span><span class="n">tutorial</span><span class="o">.&lt;</span><span class="n">NAME</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Where &lt;NAME&gt; is the name of the script (without the .py extension).</p>
+<p>You may also copy and paste the code from the tutorial scripts into your own project and mess around with it to see
+what happens - this can be a great way to learn about how some sample code works!</p>
+</div>
 
-  
-  <div id="search-results">
-  
-  </div>
 
            </div>
            
           </div>
           <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="tutorial/0_hello_world.html" class="btn btn-neutral float-right" title="Hello world" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="getting_started/using_pydra.html" class="btn btn-neutral float-left" title="Using Pydra" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
 
   <hr/>
 
@@ -232,14 +241,7 @@
   
   
     
-  
-  <script type="text/javascript">
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script type="text/javascript" id="searchindexloader"></script>
    
-
 
 </body>
 </html>

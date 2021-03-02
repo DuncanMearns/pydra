@@ -4,5 +4,5 @@
 Pydra gui
 =========
 
-.. literalinclude:: ..\..\..\tutorial\5_pydra_gui.py
+.. literalinclude:: ..\..\..\pydra\tutorial\5_pydra_gui.py
     :language: python
