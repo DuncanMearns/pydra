@@ -23,6 +23,7 @@ User Guide
    :caption: Tutorial
    :glob:
 
+   tutorial_welcome
    tutorial/*
 
 

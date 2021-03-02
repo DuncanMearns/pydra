@@ -4,5 +4,5 @@
 Passing data between workers
 ============================
 
-.. literalinclude:: ..\..\..\tutorial\3_passing_data_between_workers.py
+.. literalinclude:: ..\..\..\pydra\tutorial\3_passing_data_between_workers.py
     :language: python

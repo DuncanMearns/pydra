@@ -145,13 +145,13 @@ installation, check the ``.conda`` directory in your account if you are using Wi
 Whew! You are now ready to start using Pydra!
 
 
-.. _using pydra:
+.. _using-pydra:
 
 Using Pydra
 ===========
 
-To learn the basics (and not-so-basics) of Pydra, you might want to start by working through the [tutorial](tutorial)
-scripts. A basic overview of how to use Pydra is provided below.
+To learn the basics (and not-so-basics) of Pydra, you might want to start by working through the tutorial scripts. A
+basic overview of how to use Pydra is provided below.
 
 Importing and running Pydra
 ---------------------------
@@ -266,7 +266,7 @@ Pydra object directly in your main code.
 
 Adding widgets to the Pydra GUI
 -------------------------------
-To add your own widgets to the Pydra GUI, make a subclass of :obj:`ModuleWidget` and add it to your worker's module.
+To add your own widgets to the Pydra GUI, make a subclass of ``ModuleWidget`` and add it to your worker's module.
 
 .. code-block:: python
 
