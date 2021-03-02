@@ -1,0 +1,551 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pydra.core.base &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../structure/0_overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../structure/1_messaging.html">Messaging in Pydra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../structure/2_network.html">Pydra network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../structure/3_objects.html">PydraObjects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../structure/4_gui.html">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../structure/5_qt.html">Qt events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../structure/6_modules.html">Pydra modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../structure/7_pipelines.html">Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pydra.core.base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pydra.core.base</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">.messaging</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">zmq</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<div class="viewcode-block" id="PydraObject"><a class="viewcode-back" href="../../../api_docs/pydra.core.html#pydra.core.base.PydraObject">[docs]</a><span class="k">class</span> <span class="nc">PydraObject</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Base class for pydra objects implementing zmq sockets for communicating between processes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    connections : dict</span>
+<span class="sd">        Dictionary of all connections used in the pydra network. Each pydra object in the network should be represented</span>
+<span class="sd">        in this dictionary with a unique key (the object&#39;s name), dictionary pair. The object&#39;s connection dictionary</span>
+<span class="sd">        should have any number of the following keys and corresponding values:</span>
+<span class="sd">            * publisher (str)</span>
+<span class="sd">                The port on which the object publishes its outputs.</span>
+<span class="sd">            * subscriptions (iterable)</span>
+<span class="sd">                Elements should be a tuple of (name, port, message types). The name is the name of the worker to receive</span>
+<span class="sd">                message from, the port is the port on which to subscribe to messages from this worker, and the message</span>
+<span class="sd">                types are an iterable of ZMQMessage types to listen for.</span>
+<span class="sd">            * sender (str)</span>
+<span class="sd">                The port to which the object pushes messages with the PUSH|PULL pattern. Implemented by the Saver</span>
+<span class="sd">                subclass for sending messages back to the main pydra class.</span>
+<span class="sd">            * receiver (str)</span>
+<span class="sd">                The port on which to receive messages from a PUSH|PULL pattern. Implemented by main pydra class for</span>
+<span class="sd">                receiving messages from Saver.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Unique name of the pydra object. Must be specified in subclasses.</span>
+<span class="sd">    msg_handlers : dict</span>
+<span class="sd">        A dictionary that maps ZMQMessage types to appropriate handling methods.</span>
+<span class="sd">    events : dict</span>
+<span class="sd">        A dictionary that maps named events to corresponding methods. New worker-specific events can be added in</span>
+<span class="sd">        subclasses.</span>
+<span class="sd">    zmq_context : zmq.Context</span>
+<span class="sd">        The zmq context object for implementing 0MQ functionality.</span>
+<span class="sd">    zmq_connections : dict</span>
+<span class="sd">        A copy of the object&#39;s specific connections from the dictionary provided by the connections parameters.</span>
+<span class="sd">    zmq_publisher : zmq.Socket (only if &quot;publisher&quot; provided in connections)</span>
+<span class="sd">        The zmq.PUB socket for publishing messages.</span>
+<span class="sd">    zmq_subscriptions : dict of zmq.Socket (only if &quot;subscriptions&quot; provided in connections)</span>
+<span class="sd">        A dictionary of zmq.SUB sockets for receiving messages from named workers in the network.</span>
+<span class="sd">    zmq_poller : zmq.Poller (only if &quot;subscriptions&quot; provided in connections)</span>
+<span class="sd">        Poller object for receiving messages from subscribed sockets.</span>
+<span class="sd">    zmq_sender : zmq.Socket (only if &quot;sender&quot; provided in connections)</span>
+<span class="sd">        The zmq.PUSH socket for sending messages.</span>
+<span class="sd">    zmq_sender : zmq.Socket (only if &quot;receiver&quot; provided in connections)</span>
+<span class="sd">        The zmq.PULL socket for receiving messages.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    pydra.pydra.Pydra</span>
+<span class="sd">    pydra.core.saving.Saver</span>
+<span class="sd">    pydra.core.workers.Worker</span>
+<span class="sd">    pydra.core.process</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connections</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># Get the zmq configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_connections</span> <span class="o">=</span> <span class="n">connections</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="c1"># Create the zmq context and bindings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_context</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Context</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
+        <span class="c1"># Set publisher</span>
+        <span class="k">if</span> <span class="s2">&quot;publisher&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_connections</span><span class="p">:</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_connections</span><span class="p">[</span><span class="s2">&quot;publisher&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_zmq_set_publisher</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+        <span class="c1"># Listen to subscriptions</span>
+        <span class="k">if</span> <span class="s2">&quot;subscriptions&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_connections</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_connections</span><span class="p">[</span><span class="s2">&quot;subscriptions&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_zmq_set_subscriptions</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="c1"># Set sender</span>
+        <span class="k">if</span> <span class="s2">&quot;sender&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_connections</span><span class="p">:</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_connections</span><span class="p">[</span><span class="s2">&quot;sender&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_zmq_set_sender</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+        <span class="c1"># Set receiver</span>
+        <span class="k">if</span> <span class="s2">&quot;receiver&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_connections</span><span class="p">:</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_connections</span><span class="p">[</span><span class="s2">&quot;receiver&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_zmq_set_receiver</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+        <span class="c1"># Set message handlers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg_handlers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;exit&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">exit</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_message</span><span class="p">,</span>
+            <span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_event</span><span class="p">,</span>
+            <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_data</span><span class="p">,</span>
+            <span class="s2">&quot;trigger&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_trigger</span>
+        <span class="p">}</span>
+        <span class="c1"># Create events</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Wait for ZeroMQ connections</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_zmq_set_publisher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the zmq_publisher for publishing messages.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_publisher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">PUB</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_publisher</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_zmq_set_subscriptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the zmq_subscriptions and poller for receiving messages.&quot;&quot;&quot;</span>
+        <span class="c1"># Create a poller to check for messages on subscription channels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_poller</span> <span class="o">=</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Poller</span><span class="p">()</span>
+        <span class="c1"># Connect to each subscription channel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_subscriptions</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">messages</span><span class="p">)</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="n">zmq_subscriber</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">SUB</span><span class="p">)</span>
+            <span class="n">zmq_subscriber</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+                <span class="n">zmq_subscriber</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">SUBSCRIBE</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">flag</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zmq_subscriptions</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">zmq_subscriber</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zmq_poller</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">zmq_subscriber</span><span class="p">,</span> <span class="n">zmq</span><span class="o">.</span><span class="n">POLLIN</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_zmq_set_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the zmq_sender for pushing messages to another pydra object.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_sender</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">PUSH</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_sender</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_zmq_set_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates the zmq_receiver for receiving pushed messages.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_receiver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_context</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">zmq</span><span class="o">.</span><span class="n">PULL</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_receiver</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_destroy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Destroys the 0MQ context.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_context</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PydraObject.poll"><a class="viewcode-back" href="../../../api_docs/pydra.core.html#pydra.core.base.PydraObject.poll">[docs]</a>    <span class="k">def</span> <span class="nf">poll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checks for poller for new messages from all subscriptions and passes them to appropriate handlers.&quot;&quot;&quot;</span>
+        <span class="n">sockets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zmq_poller</span><span class="o">.</span><span class="n">poll</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">sock</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_subscriptions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">sock</span> <span class="ow">in</span> <span class="n">sockets</span><span class="p">:</span>
+                <span class="n">msg</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">PydraMessage</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="n">sock</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">msg_handlers</span><span class="p">[</span><span class="n">msg</span><span class="p">](</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PydraObject.exit"><a class="viewcode-back" href="../../../api_docs/pydra.core.html#pydra.core.base.PydraObject.exit">[docs]</a>    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Called when the EXIT message type is received. May be re-implemented in subclasses.&quot;&quot;&quot;</span>
+        <span class="k">return</span></div>
+
+    <span class="nd">@MESSAGE</span>
+    <span class="k">def</span> <span class="nf">send_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sends a string to the zmq_publisher.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+<div class="viewcode-block" id="PydraObject.handle_message"><a class="viewcode-back" href="../../../api_docs/pydra.core.html#pydra.core.base.PydraObject.handle_message">[docs]</a>    <span class="k">def</span> <span class="nf">handle_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Handles MESSAGE (i.e. string) messages received from other objects.&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">MESSAGE</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">s</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recv_message</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PydraObject.recv_message"><a class="viewcode-back" href="../../../api_docs/pydra.core.html#pydra.core.base.PydraObject.recv_message">[docs]</a>    <span class="k">def</span> <span class="nf">recv_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method for handling strings received from other objects. May be re-implemented in subclasses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        s : str</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        msg : str</span>
+<span class="sd">            Message type flag.</span>
+<span class="sd">        source : str</span>
+<span class="sd">            Name of the source of the message.</span>
+<span class="sd">        timestamp : float</span>
+<span class="sd">            Time at which the message was sent.</span>
+<span class="sd">        flags : str</span>
+<span class="sd">            Additional flags received along with the message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> received from </span><span class="si">{</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="s1">&#39;UNKNOWN&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+    <span class="nd">@TRIGGER</span>
+    <span class="k">def</span> <span class="nf">send_trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Simple method for implementing sending trigger messages.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">()</span>
+
+<div class="viewcode-block" id="PydraObject.handle_trigger"><a class="viewcode-back" href="../../../api_docs/pydra.core.html#pydra.core.base.PydraObject.handle_trigger">[docs]</a>    <span class="k">def</span> <span class="nf">handle_trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recv_trigger</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">],</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;timestamp&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="PydraObject.recv_trigger"><a class="viewcode-back" href="../../../api_docs/pydra.core.html#pydra.core.base.PydraObject.recv_trigger">[docs]</a>    <span class="k">def</span> <span class="nf">recv_trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+    <span class="nd">@EVENT</span>
+    <span class="k">def</span> <span class="nf">send_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Primary method for sending EVENT messages between pydra objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        event_name : str</span>
+<span class="sd">            The name of the event. Other pydra objects subscribing to events from this one will call the corresponding</span>
+<span class="sd">            method in their events attribute.</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">            Keyword arguments associated with the event.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">kwargs</span>
+
+<div class="viewcode-block" id="PydraObject.handle_event"><a class="viewcode-back" href="../../../api_docs/pydra.core.html#pydra.core.base.PydraObject.handle_event">[docs]</a>    <span class="k">def</span> <span class="nf">handle_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">event_kw</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Handles EVENT messages received from other objects.&quot;&quot;&quot;</span>
+        <span class="n">event_name</span><span class="p">,</span> <span class="n">event_kw</span> <span class="o">=</span> <span class="n">EVENT</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">event_kw</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">event_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
+            <span class="n">event_kw</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">](</span><span class="o">**</span><span class="n">event_kw</span><span class="p">)</span></div>
+
+    <span class="nd">@TIMESTAMPED</span>
+    <span class="k">def</span> <span class="nf">send_timestamped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sends timestamped data between objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t : float</span>
+<span class="sd">            The timestamp associated with the data point.</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            Dictionary of pickle-able data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">t</span><span class="p">,</span> <span class="n">data</span>
+
+    <span class="nd">@INDEXED</span>
+    <span class="k">def</span> <span class="nf">send_indexed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sends indexed data between objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t : float</span>
+<span class="sd">            A timestamp associated with the given index.</span>
+<span class="sd">        i : int</span>
+<span class="sd">            The index of the data.</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            Dictionary of pickle-able data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">t</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span>
+
+    <span class="nd">@FRAME</span>
+    <span class="k">def</span> <span class="nf">send_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sends frama data between objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t : float</span>
+<span class="sd">            The timestamp of the frame.</span>
+<span class="sd">        i : int</span>
+<span class="sd">            The index of the frame.</span>
+<span class="sd">        frame : np.ndarray</span>
+<span class="sd">            A numpy array containing data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">t</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">frame</span>
+
+<div class="viewcode-block" id="PydraObject.handle_data"><a class="viewcode-back" href="../../../api_docs/pydra.core.html#pydra.core.base.PydraObject.handle_data">[docs]</a>    <span class="k">def</span> <span class="nf">handle_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Handles data messages (TIMESTAMPED, INDEXED, or FRAME) received from other objects.&quot;&quot;&quot;</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;flags&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;t&quot;</span> <span class="ow">in</span> <span class="n">flags</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">TIMESTAMPED</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">recv_timestamped</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;i&quot;</span> <span class="ow">in</span> <span class="n">flags</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">INDEXED</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">recv_indexed</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;f&quot;</span> <span class="ow">in</span> <span class="n">flags</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">FRAME</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">recv_frame</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PydraObject.recv_timestamped"><a class="viewcode-back" href="../../../api_docs/pydra.core.html#pydra.core.base.PydraObject.recv_timestamped">[docs]</a>    <span class="k">def</span> <span class="nf">recv_timestamped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method for handling serialized timestamped data received from other objects. May be re-implemented in</span>
+<span class="sd">        subclasses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t : float</span>
+<span class="sd">        data : dict</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        msg : str</span>
+<span class="sd">            Message type flag.</span>
+<span class="sd">        source : str</span>
+<span class="sd">            Name of the source of the message.</span>
+<span class="sd">        timestamp : float</span>
+<span class="sd">            Time at which the message was sent.</span>
+<span class="sd">        flags : str</span>
+<span class="sd">            Additional flags received along with the message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="PydraObject.recv_indexed"><a class="viewcode-back" href="../../../api_docs/pydra.core.html#pydra.core.base.PydraObject.recv_indexed">[docs]</a>    <span class="k">def</span> <span class="nf">recv_indexed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method for handling serialized indexed data received from other objects. May be re-implemented in subclasses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t : float</span>
+<span class="sd">        i : int</span>
+<span class="sd">        data : dict</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        msg : str</span>
+<span class="sd">            Message type flag.</span>
+<span class="sd">        source : str</span>
+<span class="sd">            Name of the source of the message.</span>
+<span class="sd">        timestamp : float</span>
+<span class="sd">            Time at which the message was sent.</span>
+<span class="sd">        flags : str</span>
+<span class="sd">            Additional flags received along with the message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="PydraObject.recv_frame"><a class="viewcode-back" href="../../../api_docs/pydra.core.html#pydra.core.base.PydraObject.recv_frame">[docs]</a>    <span class="k">def</span> <span class="nf">recv_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method for handling serialized frame data received from other objects. May be re-implemented in subclasses.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t : float</span>
+<span class="sd">        i : int</span>
+<span class="sd">        frame : np.ndarray</span>
+
+<span class="sd">        Other Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        msg : str</span>
+<span class="sd">            Message type flag.</span>
+<span class="sd">        source : str</span>
+<span class="sd">            Name of the source of the message.</span>
+<span class="sd">        timestamp : float</span>
+<span class="sd">            Time at which the message was sent.</span>
+<span class="sd">        flags : str</span>
+<span class="sd">            Additional flags received along with the message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

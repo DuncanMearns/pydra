@@ -1,0 +1,430 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pydra.gui.toolbar package &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../structure/0_overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/1_messaging.html">Messaging in Pydra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/2_network.html">Pydra network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/3_objects.html">PydraObjects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/4_gui.html">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/5_qt.html">Qt events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/6_modules.html">Pydra modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/7_pipelines.html">Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>pydra.gui.toolbar package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api_docs/pydra.gui.toolbar.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pydra-gui-toolbar-package">
+<h1>pydra.gui.toolbar package<a class="headerlink" href="#pydra-gui-toolbar-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pydra.gui.toolbar.directory_widget">
+<span id="pydra-gui-toolbar-directory-widget-module"></span><h2>pydra.gui.toolbar.directory_widget module<a class="headerlink" href="#module-pydra.gui.toolbar.directory_widget" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.gui.toolbar.directory_widget.DirectoryWidget">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.toolbar.directory_widget.</span></code><code class="sig-name descname"><span class="pre">DirectoryWidget</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/directory_widget.html#DirectoryWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.directory_widget.DirectoryWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QGroupBox</span></code>, <a class="reference internal" href="pydra.gui.html#pydra.gui.states.StateEnabled" title="pydra.gui.states.StateEnabled"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.gui.states.StateEnabled</span></code></a></p>
+<dl class="py method">
+<dt id="pydra.gui.toolbar.directory_widget.DirectoryWidget.change_directory">
+<code class="sig-name descname"><span class="pre">change_directory</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/directory_widget.html#DirectoryWidget.change_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.directory_widget.DirectoryWidget.change_directory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.gui.toolbar.directory_widget.DirectoryWidget.changed">
+<code class="sig-name descname"><span class="pre">changed</span></code><a class="headerlink" href="#pydra.gui.toolbar.directory_widget.DirectoryWidget.changed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.directory_widget.DirectoryWidget.enterIdle">
+<code class="sig-name descname"><span class="pre">enterIdle</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/directory_widget.html#DirectoryWidget.enterIdle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.directory_widget.DirectoryWidget.enterIdle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.directory_widget.DirectoryWidget.enterRunning">
+<code class="sig-name descname"><span class="pre">enterRunning</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/directory_widget.html#DirectoryWidget.enterRunning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.directory_widget.DirectoryWidget.enterRunning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.gui.toolbar.file_naming">
+<span id="pydra-gui-toolbar-file-naming-module"></span><h2>pydra.gui.toolbar.file_naming module<a class="headerlink" href="#module-pydra.gui.toolbar.file_naming" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.gui.toolbar.file_naming.FileNamingWidget">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.toolbar.file_naming.</span></code><code class="sig-name descname"><span class="pre">FileNamingWidget</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/file_naming.html#FileNamingWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.file_naming.FileNamingWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QGroupBox</span></code>, <a class="reference internal" href="pydra.gui.html#pydra.gui.states.StateEnabled" title="pydra.gui.states.StateEnabled"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.gui.states.StateEnabled</span></code></a></p>
+<dl class="py method">
+<dt id="pydra.gui.toolbar.file_naming.FileNamingWidget.autonaming_enabled">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">autonaming_enabled</span></code><a class="headerlink" href="#pydra.gui.toolbar.file_naming.FileNamingWidget.autonaming_enabled" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.file_naming.FileNamingWidget.change_basename">
+<code class="sig-name descname"><span class="pre">change_basename</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/file_naming.html#FileNamingWidget.change_basename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.file_naming.FileNamingWidget.change_basename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.gui.toolbar.file_naming.FileNamingWidget.changed">
+<code class="sig-name descname"><span class="pre">changed</span></code><a class="headerlink" href="#pydra.gui.toolbar.file_naming.FileNamingWidget.changed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.file_naming.FileNamingWidget.editor_text">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">editor_text</span></code><a class="headerlink" href="#pydra.gui.toolbar.file_naming.FileNamingWidget.editor_text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.file_naming.FileNamingWidget.endRecord">
+<code class="sig-name descname"><span class="pre">endRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/file_naming.html#FileNamingWidget.endRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.file_naming.FileNamingWidget.endRecord" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.file_naming.FileNamingWidget.enterIdle">
+<code class="sig-name descname"><span class="pre">enterIdle</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/file_naming.html#FileNamingWidget.enterIdle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.file_naming.FileNamingWidget.enterIdle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.file_naming.FileNamingWidget.enterRunning">
+<code class="sig-name descname"><span class="pre">enterRunning</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/file_naming.html#FileNamingWidget.enterRunning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.file_naming.FileNamingWidget.enterRunning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.file_naming.FileNamingWidget.filename">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">filename</span></code><a class="headerlink" href="#pydra.gui.toolbar.file_naming.FileNamingWidget.filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.file_naming.FileNamingWidget.toggle_autonaming">
+<code class="sig-name descname"><span class="pre">toggle_autonaming</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/file_naming.html#FileNamingWidget.toggle_autonaming"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.file_naming.FileNamingWidget.toggle_autonaming" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.file_naming.FileNamingWidget.update_filename">
+<code class="sig-name descname"><span class="pre">update_filename</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/file_naming.html#FileNamingWidget.update_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.file_naming.FileNamingWidget.update_filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.gui.toolbar.protocol_widget">
+<span id="pydra-gui-toolbar-protocol-widget-module"></span><h2>pydra.gui.toolbar.protocol_widget module<a class="headerlink" href="#module-pydra.gui.toolbar.protocol_widget" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.gui.toolbar.protocol_widget.ProtocolWidget">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.toolbar.protocol_widget.</span></code><code class="sig-name descname"><span class="pre">ProtocolWidget</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/protocol_widget.html#ProtocolWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.protocol_widget.ProtocolWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QGroupBox</span></code>, <a class="reference internal" href="pydra.gui.html#pydra.gui.states.StateEnabled" title="pydra.gui.states.StateEnabled"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.gui.states.StateEnabled</span></code></a></p>
+<dl class="py method">
+<dt id="pydra.gui.toolbar.protocol_widget.ProtocolWidget.editProtocol">
+<code class="sig-name descname"><span class="pre">editProtocol</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/protocol_widget.html#ProtocolWidget.editProtocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.protocol_widget.ProtocolWidget.editProtocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.gui.toolbar.protocol_widget.ProtocolWidget.editor_clicked">
+<code class="sig-name descname"><span class="pre">editor_clicked</span></code><a class="headerlink" href="#pydra.gui.toolbar.protocol_widget.ProtocolWidget.editor_clicked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.protocol_widget.ProtocolWidget.endRecord">
+<code class="sig-name descname"><span class="pre">endRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/protocol_widget.html#ProtocolWidget.endRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.protocol_widget.ProtocolWidget.endRecord" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.protocol_widget.ProtocolWidget.enterIdle">
+<code class="sig-name descname"><span class="pre">enterIdle</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/protocol_widget.html#ProtocolWidget.enterIdle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.protocol_widget.ProtocolWidget.enterIdle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.protocol_widget.ProtocolWidget.enterRunning">
+<code class="sig-name descname"><span class="pre">enterRunning</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/protocol_widget.html#ProtocolWidget.enterRunning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.protocol_widget.ProtocolWidget.enterRunning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.protocol_widget.ProtocolWidget.initUI">
+<code class="sig-name descname"><span class="pre">initUI</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/protocol_widget.html#ProtocolWidget.initUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.protocol_widget.ProtocolWidget.initUI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.protocol_widget.ProtocolWidget.startRecord">
+<code class="sig-name descname"><span class="pre">startRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/protocol_widget.html#ProtocolWidget.startRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.protocol_widget.ProtocolWidget.startRecord" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.protocol_widget.ProtocolWidget.update_protocol">
+<code class="sig-name descname"><span class="pre">update_protocol</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar/protocol_widget.html#ProtocolWidget.update_protocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.protocol_widget.ProtocolWidget.update_protocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.protocol_widget.ProtocolWidget.value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">value</span></code><a class="headerlink" href="#pydra.gui.toolbar.protocol_widget.ProtocolWidget.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.gui.toolbar">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pydra.gui.toolbar" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.gui.toolbar.RecordButton">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.toolbar.</span></code><code class="sig-name descname"><span class="pre">RecordButton</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar.html#RecordButton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.RecordButton" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QPushButton</span></code>, <a class="reference internal" href="pydra.gui.html#pydra.gui.states.StateEnabled" title="pydra.gui.states.StateEnabled"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.gui.states.StateEnabled</span></code></a></p>
+<dl class="py method">
+<dt id="pydra.gui.toolbar.RecordButton.enterIdle">
+<code class="sig-name descname"><span class="pre">enterIdle</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar.html#RecordButton.enterIdle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.RecordButton.enterIdle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.RecordButton.enterRunning">
+<code class="sig-name descname"><span class="pre">enterRunning</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar.html#RecordButton.enterRunning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.RecordButton.enterRunning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.gui.toolbar.RecordingToolbar">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.toolbar.</span></code><code class="sig-name descname"><span class="pre">RecordingToolbar</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar.html#RecordingToolbar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.RecordingToolbar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QToolBar</span></code>, <a class="reference internal" href="pydra.gui.html#pydra.gui.states.StateEnabled" title="pydra.gui.states.StateEnabled"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.gui.states.StateEnabled</span></code></a></p>
+<dl class="py attribute">
+<dt id="pydra.gui.toolbar.RecordingToolbar.record">
+<code class="sig-name descname"><span class="pre">record</span></code><a class="headerlink" href="#pydra.gui.toolbar.RecordingToolbar.record" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.RecordingToolbar.record_button_clicked">
+<code class="sig-name descname"><span class="pre">record_button_clicked</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar.html#RecordingToolbar.record_button_clicked"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.RecordingToolbar.record_button_clicked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.RecordingToolbar.set_filename">
+<code class="sig-name descname"><span class="pre">set_filename</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar.html#RecordingToolbar.set_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.RecordingToolbar.set_filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.RecordingToolbar.set_working_directory">
+<code class="sig-name descname"><span class="pre">set_working_directory</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar.html#RecordingToolbar.set_working_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.RecordingToolbar.set_working_directory" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.toolbar.RecordingToolbar.show_protocol">
+<code class="sig-name descname"><span class="pre">show_protocol</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar.html#RecordingToolbar.show_protocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.RecordingToolbar.show_protocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pydra.gui.toolbar.checked">
+<code class="sig-prename descclassname"><span class="pre">pydra.gui.toolbar.</span></code><code class="sig-name descname"><span class="pre">checked</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/toolbar.html#checked"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.toolbar.checked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

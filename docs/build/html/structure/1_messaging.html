@@ -1,0 +1,362 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Messaging in Pydra &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Pydra network" href="2_network.html" />
+    <link rel="prev" title="Overview" href="0_overview.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="0_overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Messaging in Pydra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#a-note-on-zeromq">A note on ZeroMQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pydraobject">PydraObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pydramessage">PydraMessage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="2_network.html">Pydra network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_objects.html">PydraObjects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_gui.html">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_qt.html">Qt events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_modules.html">Pydra modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="7_pipelines.html">Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Messaging in Pydra</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/structure/1_messaging.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="messaging-in-pydra">
+<h1>Messaging in Pydra<a class="headerlink" href="#messaging-in-pydra" title="Permalink to this headline">¶</a></h1>
+<p>At the heart of Pydra’s functionality are the <a class="reference internal" href="../api_docs/pydra.core.html#pydra.core.base.PydraObject" title="pydra.core.base.PydraObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PydraObject</span></code></a> and
+<a class="reference internal" href="../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage" title="pydra.core.messaging.PydraMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">PydraMessage</span></code></a> classes. Pydra objects handle messaging between processes using ZeroMQ sockets.
+Pydra messages provide a means for messages to be sent between, and interpreted by, Pydra objects.</p>
+<div class="section" id="a-note-on-zeromq">
+<h2>A note on ZeroMQ<a class="headerlink" href="#a-note-on-zeromq" title="Permalink to this headline">¶</a></h2>
+<p>The Pydra network and messaging functionality is provided through the ZeroMQ library. ZeroMQ is a very general library
+that allows messages to be passed over network ports (typically TCP). A comprehensive guide can be found
+<a class="reference external" href="https://zguide.zeromq.org/">here</a>.</p>
+<p>ZeroMQ provides two major advantages:</p>
+<ol class="arabic simple">
+<li><p>Since it is network-based, it can send messages between computers.</p></li>
+<li><p>It is available in multiple programming languages (including Java - which, by extension, means it can be used with
+MATLAB).</p></li>
+</ol>
+<p>Nodes in a ZeroMQ network are connected via pairs of “sockets” that bind to ports. ZeroMQ provides numerous patterns
+by which messages can be sent between sockets. Pydra predominantly makes use of two of these patterns:</p>
+<ul class="simple">
+<li><p>PUB-SUB: this is a one-to-many pattern, allowing one node to send messages to many others.</p></li>
+<li><p>PUSH-PULL: this is a one-to-one unidirectional pattern, allowing one node to push messages to another.</p></li>
+</ul>
+<p>While Pydra handles all ZeroMQ messaging under-the-hood (including serialization and deserialization of messages), a
+basic understanding of the library is helpful when it comes to understanding the guts of Pydra - especially if you want
+to create custom message types and/or use Pydra to communicate with other programming languages.</p>
+<p>In addition, it is helpful to understand that objects in Pydra predominately communicate over network ports (rather than
+pipes or queues). The downside is that these ports and subscriptions must be properly configured - which can be a little
+finicky. For simple networks running on a single computer, Pydra can configure everything automatically. However, for
+more complex network architectures involving multiple computers or triggers, manual configuration of the ZeroMQ network is
+necessary.</p>
+</div>
+<div class="section" id="pydraobject">
+<h2>PydraObject<a class="headerlink" href="#pydraobject" title="Permalink to this headline">¶</a></h2>
+<p>There are three Pydra object classes:</p>
+<ul class="simple">
+<li><p>The main <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> class</p></li>
+<li><p>The <a class="reference internal" href="../api_docs/pydra.core.saving.html#pydra.core.saving.Saver" title="pydra.core.saving.Saver"><code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code></a> class</p></li>
+<li><p>The <a class="reference internal" href="../api_docs/pydra.core.html#pydra.core.workers.Worker" title="pydra.core.workers.Worker"><code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code></a> class</p></li>
+</ul>
+<p>Pydra objects are initialized with a dictionary of connections. These connections link different Pydra objects within
+the network to specific ports. Depending on the subclass, Pydra objects may have any combination of PUB-SUB sockets and
+PUSH-PULL sockets.</p>
+</div>
+<div class="section" id="pydramessage">
+<h2>PydraMessage<a class="headerlink" href="#pydramessage" title="Permalink to this headline">¶</a></h2>
+<p>Pydra objects communicate with each other via Pydra messages. Pydra messages provide a means to send various data types
+over ZeroMQ sockets. First and foremost, the <a class="reference internal" href="../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage" title="pydra.core.messaging.PydraMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">PydraMessage</span></code></a> class provides a means to
+generate decorators that alter the behavior of Pydra object methods - allowing them to publish their outputs to their
+respective ZeroMQ sockets. Moreover, Pydra messages have <a class="reference internal" href="../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage.encode" title="pydra.core.messaging.PydraMessage.encode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">encode()</span></code></a> and
+<a class="reference internal" href="../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage.decode" title="pydra.core.messaging.PydraMessage.decode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">decode()</span></code></a> methods that allow specific data types to be serialized and
+deserialized. Finally, Pydra messages prepend various tags to data sent over sockets, providing target objects with all
+the necessary information needed to decode and handle messages at the other end.</p>
+<p>Each type of <a class="reference internal" href="../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage" title="pydra.core.messaging.PydraMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">PydraMessage</span></code></a> has a unique flag associated with it. This flag allows
+receiving objects to pass the message to the correct handler. Each message type also encodes / decodes specific
+combinations of data types that serve specific functions within the Pydra network. The main message types are:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 33%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Flag</p></th>
+<th class="head"><p>Data</p></th>
+<th class="head"><p>Function</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>EXIT</p></td>
+<td><p>None</p></td>
+<td><p>Provides a top-level exit signal</p></td>
+</tr>
+<tr class="row-odd"><td><p>MESSAGE</p></td>
+<td><p>str</p></td>
+<td><p>Pass strings between Pydra objects</p></td>
+</tr>
+<tr class="row-even"><td><p>EVENT</p></td>
+<td><p>(str, dict)</p></td>
+<td><p>Call methods of other Pydra objects</p></td>
+</tr>
+<tr class="row-odd"><td><p>DATA</p></td>
+<td><p>{float, int, dict, array}</p></td>
+<td><p>Pass data between Pydra objects (see below)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Other message types - such as LOGGED and INFO - serve more specialized functions in communications between
+specific kinds of Pydra object.</p>
+<p>Pydra objects can pass data to each other via DATA messages. There are three data formats that Pydra can handle. These
+are:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 7%" />
+<col style="width: 20%" />
+<col style="width: 61%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Flags</p></th>
+<th class="head"><p>Signature</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>FRAME</p></td>
+<td><p>DATA, f</p></td>
+<td><p>(float, int, array)</p></td>
+<td><p>A timestamped, indexed numpy array (e.g. video frame)</p></td>
+</tr>
+<tr class="row-odd"><td><p>INDEXED</p></td>
+<td><p>DATA, i</p></td>
+<td><p>(float, int, dict)</p></td>
+<td><p>Timestamped, indexed data (e.g. tracking coordinate data)</p></td>
+</tr>
+<tr class="row-even"><td><p>TIMESTAMPED</p></td>
+<td><p>DATA, t</p></td>
+<td><p>(float, dict)</p></td>
+<td><p>Timestamped data not associated with any particular index</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="2_network.html" class="btn btn-neutral float-right" title="Pydra network" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="0_overview.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

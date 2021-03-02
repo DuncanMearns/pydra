@@ -1,0 +1,724 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pydra.gui package &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../structure/0_overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/1_messaging.html">Messaging in Pydra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/2_network.html">Pydra network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/3_objects.html">PydraObjects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/4_gui.html">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/5_qt.html">Qt events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/6_modules.html">Pydra modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/7_pipelines.html">Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>pydra.gui package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api_docs/pydra.gui.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pydra-gui-package">
+<h1>pydra.gui package<a class="headerlink" href="#pydra-gui-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pydra.gui.toolbar.html">pydra.gui.toolbar package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pydra.gui.toolbar.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydra.gui.toolbar.html#module-pydra.gui.toolbar.directory_widget">pydra.gui.toolbar.directory_widget module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydra.gui.toolbar.html#module-pydra.gui.toolbar.file_naming">pydra.gui.toolbar.file_naming module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydra.gui.toolbar.html#module-pydra.gui.toolbar.protocol_widget">pydra.gui.toolbar.protocol_widget module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydra.gui.toolbar.html#module-pydra.gui.toolbar">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pydra.gui.connections">
+<span id="pydra-gui-connections-module"></span><h2>pydra.gui.connections module<a class="headerlink" href="#module-pydra.gui.connections" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.gui.connections.ConnectivityWidget">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.connections.</span></code><code class="sig-name descname"><span class="pre">ConnectivityWidget</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#ConnectivityWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.ConnectivityWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QGroupBox</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.gui.connections.Editor">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.connections.</span></code><code class="sig-name descname"><span class="pre">Editor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#Editor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.Editor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.connections.Editor.newValue">
+<code class="sig-name descname"><span class="pre">newValue</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#Editor.newValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.Editor.newValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.gui.connections.Editor.new_value">
+<code class="sig-name descname"><span class="pre">new_value</span></code><a class="headerlink" href="#pydra.gui.connections.Editor.new_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.gui.connections.ItemAssignmentWidget">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.connections.</span></code><code class="sig-name descname"><span class="pre">ItemAssignmentWidget</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#ItemAssignmentWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.ItemAssignmentWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QGroupBox</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.connections.ItemAssignmentWidget.addItem">
+<code class="sig-name descname"><span class="pre">addItem</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#ItemAssignmentWidget.addItem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.ItemAssignmentWidget.addItem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.connections.ItemAssignmentWidget.addRow">
+<code class="sig-name descname"><span class="pre">addRow</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#ItemAssignmentWidget.addRow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.ItemAssignmentWidget.addRow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.connections.ItemAssignmentWidget.changeItem">
+<code class="sig-name descname"><span class="pre">changeItem</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#ItemAssignmentWidget.changeItem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.ItemAssignmentWidget.changeItem" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.connections.ItemAssignmentWidget.columnCount">
+<code class="sig-name descname"><span class="pre">columnCount</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#ItemAssignmentWidget.columnCount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.ItemAssignmentWidget.columnCount" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.connections.ItemAssignmentWidget.enterNew">
+<code class="sig-name descname"><span class="pre">enterNew</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">button</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#ItemAssignmentWidget.enterNew"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.ItemAssignmentWidget.enterNew" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.connections.ItemAssignmentWidget.getValue">
+<code class="sig-name descname"><span class="pre">getValue</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#ItemAssignmentWidget.getValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.ItemAssignmentWidget.getValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.connections.ItemAssignmentWidget.indexChanged">
+<code class="sig-name descname"><span class="pre">indexChanged</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#ItemAssignmentWidget.indexChanged"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.ItemAssignmentWidget.indexChanged" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.connections.ItemAssignmentWidget.rowCount">
+<code class="sig-name descname"><span class="pre">rowCount</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#ItemAssignmentWidget.rowCount"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.ItemAssignmentWidget.rowCount" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.gui.connections.ItemAssignmentWidget.updateChildren">
+<code class="sig-name descname"><span class="pre">updateChildren</span></code><a class="headerlink" href="#pydra.gui.connections.ItemAssignmentWidget.updateChildren" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.gui.connections.NetworkConfiguration">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.connections.</span></code><code class="sig-name descname"><span class="pre">NetworkConfiguration</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connections</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#NetworkConfiguration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.NetworkConfiguration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.connections.NetworkConfiguration.connections">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">connections</span></code><a class="headerlink" href="#pydra.gui.connections.NetworkConfiguration.connections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.connections.NetworkConfiguration.run">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connections</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#NetworkConfiguration.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.NetworkConfiguration.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.gui.connections.QButtonAdd">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.connections.</span></code><code class="sig-name descname"><span class="pre">QButtonAdd</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#QButtonAdd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.QButtonAdd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QPushButton</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.connections.QButtonAdd.buttonClicked">
+<code class="sig-name descname"><span class="pre">buttonClicked</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#QButtonAdd.buttonClicked"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.QButtonAdd.buttonClicked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.gui.connections.QButtonAdd.button_clicked">
+<code class="sig-name descname"><span class="pre">button_clicked</span></code><a class="headerlink" href="#pydra.gui.connections.QButtonAdd.button_clicked" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.gui.connections.QComboBoxLinked">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.connections.</span></code><code class="sig-name descname"><span class="pre">QComboBoxLinked</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#QComboBoxLinked"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.QComboBoxLinked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QComboBox</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.connections.QComboBoxLinked.checkIndex">
+<code class="sig-name descname"><span class="pre">checkIndex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/connections.html#QComboBoxLinked.checkIndex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.connections.QComboBoxLinked.checkIndex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.gui.connections.QComboBoxLinked.current_index_changed">
+<code class="sig-name descname"><span class="pre">current_index_changed</span></code><a class="headerlink" href="#pydra.gui.connections.QComboBoxLinked.current_index_changed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.gui.display">
+<span id="pydra-gui-display-module"></span><h2>pydra.gui.display module<a class="headerlink" href="#module-pydra.gui.display" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.gui.display.DisplayContainer">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.display.</span></code><code class="sig-name descname"><span class="pre">DisplayContainer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/display.html#DisplayContainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.display.DisplayContainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.display.DisplayContainer.add">
+<code class="sig-name descname"><span class="pre">add</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">widget</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/pydra/gui/display.html#DisplayContainer.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.display.DisplayContainer.add" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.gui.main">
+<span id="pydra-gui-main-module"></span><h2>pydra.gui.main module<a class="headerlink" href="#module-pydra.gui.main" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.gui.main.MainWindow">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.main.</span></code><code class="sig-name descname"><span class="pre">MainWindow</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pydra</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/main.html#MainWindow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.main.MainWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QMainWindow</span></code>, <a class="reference internal" href="#pydra.gui.states.StateEnabled" title="pydra.gui.states.StateEnabled"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.gui.states.StateEnabled</span></code></a></p>
+<p>Main window for Pydra application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pydra</strong> – The Pydra instance.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="pydra.gui.main.MainWindow.closeEvent">
+<code class="sig-name descname"><span class="pre">closeEvent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">QCloseEvent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/main.html#MainWindow.closeEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.main.MainWindow.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.main.MainWindow.run_protocol">
+<code class="sig-name descname"><span class="pre">run_protocol</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/main.html#MainWindow.run_protocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.main.MainWindow.run_protocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.main.MainWindow.update_plots">
+<code class="sig-name descname"><span class="pre">update_plots</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/main.html#MainWindow.update_plots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.main.MainWindow.update_plots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates widgets with data received from pydra.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.gui.module">
+<span id="pydra-gui-module-module"></span><h2>pydra.gui.module module<a class="headerlink" href="#module-pydra.gui.module" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.gui.module.DisplayProxy">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.module.</span></code><code class="sig-name descname"><span class="pre">DisplayProxy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/module.html#DisplayProxy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.module.DisplayProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pydra.gui.module.ModuleWidget" title="pydra.gui.module.ModuleWidget"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.gui.module.ModuleWidget</span></code></a></p>
+<dl class="py method">
+<dt id="pydra.gui.module.DisplayProxy.closeEvent">
+<code class="sig-name descname"><span class="pre">closeEvent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">QCloseEvent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/module.html#DisplayProxy.closeEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.module.DisplayProxy.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.gui.module.ModuleWidget">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.module.</span></code><code class="sig-name descname"><span class="pre">ModuleWidget</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/module.html#ModuleWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.module.ModuleWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDockWidget</span></code>, <a class="reference internal" href="#pydra.gui.states.StateEnabled" title="pydra.gui.states.StateEnabled"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.gui.states.StateEnabled</span></code></a></p>
+<dl class="py method">
+<dt id="pydra.gui.module.ModuleWidget.closeEvent">
+<code class="sig-name descname"><span class="pre">closeEvent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">QCloseEvent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/module.html#ModuleWidget.closeEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.module.ModuleWidget.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.module.ModuleWidget.create_plotter">
+<code class="sig-name descname"><span class="pre">create_plotter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/module.html#ModuleWidget.create_plotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.module.ModuleWidget.create_plotter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.gui.module.ModuleWidget.plot">
+<code class="sig-name descname"><span class="pre">plot</span></code><a class="headerlink" href="#pydra.gui.module.ModuleWidget.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#pydra.gui.plotter.Plotter" title="pydra.gui.plotter.Plotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">pydra.gui.plotter.Plotter</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.module.ModuleWidget.send_event">
+<code class="sig-name descname"><span class="pre">send_event</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/module.html#ModuleWidget.send_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.module.ModuleWidget.send_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.module.ModuleWidget.show_window">
+<code class="sig-name descname"><span class="pre">show_window</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/module.html#ModuleWidget.show_window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.module.ModuleWidget.show_window" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.module.ModuleWidget.updatePlots">
+<code class="sig-name descname"><span class="pre">updatePlots</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">plotters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/module.html#ModuleWidget.updatePlots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.module.ModuleWidget.updatePlots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.gui.plotter">
+<span id="pydra-gui-plotter-module"></span><h2>pydra.gui.plotter module<a class="headerlink" href="#module-pydra.gui.plotter" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.gui.plotter.Plotter">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.plotter.</span></code><code class="sig-name descname"><span class="pre">Plotter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cachesize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/plotter.html#Plotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.plotter.Plotter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pyqtgraph.widgets.GraphicsLayoutWidget.GraphicsLayoutWidget</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.plotter.Plotter.addImagePlot">
+<code class="sig-name descname"><span class="pre">addImagePlot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/plotter.html#Plotter.addImagePlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.plotter.Plotter.addImagePlot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.plotter.Plotter.addParamPlot">
+<code class="sig-name descname"><span class="pre">addParamPlot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linked</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/plotter.html#Plotter.addParamPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.plotter.Plotter.addParamPlot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.plotter.Plotter.clear_data">
+<code class="sig-name descname"><span class="pre">clear_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/plotter.html#Plotter.clear_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.plotter.Plotter.clear_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.plotter.Plotter.set_cachesize">
+<code class="sig-name descname"><span class="pre">set_cachesize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/plotter.html#Plotter.set_cachesize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.plotter.Plotter.set_cachesize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.plotter.Plotter.update">
+<code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/plotter.html#Plotter.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.plotter.Plotter.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>update(self, QRect)
+update(self, QRegion)
+update(self, int, int, int, int)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.plotter.Plotter.updateImage">
+<code class="sig-name descname"><span class="pre">updateImage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/plotter.html#Plotter.updateImage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.plotter.Plotter.updateImage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.plotter.Plotter.updateOverlay">
+<code class="sig-name descname"><span class="pre">updateOverlay</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/plotter.html#Plotter.updateOverlay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.plotter.Plotter.updateOverlay" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.plotter.Plotter.updateParam">
+<code class="sig-name descname"><span class="pre">updateParam</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/plotter.html#Plotter.updateParam"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.plotter.Plotter.updateParam" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.gui.protocol">
+<span id="pydra-gui-protocol-module"></span><h2>pydra.gui.protocol module<a class="headerlink" href="#module-pydra.gui.protocol" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.gui.protocol.EventWidget">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.protocol.</span></code><code class="sig-name descname"><span class="pre">EventWidget</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">events</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#EventWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.EventWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.protocol.EventWidget.selectionChanged">
+<code class="sig-name descname"><span class="pre">selectionChanged</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#EventWidget.selectionChanged"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.EventWidget.selectionChanged" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.EventWidget.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#EventWidget.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.EventWidget.set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.EventWidget.value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">value</span></code><a class="headerlink" href="#pydra.gui.protocol.EventWidget.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.gui.protocol.ProtocolBuilder">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.protocol.</span></code><code class="sig-name descname"><span class="pre">ProtocolBuilder</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">events</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolBuilder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QGroupBox</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolBuilder.add_event">
+<code class="sig-name descname"><span class="pre">add_event</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolBuilder.add_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolBuilder.add_event" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolBuilder.add_timer">
+<code class="sig-name descname"><span class="pre">add_timer</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolBuilder.add_timer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolBuilder.add_timer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolBuilder.clear">
+<code class="sig-name descname"><span class="pre">clear</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolBuilder.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolBuilder.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.gui.protocol.ProtocolBuilder.default_events">
+<code class="sig-name descname"><span class="pre">default_events</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('start_recording',</span> <span class="pre">'stop_recording')</span></em><a class="headerlink" href="#pydra.gui.protocol.ProtocolBuilder.default_events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolBuilder.initUI">
+<code class="sig-name descname"><span class="pre">initUI</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolBuilder.initUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolBuilder.initUI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolBuilder.protocol">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">protocol</span></code><a class="headerlink" href="#pydra.gui.protocol.ProtocolBuilder.protocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolBuilder.remove">
+<code class="sig-name descname"><span class="pre">remove</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolBuilder.remove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolBuilder.remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolBuilder.separator">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">separator</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolBuilder.separator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolBuilder.separator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolBuilder.updateUI">
+<code class="sig-name descname"><span class="pre">updateUI</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolBuilder.updateUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolBuilder.updateUI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.gui.protocol.ProtocolWindow">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.protocol.</span></code><code class="sig-name descname"><span class="pre">ProtocolWindow</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">events</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolWindow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDockWidget</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolWindow.loadProtocol">
+<code class="sig-name descname"><span class="pre">loadProtocol</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolWindow.loadProtocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolWindow.loadProtocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolWindow.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#pydra.gui.protocol.ProtocolWindow.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolWindow.newProtocol">
+<code class="sig-name descname"><span class="pre">newProtocol</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolWindow.newProtocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolWindow.newProtocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolWindow.protocol">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">protocol</span></code><a class="headerlink" href="#pydra.gui.protocol.ProtocolWindow.protocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolWindow.saveProtocol">
+<code class="sig-name descname"><span class="pre">saveProtocol</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolWindow.saveProtocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolWindow.saveProtocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.ProtocolWindow.setProtocol">
+<code class="sig-name descname"><span class="pre">setProtocol</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#ProtocolWindow.setProtocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.ProtocolWindow.setProtocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.gui.protocol.TimerWidget">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.protocol.</span></code><code class="sig-name descname"><span class="pre">TimerWidget</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#TimerWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.TimerWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.protocol.TimerWidget.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/protocol.html#TimerWidget.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.protocol.TimerWidget.set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.protocol.TimerWidget.value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">value</span></code><a class="headerlink" href="#pydra.gui.protocol.TimerWidget.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.gui.states">
+<span id="pydra-gui-states-module"></span><h2>pydra.gui.states module<a class="headerlink" href="#module-pydra.gui.states" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.gui.states.StateEnabled">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.states.</span></code><code class="sig-name descname"><span class="pre">StateEnabled</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/states.html#StateEnabled"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.states.StateEnabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.states.StateEnabled.endRecord">
+<code class="sig-name descname"><span class="pre">endRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/states.html#StateEnabled.endRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.states.StateEnabled.endRecord" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.states.StateEnabled.enterIdle">
+<code class="sig-name descname"><span class="pre">enterIdle</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/states.html#StateEnabled.enterIdle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.states.StateEnabled.enterIdle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.states.StateEnabled.enterRunning">
+<code class="sig-name descname"><span class="pre">enterRunning</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/states.html#StateEnabled.enterRunning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.states.StateEnabled.enterRunning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.states.StateEnabled.startRecord">
+<code class="sig-name descname"><span class="pre">startRecord</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/states.html#StateEnabled.startRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.states.StateEnabled.startRecord" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.gui.widgets">
+<span id="pydra-gui-widgets-module"></span><h2>pydra.gui.widgets module<a class="headerlink" href="#module-pydra.gui.widgets" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pydra.gui.widgets.DoubleSpinboxWidget">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.widgets.</span></code><code class="sig-name descname"><span class="pre">DoubleSpinboxWidget</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minVal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxVal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/widgets.html#DoubleSpinboxWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.widgets.DoubleSpinboxWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.widgets.DoubleSpinboxWidget.setValue">
+<code class="sig-name descname"><span class="pre">setValue</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/widgets.html#DoubleSpinboxWidget.setValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.widgets.DoubleSpinboxWidget.setValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.widgets.DoubleSpinboxWidget.value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">value</span></code><a class="headerlink" href="#pydra.gui.widgets.DoubleSpinboxWidget.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.gui.widgets.DoubleSpinboxWidget.valueChanged">
+<code class="sig-name descname"><span class="pre">valueChanged</span></code><a class="headerlink" href="#pydra.gui.widgets.DoubleSpinboxWidget.valueChanged" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pydra.gui.widgets.SpinboxWidget">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pydra.gui.widgets.</span></code><code class="sig-name descname"><span class="pre">SpinboxWidget</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minVal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxVal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/widgets.html#SpinboxWidget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.widgets.SpinboxWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<dl class="py method">
+<dt id="pydra.gui.widgets.SpinboxWidget.setValue">
+<code class="sig-name descname"><span class="pre">setValue</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/gui/widgets.html#SpinboxWidget.setValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.gui.widgets.SpinboxWidget.setValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pydra.gui.widgets.SpinboxWidget.value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">value</span></code><a class="headerlink" href="#pydra.gui.widgets.SpinboxWidget.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="pydra.gui.widgets.SpinboxWidget.valueChanged">
+<code class="sig-name descname"><span class="pre">valueChanged</span></code><a class="headerlink" href="#pydra.gui.widgets.SpinboxWidget.valueChanged" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.gui">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pydra.gui" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,380 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Advanced functionality &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Overview" href="../structure/0_overview.html" />
+    <link rel="prev" title="Pydra gui" href="5_pydra_gui.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced functionality</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../structure/0_overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/1_messaging.html">Messaging in Pydra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/2_network.html">Pydra network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/3_objects.html">PydraObjects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/4_gui.html">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/5_qt.html">Qt events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/6_modules.html">Pydra modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/7_pipelines.html">Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Advanced functionality</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorial/6_advanced_functionality.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="advanced-functionality">
+<h1>Advanced functionality<a class="headerlink" href="#advanced-functionality" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydra</span> <span class="kn">import</span> <span class="n">Pydra</span><span class="p">,</span> <span class="n">ports</span><span class="p">,</span> <span class="n">config</span>
+<span class="kn">from</span> <span class="nn">pydra.core</span> <span class="kn">import</span> <span class="n">Worker</span><span class="p">,</span> <span class="n">Acquisition</span>
+<span class="kn">from</span> <span class="nn">pydra.gui.module</span> <span class="kn">import</span> <span class="n">ModuleWidget</span><span class="p">,</span> <span class="n">DisplayProxy</span>
+<span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">QtWidgets</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="k">class</span> <span class="nc">AcquisitionWorker</span><span class="p">(</span><span class="n">Acquisition</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This is an acquisition worker. It will simulate a camera.&quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;acquisition&quot;</span>  <span class="c1"># remember, every worker must have a unique name</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># always call super() constructor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>  <span class="c1"># this worker has a value attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="s2">&quot;set_value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_value</span>  <span class="c1"># we can change the worker&#39;s value with a set_value event</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># this will store the frame index</span>
+
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method called by a set_value event from pydra&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.value was set to: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method called each pass of the event loop. Generate a frame of random numbers.&quot;&quot;&quot;</span>
+        <span class="c1"># Create a uint8 frame of frandom numbers</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">250</span><span class="p">,</span> <span class="mi">250</span><span class="p">))</span>
+        <span class="n">frame</span> <span class="o">*=</span> <span class="mi">255</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;uint8&quot;</span><span class="p">)</span>
+        <span class="c1"># Get the time stamp</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="c1"># Broadcast frame data through the network</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_frame</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span>
+        <span class="c1"># Increment the frame index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># Sleep (simulates the camera frame rate)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">AcquisitionWidget</span><span class="p">(</span><span class="n">ModuleWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This widget will be used to control our acquisition worker.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># call to super()</span>
+        <span class="c1"># Create a widget with a form layout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QWidget</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">()</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QFormLayout</span><span class="p">())</span>
+        <span class="c1"># Add a spinbox for changing the value attribute of our worker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value_widget</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QSpinBox</span><span class="p">()</span>
+        <span class="c1"># Connect the value spinbox to the set_value method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value_widget</span><span class="o">.</span><span class="n">valueChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">set_value</span><span class="p">)</span>
+        <span class="c1"># Add our spinbox to the widget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">widget</span><span class="p">()</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addRow</span><span class="p">(</span><span class="s2">&quot;Value:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_widget</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method called whenever the value changed in the widget.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_event</span><span class="p">(</span><span class="s2">&quot;set_value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">val</span><span class="p">)</span>  <span class="c1"># send a &quot;set_value&quot; event with a &quot;value&quot; keyword</span>
+
+    <span class="k">def</span> <span class="nf">enterRunning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is called whenever the record button is clicked in the GUI and the GUI enters the &#39;running&#39; state.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># disable the widget whenever pydra is recording</span>
+
+    <span class="k">def</span> <span class="nf">enterIdle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is called whenever a recording finishes and the GUI enters the &#39;idle&#39; state.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># enable the widget again once recording finishes</span>
+
+    <span class="k">def</span> <span class="nf">create_plotter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method allows us to create a plotter widget for showing data broadcast through Pydra&#39;s network by the</span>
+<span class="sd">        associated worker. By default, ModuleWidget&#39;s have an associated plotter (accessed via the plotter attribute).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">create_plotter</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># call to super creates an instance of a pydra.gui.plotter.Plotter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">addImagePlot</span><span class="p">(</span><span class="s2">&quot;video&quot;</span><span class="p">,</span> <span class="n">pen</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>  <span class="c1"># add an image plot to the plotter called &quot;video&quot;</span>
+
+    <span class="k">def</span> <span class="nf">updatePlots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">plotters</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method is called whenever data are received from the associated worker. By default, the pydra GUI update</span>
+<span class="sd">        rate is ~30 Hz. The data argument is a dictionary that contains timestamp and indexed data. The frame argument</span>
+<span class="sd">        contains the last frame sent by the worker - if the worker has sent any frames at all.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">updateImage</span><span class="p">(</span><span class="s2">&quot;video&quot;</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span>  <span class="c1"># update the image plot called &quot;video&quot; with the frame</span>
+
+
+<span class="k">class</span> <span class="nc">TrackingWorker</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This worker will simulate a tracking worker.&quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;tracking&quot;</span>  <span class="c1"># the worker is called &quot;tracking&quot;</span>
+    <span class="n">subscriptions</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;acquisition&quot;</span><span class="p">,)</span>  <span class="c1"># it receives messages from &quot;acquisition&quot;</span>
+
+    <span class="k">def</span> <span class="nf">recv_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method is called whenever the worker receives frame data.&quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(),</span> <span class="n">y</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">())</span>  <span class="c1"># create some random x, y coordinates</span>
+        <span class="c1"># Send coordinates as indexed data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_indexed</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>  <span class="c1"># the timestamp and index should be the same as the received frame!!!</span>
+
+
+<span class="k">class</span> <span class="nc">TrackingDisplay</span><span class="p">(</span><span class="n">DisplayProxy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;We do not need a ModuleWidget to control our TrackingWorker from the GUI, since it just blindly tracks all frames</span>
+<span class="sd">    received from the AcquisitionWorker. However, we do want to plot the x, y coordinates we receive. For this reason,</span>
+<span class="sd">    we must create a DisplayProxy widget instead.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">create_plotter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;DisplayProxy is a subclass of ModuleWidget and has the same methods. Here, we can create plots.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">create_plotter</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">addParamPlot</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>  <span class="c1"># add a time series plot for the x-coordinate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">addParamPlot</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>  <span class="c1"># add a time series plot for the y-coordinate</span>
+
+    <span class="k">def</span> <span class="nf">updatePlots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">plotters</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method will receive all newly tracked data from the TrackingWorker via the data argument.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># new data can be passed to the plotter&#39;s update method</span>
+        <span class="c1"># Sometimes you might want to overlay or plot data from one worker on the plotter of another. For this purpose,</span>
+        <span class="c1"># all other plotters in the GUI are passed to updatePlots as keyword arguments</span>
+        <span class="n">video_plotter</span> <span class="o">=</span> <span class="n">plotters</span><span class="p">[</span><span class="s2">&quot;acquisition&quot;</span><span class="p">]</span>  <span class="c1"># this accesses the plotter associated with the acquisition worker</span>
+        <span class="n">xy_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>  <span class="c1"># get all newly acquired data values</span>
+        <span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span> <span class="o">=</span> <span class="n">xy_data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="n">xy_data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>  <span class="c1"># get all new x values and y values</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="mi">125</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span><span class="p">])</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="mi">50</span>  <span class="c1"># create numpy array</span>
+        <span class="n">video_plotter</span><span class="o">.</span><span class="n">updateOverlay</span><span class="p">(</span><span class="s2">&quot;video&quot;</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>  <span class="c1"># update the overlay of the plotter called &quot;video&quot;</span>
+
+    <span class="k">def</span> <span class="nf">enterRunning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clear the plotter whenever we start recording.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plotter</span><span class="o">.</span><span class="n">clear_data</span><span class="p">()</span>
+
+
+<span class="c1"># Create the acquisition module</span>
+<span class="n">ACQUISITION</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;worker&quot;</span><span class="p">:</span> <span class="n">AcquisitionWorker</span><span class="p">,</span>
+    <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>  <span class="c1"># params are passed to the constructor of the worker</span>
+    <span class="s2">&quot;widget&quot;</span><span class="p">:</span> <span class="n">AcquisitionWidget</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># Create the tracking module</span>
+<span class="n">TRACKING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;worker&quot;</span><span class="p">:</span> <span class="n">TrackingWorker</span><span class="p">,</span>
+    <span class="s2">&quot;widget&quot;</span><span class="p">:</span> <span class="n">TrackingDisplay</span>
+<span class="p">}</span>
+
+<span class="c1"># Add modules to config</span>
+<span class="n">config</span><span class="p">[</span><span class="s2">&quot;modules&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">ACQUISITION</span><span class="p">,</span> <span class="n">TRACKING</span><span class="p">]</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># Run pydra</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">Pydra</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ports</span><span class="p">)</span>
+    <span class="n">pydra</span> <span class="o">=</span> <span class="n">Pydra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">working_dir</span><span class="o">=</span><span class="s2">&quot;D:\pydra_tests&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../structure/0_overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="5_pydra_gui.html" class="btn btn-neutral float-left" title="Pydra gui" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

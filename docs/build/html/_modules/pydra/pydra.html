@@ -1,0 +1,569 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pydra.pydra &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../structure/0_overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure/1_messaging.html">Messaging in Pydra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure/2_network.html">Pydra network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure/3_objects.html">PydraObjects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure/4_gui.html">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure/5_qt.html">Qt events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure/6_modules.html">Pydra modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure/7_pipelines.html">Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pydra.pydra</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pydra.pydra</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">pydra.core</span> <span class="kn">import</span> <span class="n">PydraObject</span><span class="p">,</span> <span class="n">Saver</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Trigger</span>
+<span class="kn">from</span> <span class="nn">pydra.core.messaging</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pydra.utilities.string_formatting</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pydra.utilities</span> <span class="kn">import</span> <span class="n">clock</span>
+<span class="kn">from</span> <span class="nn">pydra.gui</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">QObject</span><span class="p">,</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">pyqtSignal</span><span class="p">,</span> <span class="n">pyqtSlot</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QApplication</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+
+<div class="viewcode-block" id="Pydra"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra">[docs]</a><span class="k">class</span> <span class="nc">Pydra</span><span class="p">(</span><span class="n">PydraObject</span><span class="p">,</span> <span class="n">QObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Main pydra class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    connections : dict</span>
+<span class="sd">        A pre-configured dictionary containing information about 0MQ ports to be used used by pydra objects in the</span>
+<span class="sd">        network. Should be contained in the config file.</span>
+<span class="sd">    modules : list</span>
+<span class="sd">        A list of modules to launch with pydra. Should be contained in the config file.</span>
+<span class="sd">    gui : bool (default=True)</span>
+<span class="sd">        Whether to start the graphical user interface.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    saver : Saver</span>
+<span class="sd">        Process containing the saver object.</span>
+<span class="sd">    working_dir : Path</span>
+<span class="sd">        Path to the working directory where data are saved.</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Basename for naming files.</span>
+<span class="sd">    trigger : Trigger</span>
+<span class="sd">    protocols : dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;pydra&quot;</span>
+
+    <span class="n">_cmd</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>  <span class="c1"># signal emitted to receive command line inputs</span>
+    <span class="n">_exiting</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>  <span class="c1"># signal emitted just before exit</span>
+
+<div class="viewcode-block" id="Pydra.run"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.run">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">gui</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Instantiates the pydra main class and starts the Qt event loop.&quot;&quot;&quot;</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+        <span class="n">pydra</span> <span class="o">=</span> <span class="n">Pydra</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+        <span class="c1"># Connect _exiting signal to QApplication.quit</span>
+        <span class="n">pydra</span><span class="o">.</span><span class="n">_exiting</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">QApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">quit</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gui</span><span class="p">:</span>
+            <span class="n">pydra</span><span class="o">.</span><span class="n">startUI</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pydra</span><span class="o">.</span><span class="n">startCmd</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting Qt event loop.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec</span><span class="p">())</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connections</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">modules</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">gui</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connections</span> <span class="o">=</span> <span class="n">connections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modules</span> <span class="o">=</span> <span class="n">modules</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">connections</span><span class="o">=</span><span class="n">connections</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Start saver and wait for it to respond</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saver</span> <span class="o">=</span> <span class="n">Saver</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipelines</span><span class="p">,</span> <span class="n">connections</span><span class="o">=</span><span class="n">connections</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zmq_receiver</span><span class="o">.</span><span class="n">recv_multipart</span><span class="p">()</span>
+        <span class="c1"># Start module workers</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saver ready. Starting modules...&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_workers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">module</span><span class="p">[</span><span class="s2">&quot;worker&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">connections</span><span class="o">=</span><span class="n">connections</span><span class="p">,</span> <span class="o">**</span><span class="n">module</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;done.&quot;</span><span class="p">)</span>
+        <span class="c1"># Test connections to workers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_connections</span><span class="p">()</span>
+        <span class="c1"># Set working directory and filename</span>
+        <span class="n">working_dir</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;working_dir&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">working_dir</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="s2">&quot;default_filename&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="c1"># Get trigger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trigger</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;trigger&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="c1"># Get protocols</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocols</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;protocols&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freerunning_mode</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">format_zmq_connections</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connections</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pipelines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a dictionary that maps pipeline names to a list of workers.&quot;&quot;&quot;</span>
+        <span class="n">pipelines</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+            <span class="n">worker</span> <span class="o">=</span> <span class="n">module</span><span class="p">[</span><span class="s2">&quot;worker&quot;</span><span class="p">]</span>
+            <span class="n">pipeline</span> <span class="o">=</span> <span class="n">module</span><span class="p">[</span><span class="s2">&quot;worker&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pipeline</span>
+            <span class="k">if</span> <span class="n">pipeline</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">:</span>
+                <span class="n">pipelines</span><span class="p">[</span><span class="n">pipeline</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">worker</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pipelines</span><span class="p">[</span><span class="n">pipeline</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">worker</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">pipelines</span>
+
+    <span class="nd">@EXIT</span>
+    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Broadcasts an exit signal.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">()</span>
+
+<div class="viewcode-block" id="Pydra.startUI"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.startUI">[docs]</a>    <span class="k">def</span> <span class="nf">startUI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Starts up the user interface.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">MainWindow</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Pydra.startCmd"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.startCmd">[docs]</a>    <span class="k">def</span> <span class="nf">startCmd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start receiving command line inputs.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cmd</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stdin</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QueuedConnection</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cmd</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Pydra.shutdown"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Ends and joins worker process for proper exiting.&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exiting...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cleaning up connections...&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">process</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workers</span><span class="p">:</span>
+            <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">process</span><span class="o">.</span><span class="n">worker_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> joined&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saver</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saver joined.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exiting</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+
+    <span class="nd">@EVENT</span>
+    <span class="k">def</span> <span class="nf">start_recording</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Broadcasts a start_recording event.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;start_recording&quot;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span><span class="p">),</span> <span class="n">filename</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span>
+
+    <span class="nd">@EVENT</span>
+    <span class="k">def</span> <span class="nf">stop_recording</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Broadcasts a start_recording event.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;stop_recording&quot;</span><span class="p">,</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="Pydra.set_working_directory"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.set_working_directory">[docs]</a>    <span class="k">def</span> <span class="nf">set_working_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the working directory and broadcasts a set_working_directory event.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_event</span><span class="p">(</span><span class="s2">&quot;set_working_directory&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">working_dir</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Pydra.set_filename"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.set_filename">[docs]</a>    <span class="k">def</span> <span class="nf">set_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the filename and broadcasts a set_filename event.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_event</span><span class="p">(</span><span class="s2">&quot;set_filename&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;General method for sending any request to the saver.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        query_type : str</span>
+<span class="sd">            A specific query that can be fulfilled by the saver.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pydra.core.saving.Saver</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_event</span><span class="p">(</span><span class="s2">&quot;query&quot;</span><span class="p">,</span> <span class="n">query_type</span><span class="o">=</span><span class="n">query_type</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmq_receiver</span><span class="o">.</span><span class="n">recv_multipart</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Pydra.decode_message"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.decode_message">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">decode_message</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">msg_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Decode INFO messages from saver.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">msg_type</span> <span class="ow">is</span> <span class="n">EVENT_INFO</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">EVENT_INFO</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="o">*</span><span class="n">msg</span><span class="p">[(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">i</span><span class="p">):(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">msg_type</span> <span class="ow">is</span> <span class="n">DATA_INFO</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">DATA_INFO</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="o">*</span><span class="n">msg</span><span class="p">[(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">i</span><span class="p">):(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="o">//</span> <span class="mi">3</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">msg</span></div>
+
+<div class="viewcode-block" id="Pydra.request_events"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.request_events">[docs]</a>    <span class="k">def</span> <span class="nf">request_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Request info from saver about worker events.&quot;&quot;&quot;</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;events&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">):</span>
+            <span class="n">event_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode_message</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">EVENT_INFO</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">event_data</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">events</span></div>
+
+<div class="viewcode-block" id="Pydra.request_data"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.request_data">[docs]</a>    <span class="k">def</span> <span class="nf">request_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Request data from saver.&quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+        <span class="n">worker_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode_message</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">DATA_INFO</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">frame</span><span class="p">)</span> <span class="ow">in</span> <span class="n">worker_data</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">frame</span></div>
+
+<div class="viewcode-block" id="Pydra.request_messages"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.request_messages">[docs]</a>    <span class="k">def</span> <span class="nf">request_messages</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Request messages from saver.&quot;&quot;&quot;</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query</span><span class="p">(</span><span class="s2">&quot;messages&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">messages</span><span class="p">):</span>
+            <span class="n">message_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode_message</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span> <span class="n">EVENT_INFO</span><span class="p">)</span>
+            <span class="n">message_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">message</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">message_data</span><span class="p">]</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">message_data</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">messages</span></div>
+
+<div class="viewcode-block" id="Pydra.test_connections"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.test_connections">[docs]</a>    <span class="k">def</span> <span class="nf">test_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">10.</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checks that all workers in the network are receiving messages from pydra.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        timeout : float</span>
+<span class="sd">            Maximum time to wait for workers to respond (seconds).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Testing connections...&quot;</span><span class="p">)</span>
+        <span class="c1"># Get the current time and timeout time</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">t_timeout</span> <span class="o">=</span> <span class="n">t0</span> <span class="o">+</span> <span class="n">timeout</span>
+        <span class="c1"># Create a dictionary with the connection status of each worker</span>
+        <span class="n">connected</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">module</span><span class="p">[</span><span class="s2">&quot;worker&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">])</span>
+        <span class="c1"># loop as long as workers are not connected or until the timeout has passed</span>
+        <span class="k">while</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">t_timeout</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">connected</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_event</span><span class="p">(</span><span class="s2">&quot;_test_connection&quot;</span><span class="p">)</span>  <span class="c1"># send a test_connection event</span>
+            <span class="n">ret</span><span class="p">,</span> <span class="n">events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_events</span><span class="p">()</span>  <span class="c1"># receive logged events</span>
+            <span class="k">if</span> <span class="n">ret</span><span class="p">:</span>
+                <span class="c1"># check for &quot;connected&quot; events from unconnected workers</span>
+                <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">connected</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">connected</span><span class="p">):</span>
+                    <span class="n">module_events</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">module</span><span class="p">,</span> <span class="n">events</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">module_events</span><span class="p">):</span>
+                        <span class="n">event_times</span><span class="p">,</span> <span class="n">event_names</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">module_events</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="s2">&quot;connected&quot;</span> <span class="ow">in</span> <span class="n">event_names</span><span class="p">:</span>
+                            <span class="n">idx</span> <span class="o">=</span> <span class="n">event_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;connected&quot;</span><span class="p">)</span>
+                            <span class="n">event_time</span> <span class="o">=</span> <span class="n">event_times</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2"> responded after </span><span class="si">{</span><span class="n">event_time</span> <span class="o">-</span> <span class="n">t0</span><span class="si">}</span><span class="s2"> seconds.&quot;</span><span class="p">)</span>
+                            <span class="n">connected</span><span class="p">[</span><span class="n">module</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">connected</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;All modules connected!&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">connected</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">connected</span><span class="p">):</span>  <span class="c1"># provide diagnostic info for user</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2"> did not respond within </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s2"> seconds. Check connections in config.&quot;</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">worker_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a dictionary of events implemented by workers in the network.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_event</span><span class="p">(</span><span class="s2">&quot;_events_info&quot;</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">ret</span><span class="p">,</span> <span class="n">workers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_events</span><span class="p">()</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">ret</span><span class="p">:</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">worker</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">events_dict</span><span class="p">)</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">:</span>
+                <span class="n">worker_events</span> <span class="o">=</span> <span class="n">events_dict</span><span class="p">[</span><span class="s2">&quot;events&quot;</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">worker_events</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+                        <span class="n">events</span><span class="p">[</span><span class="n">event</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">worker</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">events</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">worker</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">events</span>
+
+<div class="viewcode-block" id="Pydra.freerunning_mode"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.freerunning_mode">[docs]</a>    <span class="k">def</span> <span class="nf">freerunning_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a free-running protocol.&quot;&quot;&quot;</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger</span><span class="p">:</span>
+            <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trigger</span><span class="p">)</span>
+        <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_recording</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">Protocol</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s2">&quot;no protocol&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">freerun</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">interrupt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stop_recording</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pydra.build_protocol"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.build_protocol">[docs]</a>    <span class="k">def</span> <span class="nf">build_protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">n_reps</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Builds a pre-existing protocol for running with the given repetitions and interval.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">protocol</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trigger</span><span class="p">:</span>
+                <span class="n">protocol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trigger</span><span class="p">)</span>
+            <span class="n">protocol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_recording</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">protocol</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">send_event</span><span class="p">,</span> <span class="p">(</span><span class="n">event</span><span class="p">,),</span> <span class="p">{}))</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                    <span class="n">protocol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">event</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+            <span class="n">protocol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stop_recording</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">Protocol</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">n_reps</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">protocol</span><span class="p">,</span> <span class="n">interrupt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stop_recording</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">freerunning_mode</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Protocol </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not defined. Entering free-running mode.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pydra.run_protocol"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.run_protocol">[docs]</a>    <span class="nd">@pyqtSlot</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">run_protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs the current protocol.&quot;&quot;&quot;</span>
+        <span class="n">clock</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Pydra.end_protocol"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.end_protocol">[docs]</a>    <span class="nd">@pyqtSlot</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">end_protocol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Ends the current protocol if interrupted before completion.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">running</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">interrupt</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Pydra.stdin"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.stdin">[docs]</a>    <span class="k">def</span> <span class="nf">stdin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&gt; &quot;</span><span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;exit&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">attr</span><span class="p">):</span>
+                <span class="n">attr</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cmd</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Pydra.configure"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.pydra.Pydra.configure">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ports</span><span class="p">,</span> <span class="n">manual</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># Add modules</span>
+        <span class="n">modules</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;modules&quot;</span><span class="p">]</span>
+        <span class="c1"># Connect saver to pydra</span>
+        <span class="n">pydra_port</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;connections&quot;</span><span class="p">][</span><span class="s2">&quot;pydra&quot;</span><span class="p">][</span><span class="s2">&quot;port&quot;</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;connections&quot;</span><span class="p">][</span><span class="s2">&quot;saver&quot;</span><span class="p">][</span><span class="s2">&quot;subscriptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;pydra&quot;</span><span class="p">,</span> <span class="n">pydra_port</span><span class="p">,</span> <span class="p">(</span><span class="n">EXIT</span><span class="p">,</span> <span class="n">EVENT</span><span class="p">,</span> <span class="n">LOGGED</span><span class="p">)))</span>
+        <span class="c1"># Assign ports to workers</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="n">worker</span> <span class="o">=</span> <span class="n">module</span><span class="p">[</span><span class="s2">&quot;worker&quot;</span><span class="p">]</span>
+            <span class="n">worker_config</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">pub</span><span class="p">,</span> <span class="n">sub</span> <span class="o">=</span> <span class="n">ports</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">worker_config</span><span class="p">[</span><span class="s2">&quot;publisher&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pub</span>
+            <span class="n">worker_config</span><span class="p">[</span><span class="s2">&quot;port&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;connections&quot;</span><span class="p">][</span><span class="n">worker</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">worker_config</span>
+            <span class="c1"># Add saver subscription</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;connections&quot;</span><span class="p">][</span><span class="s2">&quot;saver&quot;</span><span class="p">][</span><span class="s2">&quot;subscriptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">worker</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                                    <span class="n">worker_config</span><span class="p">[</span><span class="s2">&quot;port&quot;</span><span class="p">],</span>
+                                                                    <span class="p">(</span><span class="n">MESSAGE</span><span class="p">,</span> <span class="n">LOGGED</span><span class="p">,</span> <span class="n">DATA</span><span class="p">)))</span>
+        <span class="c1"># Add connections for subscriptions</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="n">worker</span> <span class="o">=</span> <span class="n">module</span><span class="p">[</span><span class="s2">&quot;worker&quot;</span><span class="p">]</span>
+            <span class="c1"># Add subscription to pydra</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;connections&quot;</span><span class="p">][</span><span class="n">worker</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;subscriptions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;pydra&quot;</span><span class="p">,</span>
+                                                                    <span class="n">pydra_port</span><span class="p">,</span>
+                                                                    <span class="p">(</span><span class="n">EXIT</span><span class="p">,</span> <span class="n">EVENT</span><span class="p">))]</span>
+            <span class="c1"># Add subscriptions to other workers</span>
+            <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">worker</span><span class="o">.</span><span class="n">subscriptions</span><span class="p">:</span>
+                <span class="n">port</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;connections&quot;</span><span class="p">][</span><span class="n">sub</span><span class="p">][</span><span class="s2">&quot;port&quot;</span><span class="p">]</span>
+                <span class="n">config</span><span class="p">[</span><span class="s2">&quot;connections&quot;</span><span class="p">][</span><span class="n">worker</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;subscriptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sub</span><span class="p">,</span>
+                                                                            <span class="n">port</span><span class="p">,</span>
+                                                                            <span class="p">(</span><span class="n">EVENT</span><span class="p">,</span> <span class="n">DATA</span><span class="p">,</span> <span class="n">TRIGGER</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">manual</span><span class="p">:</span>
+            <span class="n">connections</span> <span class="o">=</span> <span class="n">NetworkConfiguration</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;connections&quot;</span><span class="p">])</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;connections&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">connections</span>
+        <span class="c1"># Return configuration</span>
+        <span class="k">return</span> <span class="n">config</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

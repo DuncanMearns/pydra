@@ -1,0 +1,408 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Using Pydra &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Hello world" href="../tutorial/0_hello_world.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using Pydra</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#importing-and-running-pydra">Importing and running Pydra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-your-own-workers">Creating your own workers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-widgets-to-the-pydra-gui">Adding widgets to the Pydra GUI</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../structure/0_overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/1_messaging.html">Messaging in Pydra</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/2_network.html">Pydra network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/3_objects.html">PydraObjects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/4_gui.html">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/5_qt.html">Qt events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/6_modules.html">Pydra modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../structure/7_pipelines.html">Pipelines</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Using Pydra</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/getting_started/using_pydra.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="using-pydra">
+<h1>Using Pydra<a class="headerlink" href="#using-pydra" title="Permalink to this headline">¶</a></h1>
+<p>To learn the basics (and not-so-basics) of Pydra, you might want to start by working through the [tutorial](tutorial)
+scripts. A basic overview of how to use Pydra is provided below.</p>
+<div class="section" id="importing-and-running-pydra">
+<h2>Importing and running Pydra<a class="headerlink" href="#importing-and-running-pydra" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydra</span> <span class="kn">import</span> <span class="n">Pydra</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">ports</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Automatically configure ZeroMQ connections</span>
+    <span class="n">Pydra</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ports</span><span class="p">)</span>
+
+    <span class="c1"># Run the Pydra GUI with given configuration</span>
+    <span class="n">Pydra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This won’t do anything other than start the Pydra GUI without any workers. To add workers to Pydra, you must create
+<em>modules</em> and add them to the <code class="docutils literal notranslate"><span class="pre">config</span></code>.</p>
+</div>
+<div class="section" id="creating-your-own-workers">
+<h2>Creating your own workers<a class="headerlink" href="#creating-your-own-workers" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydra</span> <span class="kn">import</span> <span class="n">Pydra</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">ports</span>
+<span class="kn">from</span> <span class="nn">pydra.core</span> <span class="kn">import</span> <span class="n">Worker</span>
+
+
+<span class="c1"># Define a Worker class</span>
+<span class="k">class</span> <span class="nc">MyWorker</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;my_worker&quot;</span>  <span class="c1"># give your worker a name</span>
+    <span class="n">subscriptions</span> <span class="o">=</span> <span class="p">()</span>  <span class="c1"># if your worker needs to receive messages from others in the network, add the names of those</span>
+                        <span class="c1"># workers to the subscriptions attribute here</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># You always need to put this at the beginning of a Worker&#39;s __init__</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Put your constructor code here</span>
+        <span class="c1"># ...</span>
+
+        <span class="c1"># Define events for your worker to respond to</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="s2">&quot;my_event&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">my_event</span>
+
+    <span class="k">def</span> <span class="nf">my_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Code here will be called whenever receives an event called &quot;my_event&quot;.&quot;&quot;&quot;</span>
+        <span class="c1"># Use send_frame(...) to broadcast frame data through the pydra network</span>
+        <span class="c1"># Use send_indexed(...) to broadcast indexed data through the pydra network</span>
+        <span class="c1"># Use send_timestamped(...) to broadcast timestamped data through the pydra network</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">recv_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Put code here to do something with frame data received through the pydra network&quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">recv_indexed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Put code here to do something with indexed data received through the pydra network&quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">recv_timestamped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Put code here to do something with timestamped data received through the pydra network&quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+
+<span class="c1"># Create a module with your worker</span>
+<span class="n">MY_MODULE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;worker&quot;</span><span class="p">:</span> <span class="n">MyWorker</span>
+<span class="p">}</span>
+
+
+<span class="c1"># Add your module to the configuration</span>
+<span class="n">config</span><span class="p">[</span><span class="s2">&quot;modules&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">MY_MODULE</span><span class="p">]</span>
+<span class="c1"># OR</span>
+<span class="c1"># config[&quot;modules&quot;].append(MY_MODULE)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Automatically configure ZeroMQ connections</span>
+    <span class="n">Pydra</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ports</span><span class="p">)</span>
+
+    <span class="c1"># Run the Pydra GUI with given configuration, which now includes your worker</span>
+    <span class="n">Pydra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For debugging your workers, it is sometimes useful to run Pydra without the GUI. You can do this by instantiating a
+Pydra object directly in your main code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydra</span> <span class="kn">import</span> <span class="n">Pydra</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">ports</span>
+
+
+<span class="c1"># Define workers and modules here</span>
+<span class="c1"># ...</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Automatically configure ZeroMQ connections</span>
+    <span class="n">Pydra</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ports</span><span class="p">)</span>
+
+    <span class="c1"># Create an instance of a Pydra object</span>
+    <span class="n">pydra</span> <span class="o">=</span> <span class="n">Pydra</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Put some test code here</span>
+    <span class="c1"># ...</span>
+
+    <span class="c1"># Make sure Pydra exits correctly (ZeroMQ connections and processes are properly closed/terminated)</span>
+    <span class="n">pydra</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="adding-widgets-to-the-pydra-gui">
+<h2>Adding widgets to the Pydra GUI<a class="headerlink" href="#adding-widgets-to-the-pydra-gui" title="Permalink to this headline">¶</a></h2>
+<p>To add your own widgets to the Pydra GUI, make a subclass of <code class="xref py py-obj docutils literal notranslate"><span class="pre">ModuleWidget</span></code> and add it to your worker’s module.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pydra</span> <span class="kn">import</span> <span class="n">Pydra</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">ports</span>
+<span class="kn">from</span> <span class="nn">pydra.core</span> <span class="kn">import</span> <span class="n">Worker</span>
+<span class="kn">from</span> <span class="nn">pydra.gui</span> <span class="kn">import</span> <span class="n">ModuleWidget</span>
+
+
+<span class="c1"># Define a Worker class</span>
+<span class="k">class</span> <span class="nc">MyWorker</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;my_worker&quot;</span>  <span class="c1"># give your worker a name</span>
+
+    <span class="c1"># Worker __init__ and other methods here</span>
+    <span class="c1"># ...</span>
+
+
+<span class="c1"># Create a widget for your worker</span>
+<span class="k">class</span> <span class="nc">MyWidget</span><span class="p">(</span><span class="n">ModuleWidget</span><span class="p">):</span>
+
+    <span class="c1"># Define Qt signals here</span>
+    <span class="c1"># ...</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Your __init__ code here</span>
+        <span class="c1"># ...</span>
+
+    <span class="c1"># Qt slots and other methods here</span>
+
+    <span class="k">def</span> <span class="nf">my_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Connect this method to a Qt signal in __init__.&quot;&quot;&quot;</span>
+        <span class="c1"># Use the send_event method to communicate with your worker in the pydra network</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">send_event</span><span class="p">(</span><span class="s2">&quot;my_event&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># Create a module with your worker and widget</span>
+<span class="n">MY_MODULE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;worker&quot;</span><span class="p">:</span> <span class="n">MyWorker</span><span class="p">,</span>
+    <span class="s2">&quot;widget&quot;</span><span class="p">:</span> <span class="n">MyWidget</span>  <span class="c1"># add a widget to the module</span>
+<span class="p">}</span>
+
+
+<span class="c1"># Add your module to the configuration</span>
+<span class="n">config</span><span class="p">[</span><span class="s2">&quot;modules&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">MY_MODULE</span><span class="p">]</span>
+<span class="c1"># OR</span>
+<span class="c1"># config[&quot;modules&quot;].append(MY_MODULE)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Automatically configure ZeroMQ connections</span>
+    <span class="n">Pydra</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ports</span><span class="p">)</span>
+
+    <span class="c1"># Run the Pydra GUI with given configuration, which now includes your worker and an associated widget</span>
+    <span class="n">Pydra</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../tutorial/0_hello_world.html" class="btn btn-neutral float-right" title="Hello world" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
