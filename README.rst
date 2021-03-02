@@ -266,7 +266,7 @@ Pydra object directly in your main code.
 
 Adding widgets to the Pydra GUI
 -------------------------------
-To add your own widgets to the Pydra GUI, make a subclass of `ModuleWidget` and add it to your worker's module.
+To add your own widgets to the Pydra GUI, make a subclass of ``ModuleWidget`` and add it to your worker's module.
 
 .. code-block:: python
 
