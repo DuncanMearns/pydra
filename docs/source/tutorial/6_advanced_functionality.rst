@@ -4,5 +4,5 @@
 Advanced functionality
 ======================
 
-.. literalinclude:: ..\..\..\tutorial\6_advanced_functionality.py
+.. literalinclude:: ..\..\..\pydra\tutorial\6_advanced_functionality.py
     :language: python

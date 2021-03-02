@@ -24,10 +24,8 @@ def make_readme():
         f.write("2. `Using Pydra`_\n\n")
         f.write("Read the complete user guide `here <https://duncanmearns.github.io/pydra/>`_.\n\n")
         # Include installation guide
-        f.write(".. _installation:\n\n")
         f.write(installation)
         # Include using pydra guide
-        f.write(".. _using pydra:\n\n")
         f.write(using_pydra)
         # Add link to complete guide
         f.write("For more details about using pydra, see the complete "

@@ -4,5 +4,5 @@
 Hello world
 ===========
 
-.. literalinclude:: ..\..\..\tutorial\0_hello_world.py
+.. literalinclude:: ..\..\..\pydra\tutorial\0_hello_world.py
     :language: python
