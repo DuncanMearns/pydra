@@ -82,7 +82,7 @@ class OptogeneticsWidget(ModuleWidget):
         self.laser_state = int(not self.laser_state)
 
     def updatePlots(self, data, frame=None, **plotters):
-        t, last_update = data["events"][-1]
+        t, last_update = data["timestamped"][-1]
         status = last_update["laser"]
         self.laser_state = status
         if status:
