@@ -1,0 +1,11 @@
+name: pydra_env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - numpy
+  - pandas
+  - pyzmq
+  - pyqtgraph
+  - pyqt
+  - matplotlib

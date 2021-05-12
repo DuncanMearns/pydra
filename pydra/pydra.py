@@ -43,13 +43,13 @@ class Pydra(PydraObject, QObject):
     _cmd = pyqtSignal()  # signal emitted to receive command line inputs
     _exiting = pyqtSignal()  # signal emitted just before exit
 
-    t0 = time.time()  # initialize synchronization clock
-
     @staticmethod
     def run(gui=True, **config):
         """Instantiates the pydra main class and starts the Qt event loop."""
         app = QApplication(sys.argv)
         pydra = Pydra(**config)
+        # Connect _exiting signal to QApplication.quit
+        pydra._exiting.connect(QApplication.instance().quit)
         if gui:
             pydra.startUI()
         else:
@@ -83,8 +83,6 @@ class Pydra(PydraObject, QObject):
         # Get protocols
         self.protocols = kwargs.get("protocols", self.working_dir)
         self.freerunning_mode()
-        # Connect _exiting signal to QApplication.quit
-        self._exiting.connect(QApplication.instance().quit)
 
     def __str__(self):
         return format_zmq_connections(self.connections)

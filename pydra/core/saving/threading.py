@@ -348,7 +348,8 @@ class PipelineSaver:
             except KeyError:
                 self.data_cache[source]["data"][key] = [val]
 
-    def flush(self):
+    def flush(self) -> dict:
+        """Returns and clears all cached data."""
         data_cache = self.data_cache.copy()
         self.data_cache = {}
         return data_cache

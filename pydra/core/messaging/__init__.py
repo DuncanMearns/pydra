@@ -15,17 +15,14 @@ class PydraMessage:
 
     Attributes
     ----------
+    flag : bytes
+        Unique string specifying the message type represented in bytes (class attribute).
     dtypes : str
         Characters representing each data type to be encoded/decoded in the message.
     encoders : list of functions
         Functions for serializing each data type in the message.
     decoders : list of functions
         Functions for deserializing each data type in the message.
-
-    Class Attributes
-    ----------------
-    flag : bytes
-        Unique string specifying the message type represented in bytes.
     """
 
     flag = b""
@@ -91,7 +88,7 @@ class PydraMessage:
         Parameters
         ----------
         obj
-            A pydra worker object that is able to send messages over zmq.
+            A PydraObject that is able to send messages over zmq.
 
         Returns
         -------
@@ -133,7 +130,7 @@ class PydraMessage:
         return sock.recv_serialized(PydraMessage.reader)
 
     def __call__(self, method):
-        """Decorator for sending messages using 0MQ.
+        """Decorator for sending messages using ZeroMQ.
 
         The wrapper function, zmq_message, runs the method and sends the result to a zmq socket along with message tags
         to assist with decoding once received.
@@ -158,7 +155,7 @@ class ExitMessage(PydraMessage):
 EXIT = ExitMessage()
 
 
-class TextMessage(PydraMessage):
+class StringMessage(PydraMessage):
     """Decorator for sending a message as a string."""
 
     flag = b"message"
@@ -174,7 +171,7 @@ class TextMessage(PydraMessage):
         return out
 
 
-MESSAGE = TextMessage()
+MESSAGE = StringMessage()
 
 
 class EventMessage(PydraMessage):
@@ -190,8 +187,7 @@ EVENT = EventMessage()
 
 
 class DataMessage(PydraMessage):
-    """Decorator for sending data. Takes a data_flag as an argument for specifying the format of the data being sent,
-    and an optional saved parameter."""
+    """Decorator for sending data. Takes a data_flag as an argument for specifying the format of the data being sent."""
 
     flag = b"data"
 
@@ -219,7 +215,7 @@ FRAME = DataMessage(b"f")
 
 
 class LoggedMessage(PydraMessage):
-    """Decorator for logging methods that are called."""
+    """Decorator for logging events."""
 
     flag = b"log"
 
@@ -236,8 +232,9 @@ class LoggedMessage(PydraMessage):
 
 LOGGED = LoggedMessage()
 
-
+# INFO message for sending event info between saver and pydra
 EVENT_INFO = PydraMessage(float, str, str, dict, np.ndarray)
+# INFO message for sending data info between saver and pydra
 DATA_INFO = PydraMessage(str, dict, np.ndarray)
 
 

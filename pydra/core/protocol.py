@@ -100,17 +100,6 @@ class Protocol(QtCore.QObject):
     flag : bool
         Internal flag for whether the protocol is currently running (includes repetitions and inter-rep intervals).
 
-    Class Attributes
-    ----------------
-    completed : QtCore.pyqtSignal
-        Qt signal emitted when all repetitions of the protocol are completed.
-    finished : QtCore.pyqtSignal
-        Qt signal emitted when one repetition of the protocol has ended.
-    started : QtCore.pyqtSignal
-        Qt signal emitted when a repetition of the protocol begins.
-    interrupted : QtCore.pyqtSignal
-        Qt signal emitted if the protocol is interrupted by an external or internal event (e.g. a trigger timing out).
-
     Notes
     -----
     The event queue is a list of Queued, Timer and TriggerContainer objects. These objects all implement a __call__
@@ -123,9 +112,13 @@ class Protocol(QtCore.QObject):
     a finished signal is never emitted.
     """
 
+    # Qt signal emitted when all repetitions of the protocol are completed
     completed = QtCore.pyqtSignal()
+    # Qt signal emitted when one repetition of the protocol has ended
     finished = QtCore.pyqtSignal(int)
+    # Qt signal emitted when a repetition of the protocol begins
     started = QtCore.pyqtSignal(int)
+    # Qt signal emitted if the protocol is interrupted by an external or internal event (e.g. a trigger timing out)
     interrupted = QtCore.pyqtSignal()
 
     @classmethod
