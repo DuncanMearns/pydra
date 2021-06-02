@@ -8,17 +8,13 @@ import numpy as np
 
 
 class PikeCamera(CameraAcquisition):
-    """Class for controlling an AVT camera.
-    Uses the Vimba interface pymba
-    (module documentation `here <https://github.com/morefigs/pymba>`_).
-    """
+    """Class for controlling an AVT camera."""
 
     name = "pike"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.id = 0
-        self.timeout_ms = 1000  # Set timeout for frame acquisition. Give this as input?
         self.frame = None
         # Start vimba
         self._vimba = Vimba()
@@ -53,7 +49,7 @@ class PikeCamera(CameraAcquisition):
 
     def read(self):
         try:
-            self.frame.wait_for_capture(self.timeout_ms)
+            self.frame.wait_for_capture(1000)
             self.frame.queue_for_capture()
             frame = self.frame.buffer_data_numpy()
         except VimbaException:
