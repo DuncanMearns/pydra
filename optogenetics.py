@@ -4,7 +4,7 @@ from pydra.modules.cameras import XIMEA
 
 
 XIMEA["params"] = {
-    "frame_size": (720, 500),
+    "frame_size": (368, 312),
     "frame_rate": 250.,
     "exposure": 0.5,
     "gain": 0.,

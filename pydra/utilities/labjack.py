@@ -12,8 +12,10 @@ class LabJack:
     def connect(self, **kwargs):
         print('Connecting to labjack...', end=' ')
         self.u = u3.U3()
-        for reg, addr in self.registers.items():
-            self.u.writeRegister(addr, 0)
+        # for reg, addr in self.registers.items():
+        #     self.u.writeRegister(addr, 0)
+        self.u.writeRegister(self.registers["DAC0"], 0)
+        self.u.writeRegister(self.registers["DAC1"], 1)
         print('done!\n')
 
     def send_signal(self, register, val):
