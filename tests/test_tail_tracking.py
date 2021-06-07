@@ -1,39 +1,17 @@
 from pydra import Pydra, ports, config
-from pydra.modules.cameras.workers._base import CameraAcquisition
-import cv2
+from pydra.modules.cameras.video import VIDEO
+from pydra.modules.tracking.tail_tracker import TAIL_TRACKER
 
 
-class VideoWorker(CameraAcquisition):
-
-    name = "video"
-
-    def __init__(self, filepath, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.filepath = filepath
-
-    @property
-    def frame_count(self):
-        return self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
-
-    def setup(self):
-        self.cap = cv2.VideoCapture(self.filepath)
-
-    def read(self):
-        if self.cap.get(cv2.CAP_PROP_POS_FRAMES) >= self.frame_count:
-            self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-            self.frame_number = 0
-        ret, frame = self.cap.read()
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        return frame
+VIDEO["params"]["filepath"] = r"D:\DATA\embedded_prey_capture\raw_data\2021_05_21\fish01_red_centre_10%_001.avi"
+VIDEO["params"]["frame_rate"] = 50.
 
 
-VIDEO = {
-    "worker": VideoWorker,
-    "params": {"filepath": r"test_files\fish1_trial01.avi"}
-}
+TAIL_TRACKER["params"]["acquisition_worker"] = "video"
+TAIL_TRACKER["worker"].subscriptions = ("video",)
 
 
-config["modules"] = [VIDEO]
+config["modules"] = [VIDEO, TAIL_TRACKER]
 
 
 if __name__ == "__main__":

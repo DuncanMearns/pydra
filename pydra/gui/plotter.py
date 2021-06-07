@@ -2,6 +2,7 @@ from pydra.utilities import clock
 import pyqtgraph as pg
 from collections import deque
 import numpy as np
+pg.setConfigOption("imageAxisOrder", "row-major")
 
 
 class Plotter(pg.GraphicsLayoutWidget):
@@ -23,6 +24,7 @@ class Plotter(pg.GraphicsLayoutWidget):
         plot.setAspectLocked()
         plot.hideAxis('bottom')
         plot.hideAxis('left')
+        plot.getViewBox().invertY(True)
         # Create image and data items
         image = pg.ImageItem()
         data = pg.PlotDataItem([], [], **kwargs)
@@ -52,7 +54,7 @@ class Plotter(pg.GraphicsLayoutWidget):
 
     def updateImage(self, name: str, image: np.ndarray):
         if image.shape and name in self.images:
-            self.images[name].setImage(image[::-1].T)
+            self.images[name].setImage(image)
 
     def updateOverlay(self, name: str, data: np.ndarray):
         if name in self.overlay_data:
@@ -64,10 +66,12 @@ class Plotter(pg.GraphicsLayoutWidget):
             show = np.array(self.caches[name])
             self.param_data[name].setData(show)
 
-    def update(self, data: dict):
+    def update(self, data: dict, exclude=()):
         t = np.array(data.get("time", [])) - clock.t0
         for param, vals in data.get("data", {}).items():
-            self.updateParam(param, np.array([t, vals]).T)
+            if param not in exclude and None not in vals:
+                a = np.array([t, vals]).T
+                self.updateParam(param, a)
 
     def clear_data(self):
         for param, cache in self.caches.items():
