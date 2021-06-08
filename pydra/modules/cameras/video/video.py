@@ -21,7 +21,7 @@ class VideoWorker(CameraAcquisition):
     @frame_rate.setter
     def frame_rate(self, val):
         self._frame_rate = val
-        self._t = max(1, int(1 / val))
+        self._t = max(1, int(1000 / val))
 
     def setup(self):
         self.cap = cv2.VideoCapture(self.filepath)
