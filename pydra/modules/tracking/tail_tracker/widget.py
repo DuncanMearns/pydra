@@ -10,7 +10,7 @@ class TailTrackerWidget(ModuleWidget):
         self.setWidget(QtWidgets.QWidget())
         self.widget().setLayout(QtWidgets.QVBoxLayout())
         # Create a button in the module control widget that opens a dialog window
-        self.button = QtWidgets.QPushButton("Set parameters")
+        self.button = QtWidgets.QPushButton("Initialize tracker")
         self.button.clicked.connect(self.open_dialog)
         self.widget().layout().addWidget(self.button)
         # Create a tail initialization dialog window
