@@ -39,7 +39,7 @@ class TailTrackerWidget(ModuleWidget):
         self.dialog.widget.new_image(self.last_image)
 
     def updatePlots(self, data, frame=None, **plotters):
-        self.plotter.update(data, exclude=("points",))
+        self.plotter.update(data)
         # Get the acquisition plotter
         try:
             acquisition_plotter = plotters[self.acquisition]

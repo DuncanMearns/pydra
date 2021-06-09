@@ -109,6 +109,7 @@ class Saver(PydraObject, ProcessMixIn):
             pipeline_data = pipeline.flush()  # flush cached data from the pipeline
             for source, data in pipeline_data.items():  # iterate through data from the cache
                 frame = data.pop("frame", np.empty([], dtype="uint8"))  # get the last frame received, if any
+                a = data.pop("array", np.empty([]))  # remove array data
                 serialized = DATA_INFO.encode(source, data, frame)  # serialize the data for sending over ZeroMQ
                 self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)  # send to pydra
         self.zmq_sender.send(b"")  # send empty byte to let pydra know query has been fulfilled
@@ -124,6 +125,10 @@ class Saver(PydraObject, ProcessMixIn):
     def recv_indexed(self, t, i, data, **kwargs):
         """Sends indexed data messages to the appropriate saver."""
         self.targets[kwargs["source"]].update(kwargs["source"], "indexed", t, i, data)
+
+    def recv_array(self, t, i, a, **kwargs):
+        """Sends indexed array messages to the appropriate saver."""
+        self.targets[kwargs["source"]].update(kwargs["source"], "array", t, i, a)
 
     def recv_frame(self, t, i, frame, **kwargs):
         """Sends frame data messages to the appropriate saver."""

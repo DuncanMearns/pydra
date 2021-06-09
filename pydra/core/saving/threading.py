@@ -3,6 +3,7 @@ import queue
 import cv2
 from pathlib import Path
 from collections import deque
+import numpy as np
 import pandas as pd
 
 
@@ -126,12 +127,14 @@ class IndexedThread(Thread):
     def __init__(self, path, q, *args, **kwargs):
         super().__init__(path, q, *args, **kwargs)
         self.data = None
+        self.array = None
 
     def setup(self):
         """Initializes the data attribute."""
         self.data = {}
+        self.array = []
 
-    def dump(self, source, t, i, data):
+    def dump(self, source, t, i, data, a=()):
         """Sorts and places data into the data dictionary.
 
         Parameters
@@ -141,6 +144,7 @@ class IndexedThread(Thread):
         t : float
         i : int
         data : dict
+        a : np.ndarray (optional)
         """
         for param, val in data.items():  # add parameter values to the data dictionary with key source.param
             k = ".".join([source, param])
@@ -150,11 +154,15 @@ class IndexedThread(Thread):
                 self.data[k] = [(t, i, val)]
         else:  # if no data parameters, add "time" and "index" to the data dictionary
             try:
-                self.data["time"].append(t)
-                self.data["index"].append(i)
+                if t not in self.data["time"]:
+                    self.data["time"].append(t)
+                if i not in self.data["index"]:
+                    self.data["index"].append(i)
             except KeyError:
                 self.data["time"] = [t]
                 self.data["index"] = [i]
+        if len(a):
+            self.array.append([a])
 
     def cleanup(self):
         """Saves data to a csv file as a pandas DataFrame.
@@ -182,6 +190,10 @@ class IndexedThread(Thread):
             # combine all data together into a single DataFrame and save as a csv
             df = pd.concat(dfs, axis=1)
             df.to_csv(self.path)
+        if len(self.array):
+            array_path = self.path[:-3] + "npy"
+            a = np.concatenate(self.array, axis=0)
+            np.save(array_path, a)
 
 
 class TimestampedThread(Thread):
@@ -290,6 +302,7 @@ class PipelineSaver:
         self.save_methods = {
             "frame": self.save_frame,
             "indexed": self.save_indexed,
+            "array": self.save_array,
             "timestamped": self.save_timestamped
         }
         # Data handling
@@ -325,14 +338,17 @@ class PipelineSaver:
                 "timestamped": []
             }
         # parse arguments
+        data = {}
         if dtype == "frame":
             t, i, frame = args
             self.timestamps.append(t)
             self.frame = frame
-            data = {}
             self.data_cache[source]["frame"] = frame
         elif dtype == "indexed":
             t, i, data = args
+        # elif dtype == "array":
+        #     t, i, a = args
+        #     self.data_cache[source]["array"] = a
         elif dtype == "timestamped":
             t, data = args
             self.data_cache[source]["timestamped"] = [(t, data)]
@@ -340,8 +356,10 @@ class PipelineSaver:
         else:
             return
         # update indexed data in cache
-        self.data_cache[source]["time"].append(t)
-        self.data_cache[source]["index"].append(i)
+        if t not in self.data_cache[source]["time"]:
+            self.data_cache[source]["time"].append(t)
+        if i not in self.data_cache[source]["index"]:
+            self.data_cache[source]["index"].append(i)
         for key, val in data.items():
             try:
                 self.data_cache[source]["data"][key].append(val)
@@ -362,6 +380,10 @@ class PipelineSaver:
     def save_indexed(self, source, t, i, data):
         """Puts indexed data into appropriate queue for saving."""
         self.indexed_q.put((source, t, i, data))
+
+    def save_array(self, source, t, i, a):
+        """Puts array data into appropriate queue for saving."""
+        self.indexed_q.put((source, t, i, {}, a))
 
     def save_timestamped(self, source, t, data):
         """Puts timestamped data into appropriate queue for saving."""

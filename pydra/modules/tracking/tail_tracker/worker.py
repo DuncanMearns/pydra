@@ -16,10 +16,11 @@ class TailTrackingWorker(Worker):
 
     def recv_frame(self, t, i, frame, **kwargs):
         angle = self.tracker.track(frame)
-        data = {"angle": None, "points": []}
+        data = {"angle": None}
         if angle is not None:
             data["angle"] = angle
-            data["points"] = [[int(p[0]), int(p[1])] for p in self.tracker.points]
+            points = self.tracker.points_array
+            self.send_array(t, i, points)
         self.send_indexed(t, i, data)
 
     def init_tracker(self, points, n, **kwargs):
