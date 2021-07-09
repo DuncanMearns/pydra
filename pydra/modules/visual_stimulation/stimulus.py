@@ -1,9 +1,9 @@
 class Stimulus:
 
-    def __init__(self, window):
-        super().__init__()
-        self.window = window
-        self._running = False
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.window = None
+        self.running = False
 
     @property
     def window(self):
@@ -13,17 +13,26 @@ class Stimulus:
     def window(self, win):
         self._window = win
 
-    def start(self):
+    @property
+    def running(self):
+        return self._running
+
+    @running.setter
+    def running(self, val: bool):
+        self._running = val
+
+    def create(self):
         return
 
     def update(self):
         return
 
-    def stop(self):
+    def destroy(self):
         return
 
-    def is_running(self):
-        return self._running
 
-    def set_running(self, a: bool):
-        self._running = a
+class Wait(Stimulus):
+
+    def __init__(self, t, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.t = t

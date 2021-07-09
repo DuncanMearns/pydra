@@ -1,3 +1,3 @@
 from .worker import VisualStimulationWorker
 from .widget import VisualStimulationWidget
-from .stimulus import Stimulus
+from .stimulus import Stimulus, Wait
