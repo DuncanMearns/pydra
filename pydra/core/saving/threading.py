@@ -1,10 +1,9 @@
 import threading
 import queue
 import cv2
-from pathlib import Path
-from collections import deque
 import numpy as np
 import pandas as pd
+import h5py
 
 
 class Thread(threading.Thread):
@@ -127,12 +126,11 @@ class IndexedThread(Thread):
     def __init__(self, path, q, *args, **kwargs):
         super().__init__(path, q, *args, **kwargs)
         self.data = None
-        self.array = None
+        self.to_save = None
 
     def setup(self):
         """Initializes the data attribute."""
         self.data = {}
-        self.array = []
 
     def dump(self, source, t, i, data, a=()):
         """Sorts and places data into the data dictionary.
@@ -146,23 +144,25 @@ class IndexedThread(Thread):
         data : dict
         a : np.ndarray (optional)
         """
+        try:
+            d = self.data[source]
+        except KeyError:
+            self.data[source] = {}
+            d = self.data[source]
+        try:
+            d["index"].append((t, i))
+        except KeyError:
+            d["index"] = [(t, i)]
         for param, val in data.items():  # add parameter values to the data dictionary with key source.param
-            k = ".".join([source, param])
-            if k in self.data:
-                self.data[k].append((t, i, val))
-            else:
-                self.data[k] = [(t, i, val)]
-        else:  # if no data parameters, add "time" and "index" to the data dictionary
             try:
-                if t not in self.data["time"]:
-                    self.data["time"].append(t)
-                if i not in self.data["index"]:
-                    self.data["index"].append(i)
+                d[param].append(val)
             except KeyError:
-                self.data["time"] = [t]
-                self.data["index"] = [i]
+                d[param] = [val]
         if len(a):
-            self.array.append([a])
+            try:
+                d["array"].append(a)
+            except KeyError:
+                d["array"] = [a]
 
     def cleanup(self):
         """Saves data to a csv file as a pandas DataFrame.
@@ -170,30 +170,14 @@ class IndexedThread(Thread):
         The output DataFrame has a single index, and a time column. Data values are stored in the columns, and are
         named source.param. This allows multiple workers to feed the same thread without causing namespace collisions.
         """
+        self.to_save = {}
         if self.data:
-            dfs = []
-            try:  # if data dict has a "time" and "index" key, add these to the DataFrame
-                t = self.data.pop("time")
-                i = self.data.pop("index")
-                df = pd.DataFrame(dict(time=t), index=i)
-                dfs.append(df)
-            except KeyError:
-                t, i = None, None
-            for param, data in self.data.items():
-                t_param, i_param, vals = zip(*data)
-                df_data = {param: vals}
-                if not t:  # if data dict did not have "time" and "index" keys, take from first param instead
-                    t = t_param
-                    df_data["time"] = t
-                df = pd.DataFrame(df_data, index=i_param)  # create df with param data and index
-                dfs.append(df)
-            # combine all data together into a single DataFrame and save as a csv
-            df = pd.concat(dfs, axis=1)
-            df.to_csv(self.path)
-        if len(self.array):
-            array_path = self.path[:-3] + "npy"
-            a = np.concatenate(self.array, axis=0)
-            np.save(array_path, a)
+            path = self.path[:-3] + "hdf5"
+            with h5py.File(path, "w") as f:
+                for worker, worker_data in self.data.items():
+                    worker_dset = f.create_group(worker)
+                    for param, vals in worker_data.items():
+                        worker_dset.create_dataset(param, data=np.array(vals))
 
 
 class TimestampedThread(Thread):
@@ -252,178 +236,3 @@ class TimestampedThread(Thread):
             df = pd.concat(dfs, axis=0, ignore_index=True)
             df.sort_values(by=["time"], inplace=True)
             df.to_csv(self.path, index=False)
-
-
-def saver(method):
-    """Decorator that sends data to the appropriate saving method when recording."""
-    def wrapper(obj, source, dtype, *args):
-        if obj.recording:
-            obj.save_methods[dtype](source, *args)
-        method(obj, source, dtype, *args)
-    return wrapper
-
-
-class PipelineSaver:
-    """Class for saving data from workers belonging to the same pipeline.
-
-    This class receives incoming data from the pydra saver object with a call to its update method. Class contains
-    various threads, queues and caches for storing and saving data.
-
-    Parameters
-    ----------
-    name : str
-        The name of the pipeline.
-    members : list
-        A list of worker object types that belong to the pipeline.
-
-    Attributes
-    ----------
-    frame_q, indexed_q, timestamped_q : queue.Queue
-        Queues data of different types for saving by different threads.
-    frame : np.ndarray
-        A copy of the last frame received by the pipeline.
-    timestamps : deque
-        A queue that stores timestamps of incoming frames. Used to compute an actual frame rate for data acquisition.
-    data_cache : dict
-        A dictionary containing a copy of data received for workers.
-    fourcc : str
-        Codec for video compression.
-    """
-
-    def __init__(self, name: str, members: list):
-        self.name = name
-        self.members = members
-        # Queues
-        self.frame_q = queue.Queue()
-        self.indexed_q = queue.Queue()
-        self.timestamped_q = queue.Queue()
-        # Save methods
-        self.recording = False
-        self.save_methods = {
-            "frame": self.save_frame,
-            "indexed": self.save_indexed,
-            "array": self.save_array,
-            "timestamped": self.save_timestamped
-        }
-        # Data handling
-        self.frame = None
-        self.timestamps = deque(maxlen=1000)
-        self.data_cache = {}
-        self.fourcc = "XVID"
-
-    @property
-    def frame_rate(self) -> float:
-        """Returns the actual frame rate of data acquisition."""
-        return len(self.timestamps) / (self.timestamps[-1] - self.timestamps[0])
-
-    @property
-    def frame_size(self) -> tuple:
-        """Returns the (width, height) of the last frame received."""
-        return self.frame.shape[:2][::-1]
-
-    @property
-    def is_color(self) -> bool:
-        """Returns whether incoming frames are color."""
-        return self.frame.ndim > 2
-
-    @saver
-    def update(self, source, dtype, *args):
-        """Called by pydra saver object when new data are received from workers."""
-        # create cache for storing all data from a given source
-        if source not in self.data_cache:
-            self.data_cache[source] = {
-                "time": [],
-                "index": [],
-                "data": {},
-                "timestamped": []
-            }
-        # parse arguments
-        data = {}
-        if dtype == "frame":
-            t, i, frame = args
-            self.timestamps.append(t)
-            self.frame = frame
-            self.data_cache[source]["frame"] = frame
-        elif dtype == "indexed":
-            t, i, data = args
-        # elif dtype == "array":
-        #     t, i, a = args
-        #     self.data_cache[source]["array"] = a
-        elif dtype == "timestamped":
-            t, data = args
-            self.data_cache[source]["timestamped"] = [(t, data)]
-            return
-        else:
-            return
-        # update indexed data in cache
-        if t not in self.data_cache[source]["time"]:
-            self.data_cache[source]["time"].append(t)
-        if i not in self.data_cache[source]["index"]:
-            self.data_cache[source]["index"].append(i)
-        for key, val in data.items():
-            try:
-                self.data_cache[source]["data"][key].append(val)
-            except KeyError:
-                self.data_cache[source]["data"][key] = [val]
-
-    def flush(self) -> dict:
-        """Returns and clears all cached data."""
-        data_cache = self.data_cache.copy()
-        self.data_cache = {}
-        return data_cache
-
-    def save_frame(self, source, t, i, frame):
-        """Parses frame data into appropriate queues for saving."""
-        self.frame_q.put((source, frame))
-        self.indexed_q.put((source, t, i, {}))
-
-    def save_indexed(self, source, t, i, data):
-        """Puts indexed data into appropriate queue for saving."""
-        self.indexed_q.put((source, t, i, data))
-
-    def save_array(self, source, t, i, a):
-        """Puts array data into appropriate queue for saving."""
-        self.indexed_q.put((source, t, i, {}, a))
-
-    def save_timestamped(self, source, t, data):
-        """Puts timestamped data into appropriate queue for saving."""
-        self.timestamped_q.put((source, t, data))
-
-    def start(self, directory, filename):
-        """Starts threads for saving incoming data."""
-        # Create filepath from directory and pipeline
-        directory = Path(directory)
-        if not directory.exists():
-            directory.mkdir(parents=True)
-        if self.name:
-            filename = "_".join([filename, self.name])
-        filepath = str(directory.joinpath(filename))
-        # Frame thread
-        if self.frame is not None:
-            self.frame_thread = FrameThread(filepath + ".avi", self.frame_q, int(self.frame_rate), self.frame_size,
-                                            self.fourcc, self.is_color)
-            self.frame_thread.start()
-        else:
-            self.frame_thread = None
-        # Indexed thread
-        self.indexed_thread = IndexedThread(filepath + ".csv", self.indexed_q)
-        self.indexed_thread.start()
-        # Timestamped thread
-        self.timestamped_thread = TimestampedThread(filepath + "_events.csv", self.timestamped_q)
-        self.timestamped_thread.start()
-        # Set recording to True
-        self.recording = True
-
-    def stop(self):
-        """Terminates and joins saving threads."""
-        # Send termination signal
-        self.timestamped_q.put(b"")
-        self.indexed_q.put(b"")
-        self.frame_q.put(b"")
-        # Join threads
-        self.timestamped_thread.join()
-        self.indexed_thread.join()
-        if self.frame_thread:
-            self.frame_thread.join()
-        # Set recording to False
-        self.recording = False
