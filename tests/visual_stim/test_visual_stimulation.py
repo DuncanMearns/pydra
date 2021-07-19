@@ -12,7 +12,7 @@ VisualStimulationWorker.window_params = dict(size=(400, 400),
 
 PSYCHOPY = {
     "worker": VisualStimulationWorker,
-    "widget": VisualStimulationWidget,
+    "controller": VisualStimulationWidget,
     "params": {"stimulus_file": Path.cwd().joinpath("dotstim.py")}
 }
 
