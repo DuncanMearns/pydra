@@ -1,6 +1,6 @@
 from pydra import Pydra, config, ports
 from pydra.core.workers import Worker
-from pydra.gui import ModuleWidget  # import the ModuleWidget class
+from pydra.gui import ControlWidget  # import the ModuleWidget class
 from PyQt5 import QtWidgets, QtCore  # import from PyQt
 
 
@@ -23,7 +23,7 @@ class HelloWorld(Worker):
 
 
 # Create a widget for the Pydra GUI
-class HelloWidget(ModuleWidget):
+class HelloWidget(ControlWidget):
     """The ModuleWidget is just a wrapper for the PyQt DockWidget class which has access to the main Pydra instance and
     implements some other useful functions."""
 
@@ -37,7 +37,8 @@ class HelloWidget(ModuleWidget):
         # Connect the button's "clicked" signal to our widget's button_clicked slot
         self.button.clicked.connect(self.button_clicked)
         # Set the main widget to be our button
-        self.setWidget(self.button)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addWidget(self.button)
 
     @QtCore.pyqtSlot()
     def button_clicked(self):
@@ -48,7 +49,7 @@ class HelloWidget(ModuleWidget):
 # Create a module for our HelloWorld worker
 HELLOWORLD = {
     "worker": HelloWorld,
-    "widget": HelloWidget  # add our widget to the module - this will add our widget to the Pydra GUI!
+    "controller": HelloWidget  # add our widget to the module - this will add our widget to the Pydra GUI!
 }
 
 
