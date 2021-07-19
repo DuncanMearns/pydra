@@ -1,8 +1,11 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
+from pydra.utilities import clock
 from .toolbar import RecordingToolbar
-from .display import DisplayContainer
+from .plotter import DisplayContainer
 from .states import StateEnabled
 from .protocol import ProtocolWindow
+from .module import PydraDockWidget
+from .cache import WorkerCache
 
 
 class MainWindow(QtWidgets.QMainWindow, StateEnabled):
@@ -42,25 +45,29 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         self.runningState.entered.connect(self.run_protocol)
         self.runningState.exited.connect(self.pydra.end_protocol)
 
+        # Create data caches
+        self.caches = {}
+
         # Create display widget
         self.display_container = DisplayContainer()
         self.setCentralWidget(self.display_container)
-
-        # Add module widgets and displays
-        self.worker_widgets = {}
-        self.displays = {}
+        # Add control widgets and plotters
+        self.controllers = {}
+        self._control_docks = {}
+        self.plotters = {}
+        self._to_update = []
         for module in self.pydra.modules:
             name = module["worker"].name
             params = module.get("params", {})
-            if "widget" in module.keys():
+            self.caches[name] = WorkerCache(params.get("cachesize", 50000))
+            if "controller" in module.keys():
                 # Create control widget
-                widget = module["widget"](name=name, parent=self, params=params)
-                self.worker_widgets[name] = widget
+                widget = module["controller"](name=name, params=params)
+                self.add_controller(name, widget)
+            if "plotter" in module.keys():
                 # Create plotting widget
-                if widget.plot:
-                    plotter = widget.plotter
-                    self.display_container.add(name, plotter)
-                    self.displays[name] = plotter
+                plotter = module["plotter"](name=name, params=params)
+                self.add_plotter(name, plotter)
 
         # Plotting update timer
         self.update_interval = 30
@@ -91,9 +98,31 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         self.pydra.protocol.finished.connect(self.endRecord)
         self.pydra.run_protocol()
 
+    def add_controller(self, name, widget):
+        self.controllers[name] = widget
+        # Check update enabled
+        if widget.update_enabled:
+            self._to_update.append((name, widget))
+        # Create dock widget and add to main window
+        dock_widget = PydraDockWidget(widget, name)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock_widget)
+        self.windowMenu.addAction(dock_widget.displayAction)
+        self._control_docks[name] = dock_widget
+
+    def add_plotter(self, name, widget):
+        self.plotters[name] = widget
+        self.display_container.add(name, widget)
+        self._to_update.append((name, widget))
+
     @QtCore.pyqtSlot()
     def update_plots(self):
         """Updates widgets with data received from pydra."""
         for worker, data, frame in self.pydra.request_data():
-            if worker in self.worker_widgets:
-                self.worker_widgets[worker].updatePlots(data, frame, **self.displays)
+            self.caches[worker].update(clock.t0, data, frame)
+        for worker, widget in self._to_update:
+            kw = dict([(w, cache) for (w, cache) in self.caches.items() if w != worker])
+            widget.updatePlots(self.caches[worker], **kw)
+
+    def enterRunning(self):
+        for worker, cache in self.caches.items():
+            cache.clear()
