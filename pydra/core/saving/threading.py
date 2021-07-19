@@ -149,6 +149,12 @@ class IndexedThread(Thread):
         except KeyError:
             self.data[source] = {}
             d = self.data[source]
+        if len(a):
+            try:
+                d["array"].append(a)
+            except KeyError:
+                d["array"] = [a]
+            return
         try:
             d["index"].append((t, i))
         except KeyError:
@@ -158,11 +164,6 @@ class IndexedThread(Thread):
                 d[param].append(val)
             except KeyError:
                 d[param] = [val]
-        if len(a):
-            try:
-                d["array"].append(a)
-            except KeyError:
-                d["array"] = [a]
 
     def cleanup(self):
         """Saves data to a csv file as a pandas DataFrame.

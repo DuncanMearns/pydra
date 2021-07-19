@@ -111,9 +111,8 @@ class PydraSaver(PydraObject, ProcessMixIn):
         for pipeline in self.savers:  # iterate through pipeline objects in the savers attribute
             pipeline_data = pipeline.flush()  # flush cached data from the pipeline
             for source, data in pipeline_data.items():  # iterate through data from the cache
-                frame = data.pop("frame", np.empty([], dtype="uint8"))  # get the last frame received, if any
                 a = data.pop("array", np.empty([]))  # remove array data
-                serialized = DATA_INFO.encode(source, data, frame)  # serialize the data for sending over ZeroMQ
+                serialized = DATA_INFO.encode(source, data, a)  # serialize the data for sending over ZeroMQ
                 self.zmq_sender.send_multipart(serialized, zmq.SNDMORE)  # send to pydra
         self.zmq_sender.send(b"")  # send empty byte to let pydra know query has been fulfilled
 
@@ -210,7 +209,8 @@ class Saver:
                 "time": [],
                 "index": [],
                 "data": {},
-                "timestamped": []
+                "timestamped": [],
+                "array": np.empty([])
             }
         # parse arguments
         data = {}
@@ -218,12 +218,13 @@ class Saver:
             t, i, frame = args
             self.timestamps.append(t)
             self.frame = frame
-            self.data_cache[source]["frame"] = frame
+            self.data_cache[source]["array"] = frame
         elif dtype == "indexed":
             t, i, data = args
-        # elif dtype == "array":
-        #     t, i, a = args
-        #     self.data_cache[source]["array"] = a
+        elif dtype == "array":
+            t, i, a = args
+            self.data_cache[source]["array"] = a
+            return
         elif dtype == "timestamped":
             t, data = args
             self.data_cache[source]["timestamped"] = [(t, data)]
