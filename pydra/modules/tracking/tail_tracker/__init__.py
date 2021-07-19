@@ -1,9 +1,10 @@
 from .worker import TailTrackingWorker
-from .widget import TailTrackerWidget
+from .widget import TailTrackerWidget, TailPlotter, TailOverlay
 
 
 TAIL_TRACKER = {
     "worker": TailTrackingWorker,
     "params": {},
-    "widget": TailTrackerWidget,
+    "controller": TailTrackerWidget,
+    "plotter": TailPlotter
 }

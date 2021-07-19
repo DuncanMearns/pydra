@@ -1,18 +1,18 @@
 from PyQt5 import QtWidgets, QtCore
-from pydra.gui import ModuleWidget
+from pydra.gui import ControlWidget, Plotter
+from pydra.modules.cameras.widget import FramePlotter
 from tailtracker.gui import TailInitializationWidget
 
 
-class TailTrackerWidget(ModuleWidget):
+class TailTrackerWidget(ControlWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setWidget(QtWidgets.QWidget())
-        self.widget().setLayout(QtWidgets.QVBoxLayout())
+        self.setLayout(QtWidgets.QVBoxLayout())
         # Create a button in the module control widget that opens a dialog window
         self.button = QtWidgets.QPushButton("Initialize tracker")
         self.button.clicked.connect(self.open_dialog)
-        self.widget().layout().addWidget(self.button)
+        self.layout().addWidget(self.button)
         # Create a tail initialization dialog window
         self.dialog = TailInitializationWidget.dialog(None)
         self.dialog.widget.changeImage.connect(self.update_image)
@@ -25,11 +25,6 @@ class TailTrackerWidget(ModuleWidget):
             raise ValueError(f"An `acquisition_worker` must be set in the params dictionary of the {self.name} module.")
         self.last_image = None
 
-    def create_plotter(self, *args, **kwargs):
-        super().create_plotter(*args, **kwargs)
-        self.plotter.addParamPlot("angle")
-        self.plotter.set_cachesize(5000)
-
     def open_dialog(self):
         self.update_image()
         self.dialog.show()
@@ -38,23 +33,15 @@ class TailTrackerWidget(ModuleWidget):
     def update_image(self):
         self.dialog.widget.new_image(self.last_image)
 
-    def updatePlots(self, data, frame=None, **plotters):
-        self.plotter.update(data)
+    def updatePlots(self, data_cache, **kwargs):
         # Get the acquisition plotter
         try:
-            acquisition_plotter = plotters[self.acquisition]
+            acquisition_cache = kwargs[self.acquisition]
         except KeyError:
             raise ValueError(f"The `acquisition_worker` in the params dictionary of the {self.name} module does not "
                              f"match the name of a worker in the Pydra network.")
         # Update the last image
-        img = acquisition_plotter.images["frame"].image  # get the current frame of the acquisition plotter
-        self.last_image = img
-        # Track the last image and add overlay
-        angle = self.dialog.widget.tracker.track(self.last_image)
-        if angle is not None:
-            points = self.dialog.widget.tracker.points
-            x, y = zip(*points)
-            acquisition_plotter.overlay_data["frame"].setData(x, y)
+        self.last_image = acquisition_cache.array  # get the current frame of the acquisition cache
 
     @QtCore.pyqtSlot()
     def initialize_worker(self):
@@ -68,3 +55,27 @@ class TailTrackerWidget(ModuleWidget):
 
     def enterIdle(self):
         self.setEnabled(True)
+
+
+class TailPlotter(Plotter):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.addParamPlot("angle")
+
+    def updatePlots(self, data_cache, **kwargs):
+        t = data_cache.t
+        angle = data_cache["angle"]
+        self.updateParam("angle", t, angle)
+
+
+class TailOverlay(FramePlotter):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def updatePlots(self, data_cache, **kwargs):
+        super().updatePlots(data_cache, **kwargs)
+        tail_points = kwargs["tail"].array
+        if len(tail_points.shape):
+            self.updateOverlay("frame", *tail_points.T)
