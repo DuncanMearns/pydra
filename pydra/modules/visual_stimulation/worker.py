@@ -34,6 +34,7 @@ class VisualStimulationWorker(Acquisition):
     def load_protocol(self, **kwargs):
         if "stimulus_file" in kwargs:
             self.stimulus_file = kwargs["stimulus_file"]
+            print(f"Loading stimulus file: {self.stimulus_file}")
         self.protocol_runner = ProtocolRunner.from_protocol(self.window, self.stimulus_file)
 
     def run_protocol(self, **kwargs):
