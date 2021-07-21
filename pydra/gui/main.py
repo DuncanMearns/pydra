@@ -126,3 +126,4 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
     def enterRunning(self):
         for worker, cache in self.caches.items():
             cache.clear()
+        super().enterRunning()
