@@ -8,6 +8,7 @@ class WorkerCache:
         self.cachesize = cachesize
         self.array = np.empty([])
         self._caches = {}
+        self._events = []
         self._index_cache = deque(maxlen=self.cachesize)
         self._time_cache = deque(maxlen=self.cachesize)
 
@@ -22,6 +23,7 @@ class WorkerCache:
             except KeyError:
                 self._caches[param] = deque(maxlen=self.cachesize)
                 self._caches[param].extend(vals)
+        self._events.extend(data.get("timestamped", []))
         if len(frame.shape):
             self.array = frame
 
@@ -30,6 +32,7 @@ class WorkerCache:
         self._time_cache.clear()
         for param, cache in self._caches.items():
             cache.clear()
+        self._events = []
 
     def set_cachesize(self, size):
         self.cachesize = size
@@ -45,6 +48,10 @@ class WorkerCache:
     @property
     def time(self):
         return np.array(self._time_cache)
+
+    @property
+    def events(self):
+        return self._events
 
     def __getitem__(self, item):
         try:

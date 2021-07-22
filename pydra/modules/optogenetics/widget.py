@@ -80,15 +80,18 @@ class OptogeneticsWidget(ControlWidget):
             self.send_event("stimulation_on")
         self.laser_state = int(not self.laser_state)
 
-    # def updatePlots(self, data, frame=None, **plotters):
-    #     t, last_update = data["timestamped"][-1]
-    #     status = last_update["laser"]
-    #     self.laser_state = status
-    #     if status:
-    #         self.status_label.setText("ON")
-    #         self.status_label.setFrameStyle(self.status_label.WinPanel | self.status_label.Raised)
-    #         self.status_label.setStyleSheet('background-color: cyan')
-    #     else:
-    #         self.status_label.setText("OFF")
-    #         self.status_label.setFrameStyle(self.status_label.WinPanel | self.status_label.Sunken)
-    #         self.status_label.setStyleSheet(self.default_style)
+    def updatePlots(self, data_cache, **kwargs) -> None:
+        try:
+            t, last_update = data_cache.events[-1]
+            status = last_update["laser"]
+            self.laser_state = status
+            if status:
+                self.status_label.setText("ON")
+                self.status_label.setFrameStyle(self.status_label.WinPanel | self.status_label.Raised)
+                self.status_label.setStyleSheet('background-color: cyan')
+            else:
+                self.status_label.setText("OFF")
+                self.status_label.setFrameStyle(self.status_label.WinPanel | self.status_label.Sunken)
+                self.status_label.setStyleSheet(self.default_style)
+        except IndexError:
+            return
