@@ -29,7 +29,10 @@ class XimeaCamera(CameraAcquisition):
 
         self.camera.start_acquisition()
         self.camera.set_acq_timing_mode("XI_ACQ_TIMING_MODE_FRAME_RATE")
-        self.camera.set_downsampling("XI_DWN_2x2")
+        try:
+            self.camera.set_downsampling("XI_DWN_2x2")
+        except xiapi.Xi_error:
+            pass
         self.set_params(
             frame_size=self.frame_size,
             frame_rate=self.frame_rate,

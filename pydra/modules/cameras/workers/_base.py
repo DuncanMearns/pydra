@@ -81,7 +81,7 @@ class CameraAcquisition(Acquisition):
 
     @LOGGED
     def set_params(self, **kwargs):
-        print("SETTING PARAMS")
+        # print("SETTING PARAMS")
         new_params = {}
         if ("target" in kwargs) and (kwargs["target"] != self.name):
             pass
