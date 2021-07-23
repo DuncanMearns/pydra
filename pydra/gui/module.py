@@ -1,43 +1,57 @@
 from .states import StateEnabled
-from .plotter import Plotter
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 
-class ModuleWidget(QtWidgets.QDockWidget, StateEnabled):
+def disabled(method):
+    return None
 
-    plot = Plotter
 
-    def __init__(self, name, parent, *args, **kwargs):
-        super().__init__(name, parent)
+class ControlWidget(QtWidgets.QWidget, StateEnabled):
+
+    sendEvent = QtCore.pyqtSignal(str, dict)
+
+    def __init__(self, name, *args, **kwargs):
+        super().__init__()
         self.name = name
-        # Set widget parameters
-        self._set_widget_params()
-        # Create plotter widget
-        self.create_plotter(*args, **kwargs)
-        # Add to parent window
-        self._add_to_main()
 
-    def create_plotter(self, *args, **kwargs):
-        self.plotter = None
-        if self.plot:
-            self.plotter = self.plot(*args, **kwargs)
+    def send_event(self, event_name, **kwargs):
+        self.sendEvent.emit(event_name, kwargs)
+
+    @property
+    def update_enabled(self):
+        attr = getattr(self, "updatePlots", None)
+        return callable(attr)
+
+    @disabled
+    def updatePlots(self, data_cache, **kwargs) -> None:
+        return
+
+
+class PydraDockWidget(QtWidgets.QDockWidget, StateEnabled):
+
+    def __init__(self, widget: ControlWidget, name: str, *args, **kwargs):
+        super().__init__(name, *args, **kwargs)
+        self.setWidget(widget)
+        self.name = name
+        self._set_widget_params()
+        self._add_connections()
 
     def _set_widget_params(self):
         self.setMinimumWidth(250)
         self.setMinimumHeight(100)
         self.setMaximumHeight(300)
 
-    def _add_to_main(self):
-        # Add to dock
-        self.parent().addDockWidget(QtCore.Qt.RightDockWidgetArea, self)
-        # Add to window menu
-        self.displayAction = QtWidgets.QAction(self.name, self.parent())
+    def _add_connections(self):
+        # Show/hide
+        self.displayAction = QtWidgets.QAction(self.name)
         self.displayAction.setCheckable(True)
         self.displayAction.setChecked(True)
-        self.displayAction.triggered.connect(self.show_window)
-        self.parent().windowMenu.addAction(self.displayAction)
+        self.displayAction.triggered.connect(self.toggle_visibility)
+        # Widget events
+        self.widget().sendEvent.connect(self.send_event)
 
-    def show_window(self, state):
+    @QtCore.pyqtSlot(bool)
+    def toggle_visibility(self, state):
         if state:
             self.show()
         else:
@@ -47,21 +61,6 @@ class ModuleWidget(QtWidgets.QDockWidget, StateEnabled):
         self.displayAction.setChecked(False)
         event.accept()
 
-    def send_event(self, event_name, **kwargs):
+    @QtCore.pyqtSlot(str, dict)
+    def send_event(self, event_name, kwargs):
         self.parent().pydra.send_event(event_name, target=self.name, **kwargs)
-
-    def updatePlots(self, data, frame=None, **plotters):
-        return
-
-
-class DisplayProxy(ModuleWidget):
-
-    def __init__(self, name, parent, *args, **kwargs):
-        super().__init__(name, parent, *args, **kwargs)
-
-    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
-        event.accept()
-
-    def _add_to_main(self):
-        self.close()
-        return

@@ -1,16 +1,15 @@
 from PyQt5 import QtWidgets, QtCore
-from pydra.gui import ModuleWidget
+from pydra.gui import ControlWidget
 
 
-class OptogeneticsWidget(ModuleWidget):
+class OptogeneticsWidget(ControlWidget):
 
     plot = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Name
-        self.setWidget(QtWidgets.QWidget())
-        self.widget().setLayout(QtWidgets.QGridLayout())
+        self.setLayout(QtWidgets.QGridLayout())
         self.setMinimumHeight(250)
         # --------------
         # GUI components
@@ -30,10 +29,10 @@ class OptogeneticsWidget(ModuleWidget):
         self.connection_widget.layout().addWidget(button_widget)
         self.connected_text = QtWidgets.QLabel("Status: disconnected")
         self.connection_widget.layout().addWidget(self.connected_text, alignment=QtCore.Qt.AlignCenter)
-        self.widget().layout().addWidget(self.connection_widget, 0, 0)
+        self.layout().addWidget(self.connection_widget, 0, 0)
         divider = QtWidgets.QFrame()
         divider.setFrameStyle(divider.HLine | divider.Plain)
-        self.widget().layout().addWidget(divider)
+        self.layout().addWidget(divider)
         # Laser status
         self.laser_state = 0
         self.status_widget = QtWidgets.QWidget()
@@ -47,10 +46,10 @@ class OptogeneticsWidget(ModuleWidget):
         self.default_style = self.status_label.styleSheet()
         self.status_widget.layout().addWidget(self.status_label, 0, 3, 1, 1, alignment=QtCore.Qt.AlignLeft)
         self.status_widget.setEnabled(False)
-        self.widget().layout().addWidget(self.status_widget, 2, 0)
+        self.layout().addWidget(self.status_widget, 2, 0)
         divider = QtWidgets.QFrame()
         divider.setFrameStyle(divider.HLine | divider.Plain)
-        self.widget().layout().addWidget(divider)
+        self.layout().addWidget(divider)
 
     def enterIdle(self):
         self.connection_widget.setEnabled(True)
@@ -81,15 +80,18 @@ class OptogeneticsWidget(ModuleWidget):
             self.send_event("stimulation_on")
         self.laser_state = int(not self.laser_state)
 
-    def updatePlots(self, data, frame=None, **plotters):
-        t, last_update = data["timestamped"][-1]
-        status = last_update["laser"]
-        self.laser_state = status
-        if status:
-            self.status_label.setText("ON")
-            self.status_label.setFrameStyle(self.status_label.WinPanel | self.status_label.Raised)
-            self.status_label.setStyleSheet('background-color: cyan')
-        else:
-            self.status_label.setText("OFF")
-            self.status_label.setFrameStyle(self.status_label.WinPanel | self.status_label.Sunken)
-            self.status_label.setStyleSheet(self.default_style)
+    def updatePlots(self, data_cache, **kwargs) -> None:
+        try:
+            t, last_update = data_cache.events[-1]
+            status = last_update["laser"]
+            self.laser_state = status
+            if status:
+                self.status_label.setText("ON")
+                self.status_label.setFrameStyle(self.status_label.WinPanel | self.status_label.Raised)
+                self.status_label.setStyleSheet('background-color: cyan')
+            else:
+                self.status_label.setText("OFF")
+                self.status_label.setFrameStyle(self.status_label.WinPanel | self.status_label.Sunken)
+                self.status_label.setStyleSheet(self.default_style)
+        except IndexError:
+            return

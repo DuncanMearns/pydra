@@ -230,6 +230,21 @@ class PydraObject:
         """
         return t, i, data
 
+    @ARRAY
+    def send_array(self, t, i, a):
+        """Sends array data between objects.
+
+        Parameters
+        ----------
+        t : float
+            A timestamp associated with the given index.
+        i : int
+            The index of the data.
+        a : np.ndarray
+            A numpy array containing data.
+        """
+        return t, i, a
+
     @FRAME
     def send_frame(self, t, i, frame):
         """Sends frama data between objects.
@@ -254,6 +269,9 @@ class PydraObject:
         elif "i" in flags:
             data = INDEXED.decode(*data)
             self.recv_indexed(*data, **kwargs)
+        elif "a" in flags:
+            data = ARRAY.decode(*data)
+            self.recv_array(*data, **kwargs)
         elif "f" in flags:
             data = FRAME.decode(*data)
             self.recv_frame(*data, **kwargs)
@@ -288,6 +306,28 @@ class PydraObject:
         t : float
         i : int
         data : dict
+
+        Other Parameters
+        ----------------
+        msg : str
+            Message type flag.
+        source : str
+            Name of the source of the message.
+        timestamp : float
+            Time at which the message was sent.
+        flags : str
+            Additional flags received along with the message.
+        """
+        pass
+
+    def recv_array(self, t, i, a, **kwargs):
+        """Method for handling serialized array data received from other objects. May be re-implemented in subclasses.
+
+        Parameters
+        ----------
+        t : float
+        i : int
+        a : np.ndarray
 
         Other Parameters
         ----------------

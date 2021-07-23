@@ -1,4 +1,4 @@
-from pydra.core import PydraObject, Saver, Protocol, Trigger
+from pydra.core import PydraObject, PydraSaver, Protocol, Trigger
 from pydra.core.messaging import *
 from pydra.utilities.string_formatting import *
 from pydra.utilities import clock
@@ -62,7 +62,7 @@ class Pydra(PydraObject, QObject):
         self.modules = modules
         super().__init__(connections=connections, *args, **kwargs)
         # Start saver and wait for it to respond
-        self.saver = Saver.start(self.pipelines, connections=connections)
+        self.saver = PydraSaver.start(self.pipelines, connections=connections)
         self.zmq_receiver.recv_multipart()
         # Start module workers
         print("Saver ready. Starting modules...", end=" ")

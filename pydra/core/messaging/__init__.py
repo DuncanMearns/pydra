@@ -1,7 +1,9 @@
+import numpy as np
+
 from .serializers import *
 import time
 
-__all__ = ["PydraMessage", "EXIT", "MESSAGE", "EVENT", "DATA", "TIMESTAMPED", "INDEXED", "FRAME", "LOGGED",
+__all__ = ["PydraMessage", "EXIT", "MESSAGE", "EVENT", "DATA", "TIMESTAMPED", "INDEXED", "ARRAY", "FRAME", "LOGGED",
            "EVENT_INFO", "DATA_INFO", "TRIGGER"]
 
 
@@ -194,6 +196,7 @@ class DataMessage(PydraMessage):
     dtypes = {
         b"t": (float, dict),
         b"i": (float, int, dict),
+        b"a": (float, int, np.ndarray),
         b"f": (float, int, np.ndarray)
     }
 
@@ -211,6 +214,7 @@ class DataMessage(PydraMessage):
 DATA = DataMessage
 TIMESTAMPED = DataMessage(b"t")
 INDEXED = DataMessage(b"i")
+ARRAY = DataMessage(b"a")
 FRAME = DataMessage(b"f")
 
 

@@ -1,20 +1,35 @@
-from pydra.utilities import clock
+from PyQt5 import QtWidgets
 import pyqtgraph as pg
-from collections import deque
 import numpy as np
+from pyqtgraph.dockarea import DockArea, Dock
+from .states import StateEnabled
+pg.setConfigOption("imageAxisOrder", "row-major")
 
 
-class Plotter(pg.GraphicsLayoutWidget):
+class DisplayContainer(QtWidgets.QWidget, StateEnabled):
 
-    def __init__(self, cachesize=50000, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self._dock_area = DockArea()
+        self.layout().addWidget(self._dock_area)
+
+    def add(self, name: str, widget) -> None:
+        dock = Dock(name)
+        dock.addWidget(widget)
+        self._dock_area.addDock(dock)
+
+
+class Plotter(pg.GraphicsLayoutWidget, StateEnabled):
+
+    def __init__(self, name, *args, **kwargs):
         super().__init__()
-        self.cachesize = cachesize
+        self.name = name
         self.image_plots = {}
         self.images = {}
         self.overlay_data = {}
         self.param_plots = {}
         self.param_data = {}
-        self.caches = {}
 
     def addImagePlot(self, name, **kwargs):
         # Create plot item
@@ -23,6 +38,7 @@ class Plotter(pg.GraphicsLayoutWidget):
         plot.setAspectLocked()
         plot.hideAxis('bottom')
         plot.hideAxis('left')
+        plot.getViewBox().invertY(True)
         # Create image and data items
         image = pg.ImageItem()
         data = pg.PlotDataItem([], [], **kwargs)
@@ -46,37 +62,26 @@ class Plotter(pg.GraphicsLayoutWidget):
         # Update self
         self.param_plots[name] = plot
         self.param_data[name] = data
-        self.caches[name] = deque(maxlen=self.cachesize)
         self.addItem(plot)
         self.nextRow()
 
     def updateImage(self, name: str, image: np.ndarray):
         if image.shape and name in self.images:
-            self.images[name].setImage(image[::-1].T)
+            self.images[name].setImage(image)
 
-    def updateOverlay(self, name: str, data: np.ndarray):
+    def updateOverlay(self, name: str, x, y):
         if name in self.overlay_data:
-            self.overlay_data[name].setData(data)
+            self.overlay_data[name].setData(x, y)
 
-    def updateParam(self, name: str, data: np.ndarray):
+    def updateParam(self, name: str, x, y):
         if name in self.param_data:
-            self.caches[name].extend(data)
-            show = np.array(self.caches[name])
-            self.param_data[name].setData(show)
-
-    def update(self, data: dict):
-        t = np.array(data.get("time", [])) - clock.t0
-        for param, vals in data.get("data", {}).items():
-            self.updateParam(param, np.array([t, vals]).T)
+            self.param_data[name].setData(x, y)
 
     def clear_data(self):
-        for param, cache in self.caches.items():
-            cache.clear()
-            self.param_data[param].setData([], [])
+        for param, data in self.param_data.items():
+            data.setData([], [])
         for param, data in self.overlay_data.items():
             data.setData([], [])
 
-    def set_cachesize(self, size):
-        self.cachesize = size
-        for param in self.caches.keys():
-            self.caches[param] = deque(maxlen=self.cachesize)
+    def updatePlots(self, data_cache, **kwargs):
+        return

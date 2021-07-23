@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
-from pydra.gui import ModuleWidget
+from pydra.gui import ControlWidget, Plotter
 from pydra.gui.widgets import SpinboxWidget, DoubleSpinboxWidget
 
 
@@ -94,32 +94,23 @@ class ExposureWidget(QtWidgets.QGroupBox):
         self.param_changed.emit(param, val)
 
 
-class CameraWidget(ModuleWidget):
+class CameraWidget(ControlWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setWidget(QtWidgets.QWidget())
-        self.widget().setLayout(QtWidgets.QVBoxLayout())
-        params = kwargs.get("params", {})
+        self.setLayout(QtWidgets.QVBoxLayout())
         # Frame size
-        self.frame_size_widget = FrameSizeWidget(**params)
+        self.frame_size_widget = FrameSizeWidget(**kwargs)
         self.frame_size_widget.param_changed.connect(self.param_changed)
-        self.widget().layout().addWidget(self.frame_size_widget)
+        self.layout().addWidget(self.frame_size_widget)
         # Frame rate
-        self.frame_rate_widget = FrameRateWidget(**params)
+        self.frame_rate_widget = FrameRateWidget(**kwargs)
         self.frame_rate_widget.param_changed.connect(self.param_changed)
-        self.widget().layout().addWidget(self.frame_rate_widget)
+        self.layout().addWidget(self.frame_rate_widget)
         # Exposure
-        self.exposure_widget = ExposureWidget(**params)
+        self.exposure_widget = ExposureWidget(**kwargs)
         self.exposure_widget.param_changed.connect(self.param_changed)
-        self.widget().layout().addWidget(self.exposure_widget)
-
-    def create_plotter(self, *args, **kwargs):
-        super().create_plotter(*args, **kwargs)
-        self.plotter.addImagePlot("frame")
-
-    def updatePlots(self, data, frame=None, **plotters):
-        self.plotter.updateImage("frame", frame)
+        self.layout().addWidget(self.exposure_widget)
 
     @QtCore.pyqtSlot(str, object)
     def param_changed(self, param, new_val):
@@ -131,3 +122,13 @@ class CameraWidget(ModuleWidget):
 
     def enterIdle(self):
         self.setEnabled(True)
+
+
+class FramePlotter(Plotter):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.addImagePlot("frame", pen=None, symbol='o')
+
+    def updatePlots(self, data_cache, **kwargs):
+        self.updateImage("frame", data_cache.array)
