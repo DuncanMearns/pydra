@@ -15,13 +15,14 @@ class SpinboxWidget(QtWidgets.QWidget):
             self.spinbox.setMaximum(maxVal)
         if suffix is not None:
             self.spinbox.setSuffix(f" {suffix}")
-        self.spinbox.valueChanged.connect(lambda val: self.valueChanged.emit(val))
+        self.spinbox.valueChanged.connect(self.valueChanged)
         self.layout().addRow(f"{label}: ", self.spinbox)
 
     def setValue(self, val, emit=True):
+        if not emit:
+            self.spinbox.blockSignals(True)
         self.spinbox.setValue(val)
-        if emit:
-            self.valueChanged.emit(val)
+        self.spinbox.blockSignals(False)
 
     @property
     def value(self):

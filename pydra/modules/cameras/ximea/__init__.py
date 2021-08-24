@@ -1,8 +1,9 @@
 from .ximea import XimeaCamera
-from ..widget import CameraWidget
+from ..widget import CameraWidget, FramePlotter
 
 XIMEA = {
     "worker": XimeaCamera,
     "params": {},
-    "widget": CameraWidget,
+    "controller": CameraWidget,
+    "plotter": FramePlotter
 }

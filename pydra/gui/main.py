@@ -69,6 +69,11 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
                 plotter = module["plotter"](name=name, params=params)
                 self.add_plotter(name, plotter)
 
+        # Send any missed events to widgets
+        for worker, log in self.pydra._event_log.items():
+            for (t, event_name, event_kw) in log:
+                self.controllers[worker].receiveLogged(event_name, event_kw)
+
         # Plotting update timer
         self.update_interval = 30
         self.update_timer = QtCore.QTimer()
@@ -122,6 +127,11 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         for worker, widget in self._to_update:
             kw = dict([(w, cache) for (w, cache) in self.caches.items() if w != worker])
             widget.updatePlots(self.caches[worker], **kw)
+        # Check logged events
+        ret, log = self.pydra.request_events()
+        if ret:
+            for (t, worker, event_name, event_kw) in log:
+                self.controllers[worker].receiveLogged(event_name, event_kw)
 
     def enterRunning(self):
         for worker, cache in self.caches.items():

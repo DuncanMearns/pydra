@@ -1,12 +1,16 @@
 from pydra import Pydra, ports, config
-from pydra.modules.cameras import PIKE
-from pydra.core import Acquisition
+from pydra.modules.cameras.ximea import XIMEA
 
 
-PIKE["worker"] = Acquisition
+XIMEA["params"] = {
+    "frame_size": (640, 512),
+    "min_frame_rate": 50.,
+    "frame_rate": 200.,
+    "max_exposure": 20
+}
 
 
-config["modules"] = [PIKE]
+config["modules"] = [XIMEA]
 
 
 if __name__ == "__main__":

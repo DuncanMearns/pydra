@@ -1,6 +1,6 @@
 from pydra import Pydra, ports, config
 from pydra.core import Worker, Acquisition
-from pydra.gui.module import ModuleWidget
+from pydra.gui.module import ControlWidget
 from PyQt5 import QtWidgets
 import numpy as np
 import time
@@ -33,7 +33,7 @@ class AcquisitionWorker(Acquisition):
         self.i += 1
 
 
-class AcquisitionWidget(ModuleWidget):
+class AcquisitionWidget(ControlWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
