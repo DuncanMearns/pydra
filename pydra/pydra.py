@@ -67,7 +67,9 @@ class Pydra(PydraObject, QObject):
         # Start module workers
         print("Saver ready. Starting modules...", end=" ")
         self._workers = []
+        self._event_log = {}
         for module in self.modules:
+            self._event_log[module["worker"].name] = []  # create an event log for worker
             process = module["worker"].start(connections=connections, **module.get("params", dict()))
             self._workers.append(process)
         print("done.")
@@ -179,8 +181,10 @@ class Pydra(PydraObject, QObject):
         """Request info from saver about worker events."""
         events = self._query("events")
         if len(events):
-            event_data = self.decode_message(events, EVENT_INFO)
-            return True, event_data
+            log = self.decode_message(events, EVENT_INFO)
+            for (t, worker, event_name, event_kw) in log:
+                self._event_log[worker].append((t, event_name, event_kw))
+            return True, log
         return False, events
 
     def request_data(self):

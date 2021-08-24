@@ -26,6 +26,9 @@ class ControlWidget(QtWidgets.QWidget, StateEnabled):
     def updatePlots(self, data_cache, **kwargs) -> None:
         return
 
+    def receiveLogged(self, event_name, kw) -> None:
+        return
+
 
 class PydraDockWidget(QtWidgets.QDockWidget, StateEnabled):
 
@@ -39,7 +42,9 @@ class PydraDockWidget(QtWidgets.QDockWidget, StateEnabled):
     def _set_widget_params(self):
         self.setMinimumWidth(250)
         self.setMinimumHeight(100)
-        self.setMaximumHeight(300)
+        self.setMaximumHeight(350)
+        size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred)
+        self.setSizePolicy(size_policy)
 
     def _add_connections(self):
         # Show/hide

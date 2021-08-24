@@ -1,6 +1,6 @@
 from pydra import Pydra, ports, config
 from pydra.core import Worker, Acquisition
-from pydra.gui.module import ModuleWidget, DisplayProxy
+from pydra.gui.module import ControlWidget, DisplayProxy
 from pydra.gui.plotter import Plotter
 from PyQt5 import QtWidgets
 import numpy as np
@@ -31,7 +31,7 @@ class AcquisitionWorker(Acquisition):
         self.i += 1
 
 
-class AcquisitionWidget(ModuleWidget):
+class AcquisitionWidget(ControlWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -79,7 +79,7 @@ class TrackingDisplay(DisplayProxy):
         self.plotter.addParamPlot("y")
 
     def updatePlots(self, data, frame=None, **plotters):
-        self.plotter.update(data)
+        self.plotter.updateData(data)
         # Overlay on video
         video_plotter = plotters["acquisition"]
         ps = np.random.rand(5, 2) * 250

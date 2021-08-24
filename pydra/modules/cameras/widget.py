@@ -3,95 +3,102 @@ from pydra.gui import ControlWidget, Plotter
 from pydra.gui.widgets import SpinboxWidget, DoubleSpinboxWidget
 
 
-class FrameSizeWidget(QtWidgets.QGroupBox):
+class ParameterGroupBox(QtWidgets.QGroupBox):
 
-    param_changed = QtCore.pyqtSignal(str, tuple)
+    param_changed = QtCore.pyqtSignal(dict)
 
     def __init__(self, **kwargs):
-        super().__init__("Frame size")
+        super().__init__()
         self.setLayout(QtWidgets.QHBoxLayout())
+        self.widget = QtWidgets.QWidget()
+        self.widget.setLayout(QtWidgets.QGridLayout())
+        self.param_editors = []
+        self.layout().addWidget(self.widget)
+
+    def addSpinBox(self, name, minVal, maxVal, default=None, row=0, col=0, **kwargs):
+        self._add_param(SpinboxWidget, name, minVal, maxVal, default, row, col, **kwargs)
+
+    def addDoubleSpinBox(self, name, minVal, maxVal, default=None, row=0, col=0, **kwargs):
+        self._add_param(DoubleSpinboxWidget, name, minVal, maxVal, default, row, col, **kwargs)
+
+    def _add_param(self, widget_type, name, minVal, maxVal, default=None, row=0, col=0, **kwargs):
+        param_editor = widget_type(name, minVal=minVal, maxVal=maxVal, **kwargs)
+        param_editor.spinbox.setKeyboardTracking(False)
+        if default is not None:
+            param_editor.setValue(default, emit=False)
+        param_editor.valueChanged.connect(self.confirm_changes)
+        self.widget.layout().addWidget(param_editor, row, col, alignment=QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        self.param_editors.append(param_editor)
+
+    @property
+    def values(self):
+        return [editor.value for editor in self.param_editors]
+
+    @property
+    def param_dict(self):
+        return {}
+
+    def set_values(self, *args):
+        for editor, val in zip(self.param_editors, args):
+            if val is not None:
+                editor.setValue(val, emit=False)
+
+    @QtCore.pyqtSlot()
+    def confirm_changes(self):
+        self.param_changed.emit(self.param_dict)
+
+
+class FrameSizeWidget(ParameterGroupBox):
+
+    def __init__(self, **kwargs):
+        super().__init__()
         width, height = kwargs.get("frame_size", (None, None))
         min_width, min_height = kwargs.get("min_size", (1, 1))
         max_width, max_height = kwargs.get("max_size", (999, 999))
-        # Frame width
-        self.frame_width_editor = SpinboxWidget("Width", minVal=min_width, maxVal=max_width)
-        if width is not None:
-            self.frame_width_editor.setValue(width, emit=False)
-        self.frame_width_editor.valueChanged.connect(self.changed)
-        self.layout().addWidget(self.frame_width_editor, alignment=QtCore.Qt.AlignLeft)
-        # Frame height
-        self.frame_height_editor = SpinboxWidget("Height", minVal=min_height, maxVal=max_height)
-        if height is not None:
-            self.frame_height_editor.setValue(height, emit=False)
-        self.frame_height_editor.valueChanged.connect(self.changed)
-        self.layout().addWidget(self.frame_height_editor, alignment=QtCore.Qt.AlignLeft)
+        self.addSpinBox("Width", min_width, max_width, width, 0, 0)
+        self.addSpinBox("Height", min_height, max_height, height, 0, 1)
 
-    @QtCore.pyqtSlot(int)
-    def changed(self, val):
-        width = self.frame_width_editor.value
-        height = self.frame_height_editor.value
-        self.param_changed.emit("frame_size", (width, height))
+    @property
+    def param_dict(self):
+        w, h = self.values
+        return {"frame_size": (w, h)}
 
 
-class FrameRateWidget(QtWidgets.QGroupBox):
-
-    param_changed = QtCore.pyqtSignal(str, object)
+class FrameRateWidget(ParameterGroupBox):
 
     def __init__(self, **kwargs):
-        super().__init__("Frame rate")
-        self.setLayout(QtWidgets.QHBoxLayout())
+        super().__init__()
         frame_rate = kwargs.get("frame_rate", None)
         min_fps = kwargs.get("min_frame_rate", 1.0)
         max_fps = kwargs.get("max_frame_rate", 500.)
-        # Frame rate
-        self.editor = DoubleSpinboxWidget("Frame rate", minVal=min_fps, maxVal=max_fps, suffix="fps")
-        if frame_rate is not None:
-            self.editor.setValue(frame_rate, emit=False)
-        self.editor.valueChanged.connect(self.changed)
-        self.layout().addWidget(self.editor, alignment=QtCore.Qt.AlignLeft)
+        self.addDoubleSpinBox("Frame rate", min_fps, max_fps, frame_rate, 0, 0, suffix="fps")
 
-    @QtCore.pyqtSlot(float)
-    def changed(self, val):
-        self.param_changed.emit("frame_rate", val)
+    @property
+    def param_dict(self):
+        fps, *args = self.values
+        return {"frame_rate": fps}
 
 
-class ExposureWidget(QtWidgets.QGroupBox):
-
-    param_changed = QtCore.pyqtSignal(str, object)
+class ExposureWidget(ParameterGroupBox):
 
     def __init__(self, **kwargs):
-        super().__init__("Exposure")
-        self.setLayout(QtWidgets.QVBoxLayout())
+        super().__init__()
         # Exposure
         exposure = kwargs.get("exposure", None)
-        min_exposure = kwargs.get("min_exposure", 1)
+        min_exposure = kwargs.get("min_exposure", 0.01)
         max_exposure = kwargs.get("max_exposure", 1000)
-        self.exposure_editor = DoubleSpinboxWidget("Exposure", minVal=min_exposure, maxVal=max_exposure,
-                                                   dec=3, suffix="ms")
-        if exposure is not None:
-            self.exposure_editor.setValue(exposure, emit=False)
-        self.exposure_editor.valueChanged.connect(self.change_exposure)
-        self.layout().addWidget(self.exposure_editor, alignment=QtCore.Qt.AlignLeft)
+        self.addDoubleSpinBox("Exposure", min_exposure, max_exposure, exposure, 0, 0, dec=3, suffix="ms")
         # Gain
         gain = kwargs.get("gain", None)
         min_gain = kwargs.get("min_gain", 1.0)
         max_gain = kwargs.get("max_gain", 4.0)
-        self.gain_editor = DoubleSpinboxWidget("Gain", minVal=min_gain, maxVal=max_gain)
-        if gain is not None:
-            self.gain_editor.setValue(gain, emit=False)
-        self.gain_editor.valueChanged.connect(self.change_gain)
-        self.layout().addWidget(self.gain_editor, alignment=QtCore.Qt.AlignLeft)
+        self.addDoubleSpinBox("Gain", min_gain, max_gain, gain, 1, 0)
 
-    @QtCore.pyqtSlot(float)
-    def change_exposure(self, val):
-        self.changed("exposure", int(val * 1000))  # convert ms to us
-
-    @QtCore.pyqtSlot(float)
-    def change_gain(self, val):
-        self.changed("gain", val)
-
-    def changed(self, param, val):
-        self.param_changed.emit(param, val)
+    @property
+    def param_dict(self):
+        exposure, gain = self.values
+        exposure = int(exposure * 1000)  # convert ms to us
+        return {"exposure": exposure, "gain": gain}
 
 
 class CameraWidget(ControlWidget):
@@ -99,29 +106,49 @@ class CameraWidget(ControlWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setSpacing(0)
         # Frame size
-        self.frame_size_widget = FrameSizeWidget(**kwargs)
+        self.frame_size_widget = FrameSizeWidget(**kwargs.get("params", {}))
         self.frame_size_widget.param_changed.connect(self.param_changed)
-        self.layout().addWidget(self.frame_size_widget)
+        self.layout().addWidget(self.frame_size_widget, alignment=QtCore.Qt.AlignTop)
         # Frame rate
-        self.frame_rate_widget = FrameRateWidget(**kwargs)
+        self.frame_rate_widget = FrameRateWidget(**kwargs.get("params", {}))
         self.frame_rate_widget.param_changed.connect(self.param_changed)
-        self.layout().addWidget(self.frame_rate_widget)
+        self.layout().addWidget(self.frame_rate_widget, alignment=QtCore.Qt.AlignTop)
         # Exposure
-        self.exposure_widget = ExposureWidget(**kwargs)
+        self.exposure_widget = ExposureWidget(**kwargs.get("params", {}))
         self.exposure_widget.param_changed.connect(self.param_changed)
-        self.layout().addWidget(self.exposure_widget)
+        self.layout().addWidget(self.exposure_widget, alignment=QtCore.Qt.AlignTop)
 
-    @QtCore.pyqtSlot(str, object)
-    def param_changed(self, param, new_val):
-        new_params = {param: new_val}
-        self.send_event("set_params", **new_params)
+    def set_params(self, **kwargs):
+        if "frame_size" in kwargs:
+            self.frame_size_widget.set_values(*kwargs["frame_size"])
+        if "frame_rate" in kwargs:
+            self.frame_rate_widget.set_values(kwargs["frame_rate"])
+        exposure = kwargs.get("exposure", None)
+        try:
+            exposure = exposure / 1000.
+        except TypeError:
+            pass
+        gain = kwargs.get("gain", None)
+        if (exposure is not None) or (gain is not None):
+            self.exposure_widget.set_values(exposure, gain)
+
+    @QtCore.pyqtSlot(dict)
+    def param_changed(self, new_params):
+        self.send_event("set_params", params=new_params)
 
     def enterRunning(self):
         self.setEnabled(False)
 
     def enterIdle(self):
         self.setEnabled(True)
+
+    def receiveLogged(self, event_name, kw) -> None:
+        try:
+            getattr(self, event_name)(**kw)
+        except AttributeError:
+            return
 
 
 class FramePlotter(Plotter):
