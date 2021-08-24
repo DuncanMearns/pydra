@@ -24,7 +24,8 @@ class OptogeneticsWorker(LabJack, Worker):
 
     def stimulation_on(self, **kwargs):
         self.laser_state = 1
-        self.send_signal('DAC0', 3)
+        self.send_signal('DAC1', 1)
+        self.send_signal('DAC0', 5)
         print("LASER ON")
         t = time.time()
         self.send_timestamped(t, {"laser": 1})
