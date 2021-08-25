@@ -76,6 +76,8 @@ class Plotter(pg.GraphicsLayoutWidget, StateEnabled):
     def updateParam(self, name: str, x, y):
         if name in self.param_data:
             self.param_data[name].setData(x, y)
+            if len(x):
+                self.param_plots[name].setXRange(x[-1] - 30, x[-1])
 
     def clear_data(self):
         for param, data in self.param_data.items():

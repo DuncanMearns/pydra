@@ -232,10 +232,10 @@ class Saver:
         else:
             return
         # update indexed data in cache
-        if t not in self.data_cache[source]["time"]:
-            self.data_cache[source]["time"].append(t)
-        if i not in self.data_cache[source]["index"]:
-            self.data_cache[source]["index"].append(i)
+        # if t not in self.data_cache[source]["time"]:
+        self.data_cache[source]["time"].append(t)
+        # if i not in self.data_cache[source]["index"]:
+        self.data_cache[source]["index"].append(i)
         for key, val in data.items():
             try:
                 self.data_cache[source]["data"][key].append(val)
