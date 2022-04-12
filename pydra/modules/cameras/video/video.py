@@ -1,4 +1,4 @@
-from pydra.modules.cameras.worker import CameraAcquisition
+from pydra.modules.cameras.worker import CameraAcquisition, setter
 import cv2
 
 
@@ -14,11 +14,11 @@ class VideoWorker(CameraAcquisition):
     def t(self):
         return self._t
 
-    @property
-    def frame_rate(self):
-        return self._frame_rate
+    # @property
+    # def frame_rate(self):
+    #     return self._frame_rate
 
-    @frame_rate.setter
+    @setter
     def frame_rate(self, val):
         self._frame_rate = val
         self._t = max(1, int(1000 / val))
