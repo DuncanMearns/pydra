@@ -1,4 +1,4 @@
-from pydra.core.base import PydraObject
+from pydra.core.base import PydraSender, PydraSubscriber
 from pydra.core.process import ProcessMixIn
 from pydra.core.messaging import *
 from .threading import *
@@ -9,7 +9,7 @@ from collections import deque
 import numpy as np
 
 
-class PydraSaver(PydraObject, ProcessMixIn):
+class PydraSaver(ProcessMixIn, PydraSender, PydraSubscriber):
     """Singleton Saver class that integrates and handles incoming messages from all workers.
 
     Parameters

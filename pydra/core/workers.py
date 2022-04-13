@@ -1,9 +1,9 @@
-from pydra.core.base import PydraObject
+from pydra.core.base import *
 from pydra.core.process import ProcessMixIn
 from pydra.core.messaging import LOGGED
 
 
-class Worker(PydraObject, ProcessMixIn):
+class Worker(ProcessMixIn, PydraPublisher, PydraSubscriber):
     """Base worker class. Receives and handles messages. Runs in a separate process.
 
     Attributes

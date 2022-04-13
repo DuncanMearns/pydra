@@ -1,10 +1,25 @@
-import numpy as np
+import zmq
+import warnings
 
 from .serializers import *
 import time
 
 __all__ = ["PydraMessage", "EXIT", "MESSAGE", "EVENT", "DATA", "TIMESTAMPED", "INDEXED", "ARRAY", "FRAME", "LOGGED",
            "EVENT_INFO", "DATA_INFO", "TRIGGER"]
+
+
+def PUB(obj) -> zmq.Socket:
+    try:
+        return obj.zmq_publisher.socket
+    except AttributeError:
+        warnings.warn(f"Message failed to publish: Pydra object {obj} is not a publisher.")
+
+
+def PUSH(obj) -> zmq.Socket:
+    try:
+        return obj.zmq_sender.socket
+    except AttributeError:
+        warnings.warn(f"Message failed to send: Pydra object {obj} is not a sender.")
 
 
 class PydraMessage:
@@ -37,8 +52,8 @@ class PydraMessage:
         np.ndarray: ("a", serialize_array, deserialize_array)
     }
 
-    def __init__(self, *dtypes):
-        super().__init__()
+    def __init__(self, socktype=PUB, *dtypes):
+        self.get_socket = socktype
         self.dtypes = ""
         self.encoders = []
         self.decoders = []
@@ -139,7 +154,9 @@ class PydraMessage:
         """
         def zmq_message(obj, *args, **kwargs):
             result = method(obj, *args, **kwargs)
-            obj.zmq_publisher.send_serialized((obj, method, result), self.serializer)
+            socket = self.get_socket(obj)
+            if socket:
+                socket.send_serialized((obj, method, result), self.serializer)
             return result
         return zmq_message
 
