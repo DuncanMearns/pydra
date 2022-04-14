@@ -4,8 +4,8 @@ import warnings
 from .serializers import *
 import time
 
-__all__ = ["PydraMessage", "EXIT", "MESSAGE", "EVENT", "DATA", "TIMESTAMPED", "INDEXED", "ARRAY", "FRAME", "LOGGED",
-           "EVENT_INFO", "DATA_INFO", "TRIGGER"]
+__all__ = ["PydraMessage", "EXIT", "CONNECTION", "MESSAGE", "EVENT", "DATA", "TIMESTAMPED", "INDEXED", "ARRAY", "FRAME",
+           "LOGGED", "EVENT_INFO", "DATA_INFO", "TRIGGER"]
 
 
 def PUB(obj) -> zmq.Socket:
@@ -45,6 +45,7 @@ class PydraMessage:
     flag = b""
 
     _serializers = {
+        bool: ("b", serialize_bool, deserialize_bool),
         int: ("i", serialize_int, deserialize_int),
         float: ("f", serialize_float, deserialize_float),
         str: ("s", serialize_string, deserialize_string),
@@ -52,7 +53,7 @@ class PydraMessage:
         np.ndarray: ("a", serialize_array, deserialize_array)
     }
 
-    def __init__(self, socktype=PUB, *dtypes):
+    def __init__(self, *dtypes, socktype=PUB):
         self.get_socket = socktype
         self.dtypes = ""
         self.encoders = []
@@ -62,6 +63,12 @@ class PydraMessage:
             self.dtypes += s
             self.encoders.append(serializer)
             self.decoders.append(deserializer)
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def __repr__(self):
+        return self.__str__()
 
     def encode(self, *args):
         """Encodes parts of a message.
@@ -142,9 +149,16 @@ class PydraMessage:
         return flag, source, t, flags, args
 
     @staticmethod
-    def recv(sock):
+    def recv_socket(sock):
         """Receives message from a zmq socket with message tags deserialized."""
         return sock.recv_serialized(PydraMessage.reader)
+
+    def recv(self, method):
+        def decode_message(obj, *args, **kwargs):
+            args = self.decode(*args)
+            result = method(obj, *args, **kwargs)
+            return result
+        return decode_message
 
     def __call__(self, method):
         """Decorator for sending messages using ZeroMQ.
@@ -161,17 +175,19 @@ class PydraMessage:
         return zmq_message
 
 
-class ExitMessage(PydraMessage):
-    """Decorator for outputting an exit signal. Should only be used by main pydra class, or other top-level exit signal
-    provider."""
+ExitMessage = type("ExitMessage", (PydraMessage,), {"flag": b"exit"})
+EXIT = ExitMessage()
 
-    flag = b"exit"
+
+class ConnectionMessage(PydraMessage):
+
+    flag = b"connection"
 
     def __init__(self):
-        super().__init__()
+        super().__init__(bool)
 
 
-EXIT = ExitMessage()
+CONNECTION = ConnectionMessage()
 
 
 class StringMessage(PydraMessage):

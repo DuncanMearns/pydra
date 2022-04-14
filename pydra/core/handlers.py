@@ -5,6 +5,14 @@ __all__ = ("ZMQSender", "ZMQPublisher", "ZMQReceiver", "ZMQSubscriber", "Subscri
 
 
 class ZMQProxy:
+    """Proxy class for handling interfaces between Pydra objects using zmq. Abstract base class. Children specify a zmq
+    socket type as a class attribute which is used to instantiate the socket in __init__.
+
+    Attributes
+    ----------
+    socket : zmq.Socket
+        The zmq socket object for sending or receiving messages.
+    """
 
     SOCKTYPE = -1
 
@@ -12,11 +20,19 @@ class ZMQProxy:
         self.socket = self.context.socket(self.SOCKTYPE)
 
     @property
-    def context(self):
+    def context(self) -> zmq.Context:
+        """Property that return the zmq context for convenience."""
         return zmq.Context.instance()
 
 
 class ZMQSender(ZMQProxy):
+    """For sending messages one-to-one.
+
+    Parameters
+    ----------
+    port : str
+        The address where messages are sent.
+    """
 
     SOCKTYPE = zmq.PUSH
 
@@ -27,11 +43,19 @@ class ZMQSender(ZMQProxy):
 
 
 class ZMQPublisher(ZMQSender):
+    """For sending messages one-to-many."""
 
     SOCKTYPE = zmq.PUB
 
 
 class ZMQReceiver(ZMQProxy):
+    """For receiving messages one-to-one.
+
+    Parameters
+    ----------
+    port : str
+        The address where messages are received.
+    """
 
     SOCKTYPE = zmq.PULL
 
@@ -42,37 +66,74 @@ class ZMQReceiver(ZMQProxy):
 
 
 class ZMQSubscriber(ZMQProxy):
+    """For receiving messages many-to-one."""
 
     SOCKTYPE = zmq.SUB
 
     def add_connection(self, port, messages=()):
+        """Adds a new connection for subscribing to messages.
+
+        Parameters
+        ----------
+        port : str
+            The address where messages are received.
+        messages : iterable
+            Iterable of PydraMessage objects that the subscriber should listen for.
+        """
         self.socket.connect(port)
         for message in messages:
             self.socket.setsockopt(zmq.SUBSCRIBE, message.flag)
 
 
 class SubscriptionManager:
+    """Container class for managing subscriptions to many channels. Polling the subscription manager yields parsed Pydra
+    messages received since the last time the poll method was called.
 
-    def __init__(self, *subscriptions):
+    Attributes
+    ----------
+    poller : zmq.Poller
+        A zmq poller object for handling subscriptions to multiple channels.
+    subscriptions : tuple
+
+    """
+
+    def __init__(self, subscriptions):
         self.poller = zmq.Poller()
         self.subscriptions = {}
         for (name, port, messages) in subscriptions:
             self.add_subscription(name, port, messages)
 
     def add_subscription(self, name, port, messages):
+        """Adds a new subscription.
+
+        Parameters
+        ----------
+        name : str
+            The name of the Pydra object being subscribed to.
+        port : str
+            The address where new messages are received.
+        messages : iterable
+            Iterable of PydraMessage objects that should be listened for on the given port.
+        """
         subscriber = ZMQSubscriber()
         subscriber.add_connection(port, messages)
         self.poller.register(subscriber.socket, zmq.POLLIN)
         self.subscriptions[name] = subscriber
 
     @property
-    def sockets(self):
+    def sockets(self) -> set:
+        """Returns the set of zmq sockets being subscribed to."""
         return {subscriber.socket for subscriber in self.subscriptions.values()}
 
     def poll(self):
-        """Checks for poller for new messages from all subscriptions."""
+        """Checks poller for new messages from all subscriptions.
+
+        Yields
+        ------
+        flag, source, timestamp, other, args
+        """
         events = dict(self.poller.poll(0))
-        for sock, event_flag in events:
+        for sock in events:
             if sock in self.sockets:
-                flag, source, timestamp, other, args = PydraMessage.recv(sock)
+                flag, source, timestamp, other, args = PydraMessage.recv_socket(sock)
                 yield flag, source, timestamp, other, args

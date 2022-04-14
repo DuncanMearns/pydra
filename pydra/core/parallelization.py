@@ -1,16 +1,17 @@
 from multiprocessing import Process
+from threading import Thread
 
 
-class PydraProcess(Process):
-    """Class for running pydra objects in a separate process.
+class PydraRunner:
+    """Class for running pydra objects in a separate process or thread.
 
-    The run method of PydraProcess calls the constructor for the worker class and then calls the run method of the
+    The run method of PydraRunner calls the constructor for the worker class and then calls the run method of the
     newly created object.
 
     Parameters
     ----------
     worker_type : type
-        Worker type (should be a subclass of PydraObject and ProcessMixIn).
+        Worker type, should be a subclass of PydraBase and Process or Thread).
     worker_args : iterable
         Arguments passed with star to the constructor of the worker pydra object.
     worker_kwargs : dict
@@ -33,7 +34,11 @@ class PydraProcess(Process):
         self.worker.run()
 
 
-class ProcessMixIn:
+PydraProcess = type("PydraProcess", (PydraRunner, Process), {})
+PydraThread = type("PydraThread", (PydraRunner, Thread), {})
+
+
+class Parallelized:
     """Mix-in class for running pydra objects in a separate process.
 
     Provides such classes with a run method that is called after the object is instantiated in a separate process. Also
@@ -54,6 +59,12 @@ class ProcessMixIn:
         process = PydraProcess(cls, args, kwargs)
         process.start()
         return process
+
+    @classmethod
+    def start_thread(cls, *args, **kwargs):
+        thread = PydraThread(cls, args, kwargs)
+        thread.start()
+        return thread
 
     def close(self):
         """Sets the exit_flag, causing process to terminate."""

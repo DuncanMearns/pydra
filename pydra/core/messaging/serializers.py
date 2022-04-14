@@ -5,6 +5,19 @@ import pickle
 import numpy as np
 
 
+def serialize_bool(b: bool):
+    if b:
+        return serialize_int(1)
+    return serialize_int(0)
+
+
+def deserialize_bool(b_bytes: bytes):
+    i = deserialize_int(b_bytes)
+    if i:
+        return True
+    return False
+
+
 def serialize_int(i: int):
     return int(i).to_bytes(4, sys.byteorder, signed=True)
 

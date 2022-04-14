@@ -14,7 +14,8 @@ config = {
         "pydra": {
             "publisher": "tcp://*:6000",
             "receiver": "tcp://localhost:6001",
-            "port": "tcp://localhost:6000"
+            "port": "tcp://localhost:6000",
+            "subscriptions": []
         },
 
         "saver": {

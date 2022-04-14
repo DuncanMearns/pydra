@@ -1,8 +1,19 @@
+from .handlers import *
 from .messaging import *
 import time
 
 
-class PydraBase:
+class PydraType(type):
+    """Metaclass for Pydra objects ensures they have a name attribute."""
+
+    def __new__(mcs, name, args, kw, **kwargs):
+        if "name" not in kw:
+            kw["name"] = name
+        return super().__new__(mcs, name, args, kw, **kwargs)
+
+
+class PydraBase(metaclass=PydraType):
+    """Abstract base Pydra class. All Pydra objects in the network should be singletons with a unique class name."""
 
     name = ""
 
@@ -183,9 +194,9 @@ class PydraSubscriber(PydraBase):
     def recv_trigger(self, source, t):
         pass
 
+    @EVENT.recv
     def handle_event(self, event_name, event_kw, **kwargs):
         """Handles EVENT messages received from other objects."""
-        event_name, event_kw = EVENT.decode(event_name, event_kw)
         if event_name in self.events:
             event_kw.update(**kwargs)
             self.events[event_name](**event_kw)

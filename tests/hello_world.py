@@ -1,36 +1,39 @@
+from pydra import Pydra
+from pydra.core import Worker
 import time
-import zmq
-from threading import Thread
 
 
-def server_thread():
-    context = zmq.Context.instance()
-    socket = context.socket(zmq.REP)
-    socket.bind("tcp://*:5555")
-    while True:
-        message = socket.recv()
-        print('Reiceived request: %s' % message)
-        time.sleep(1)
-        socket.send(b"World")
+class HelloWorld(Worker):
+
+    name = "hello_world"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.events["hello_world"] = self.hello_world
+
+    def hello_world(self, **kwargs):
+        print("HELLO WORLD!")
 
 
-def client_thread():
-    context = zmq.Context.instance()
-    socket = context.socket(zmq.REQ)
-    socket.connect("tcp://localhost:5555")
-    for request in range(10):
-        socket.send(b"Hello")
-        message = socket.recv()
-        print('Reiceived reply: %s' % message)
+HELLOWORLD = {
+    "worker": HelloWorld,
+    "params": {}
+}
 
 
-def main():
-    context = zmq.Context.instance()
-    s_thread = Thread(target=server_thread)
-    c_thread = Thread(target=client_thread)
-    s_thread.start()
-    c_thread.start()
+modules = [HELLOWORLD]
+
+
+def hello_world():
+    Pydra.configure(modules=(HELLOWORLD,))
+    pydra = Pydra()
+    pydra.start_worker(HelloWorld)
+    print("Sending hello_world event")
+    time.sleep(0.1)
+    pydra.send_event("hello_world")
+    time.sleep(1.)
+    pydra.exit()
 
 
 if __name__ == "__main__":
-    main()
+    hello_world()

@@ -1,9 +1,9 @@
 from pydra.core.base import *
-from pydra.core.process import ProcessMixIn
+from pydra.core.parallelization import Parallelized
 from pydra.core.messaging import LOGGED
 
 
-class Worker(ProcessMixIn, PydraPublisher, PydraSubscriber):
+class Worker(Parallelized, PydraPublisher, PydraSubscriber):
     """Base worker class. Receives and handles messages. Runs in a separate process.
 
     Attributes
@@ -34,14 +34,15 @@ class Worker(ProcessMixIn, PydraPublisher, PydraSubscriber):
     def _check_connection(self, **kwargs):
         """Called by the 'test_connection' event. Informs pydra that 0MQ connections have been established and worker is
         receiving messages."""
-        if not self._connected:
-            self._connected = 1
-            self.connected()
+        self.connected()
 
-    @LOGGED
+    @CONNECTION
     def connected(self):
-        """Logs that worker has received the 'test_connection' event."""
-        return dict()
+        return True,
+
+    @CONNECTION
+    def connection_failed(self):
+        return False,
 
     @LOGGED
     def _events_info(self, **kwargs):
