@@ -1,8 +1,9 @@
+from .serializers import *
+
 import zmq
 import warnings
-
-from .serializers import *
 import time
+
 
 __all__ = ["PydraMessage", "EXIT", "CONNECTION", "MESSAGE", "EVENT", "DATA", "TIMESTAMPED", "INDEXED", "ARRAY", "FRAME",
            "LOGGED", "EVENT_INFO", "DATA_INFO", "TRIGGER"]

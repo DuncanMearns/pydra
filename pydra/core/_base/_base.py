@@ -1,6 +1,5 @@
 from .handlers import *
 from .messaging import *
-import time
 
 
 class PydraType(type):
@@ -18,43 +17,76 @@ class PydraBase(metaclass=PydraType):
     name = ""
 
     def __init__(self, *args, **kwargs):
-        # Wait for ZeroMQ connections
-        time.sleep(1.0)
+        super().__init__()
 
     def exit(self, *args, **kwargs):
         """Called when the EXIT message type is received. May be re-implemented in subclasses."""
         return
 
 
-class PydraSender(PydraBase):
+class PydraWriter(PydraBase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class PydraReader(PydraBase):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.zmq_poller = ZMQPoller()
+        # Set message handlers
+        self.msg_handlers = {
+            "exit": self.exit
+        }
+        # Set event handlers
+        self.events = {}
+
+    def poll(self):
+        """Checks for poller for new messages from all subscriptions and passes them to appropriate handlers."""
+        for msg, source, timestamp, flags, args in self.zmq_poller.poll():
+            try:
+                self.msg_handlers[msg](*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
+            except KeyError:
+                callback = "_".join(["handle", msg])
+                self.__getattribute__(callback)(*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
+            except AttributeError:
+                # TODO: LOG THIS AS AN ERROR
+                return
+
+
+class PydraSender(PydraWriter):
 
     def __init__(self, sender=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         if sender:
             self.zmq_sender = ZMQSender(sender)
         else:
             raise ValueError("sender not specified")
+
+
+class PydraReceiver(PydraReader):
+
+    def __init__(self, receivers=(), *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-
-class PydraReceiver(PydraBase):
-
-    def __init__(self, receiver=None, *args, **kwargs):
-        if receiver:
-            self.zmq_receiver = ZMQReceiver(receiver)
+        if receivers:
+            for name, port in receivers:
+                self.add_receiver(name, port)
         else:
-            raise ValueError("receiver not specified")
+            raise ValueError("receivers not specified")
+
+    def add_receiver(self, name, port):
+        self.zmq_poller.add_receiver(name, port)
+
+
+class PydraPublisher(PydraWriter):
+
+    def __init__(self, publisher=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-
-class PydraPublisher(PydraBase):
-
-    def __init__(self, publisher=None, port=None, *args, **kwargs):
-        if publisher and port:
+        if publisher:
             self.zmq_publisher = ZMQPublisher(publisher)
-            self.zmq_sub_port = port
         else:
             raise ValueError("publisher or port not specified")
-        super().__init__(*args, **kwargs)
 
     @MESSAGE
     def send_message(self, s):
@@ -140,33 +172,35 @@ class PydraPublisher(PydraBase):
         return t, i, frame
 
 
-class PydraSubscriber(PydraBase):
-
-    subscriptions = ()
+class PydraSubscriber(PydraReader):
 
     def __init__(self, subscriptions=(), *args, **kwargs):
-        self.zmq_subscriber = SubscriptionManager(subscriptions)
-        # Set message handlers
-        self.msg_handlers = {
-            "exit": self.exit,
-            "message": self.handle_message,
-            "event": self.handle_event,
-            "data": self.handle_data,
-            "trigger": self.handle_trigger
-        }
-        # Set event handlers
-        self.events = {}
         super().__init__(*args, **kwargs)
+        for (name, port, messages) in subscriptions:
+            self.add_subscription(name, port, messages)
+        # Set event handlers
+        self.events = {"_test_connection": self._check_connection}  # private event to test zmq connections
 
-    def poll(self):
-        """Checks for poller for new messages from all subscriptions and passes them to appropriate handlers."""
-        for flag, source, timestamp, other, args in self.zmq_subscriber.poll():
-            self.msg_handlers[flag](*args, msg=flag, source=source, timestamp=timestamp, flags=other)
+    def add_subscription(self, name, port, messages):
+        self.zmq_poller.add_subscription(name, port, messages)
 
     def handle_message(self, s, **kwargs):
         """Handles MESSAGE (i.e. string) messages received from other objects."""
         s = MESSAGE.decode(s)[0]
         self.recv_message(s, **kwargs)
+
+    def _check_connection(self, **kwargs):
+        """Called by the 'test_connection' event. Informs pydra that 0MQ connections have been established and worker is
+        receiving messages."""
+        self.connected()
+
+    @CONNECTION
+    def connected(self):
+        return True,
+
+    @CONNECTION
+    def connection_failed(self):
+        return False,
 
     def recv_message(self, s, **kwargs):
         """Method for handling strings received from other objects. May be re-implemented in subclasses.

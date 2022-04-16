@@ -1,6 +1,5 @@
-from pydra.core.base import *
-from pydra.core.parallelization import Parallelized
-from pydra.core.messaging import LOGGED
+from .._base import *
+from ..utils import Parallelized
 
 
 class Worker(Parallelized, PydraPublisher, PydraSubscriber):
@@ -19,39 +18,19 @@ class Worker(Parallelized, PydraPublisher, PydraSubscriber):
 
     name = "worker"
     subscriptions = ()
-    pipeline = ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.events["_test_connection"] = self._check_connection  # private event to test zmq connections
-        self.events["_events_info"] = self._events_info  # private event to log implemented events
-        self._connected = 0
+        # self.events["_events_info"] = self._events_info  # private event to log implemented events
 
     def _process(self):
         """Handles all messages received over network from ZeroMQ."""
         self.poll()
 
-    def _check_connection(self, **kwargs):
-        """Called by the 'test_connection' event. Informs pydra that 0MQ connections have been established and worker is
-        receiving messages."""
-        self.connected()
-
-    @CONNECTION
-    def connected(self):
-        return True,
-
-    @CONNECTION
-    def connection_failed(self):
-        return False,
-
-    @LOGGED
-    def _events_info(self, **kwargs):
-        """Logs implemented events."""
-        return dict(events=[key for key in self.events if not key.startswith("_")])
-
-    def exit(self, *args, **kwargs):
-        """Sets the exit_flag when EXIT signal is received, causing process to terminate."""
-        self.close()
+    # @LOGGED
+    # def _events_info(self, **kwargs):
+    #     """Logs implemented events."""
+    #     return dict(events=[key for key in self.events if not key.startswith("_")])
 
 
 class Acquisition(Worker):

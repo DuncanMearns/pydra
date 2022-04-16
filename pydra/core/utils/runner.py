@@ -89,3 +89,7 @@ class Parallelized:
         while not self.exit_flag:
             self._process()
         self.cleanup()
+
+    def exit(self, *args, **kwargs):
+        """Sets the exit_flag when EXIT signal is received, causing process to terminate."""
+        self.close()

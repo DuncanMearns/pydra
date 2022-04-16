@@ -25,15 +25,20 @@ modules = [HELLOWORLD]
 
 
 def hello_world():
-    Pydra.configure(modules=(HELLOWORLD,))
-    pydra = Pydra()
-    pydra.start_worker(HelloWorld)
+    Pydra.configure(modules=modules)
+    pydra = Pydra._run()
     print("Sending hello_world event")
-    time.sleep(0.1)
     pydra.send_event("hello_world")
     time.sleep(1.)
     pydra.exit()
 
 
+def no_config():
+    Pydra.configure()
+    pydra = Pydra._run()
+    pydra.exit()
+
+
 if __name__ == "__main__":
     hello_world()
+    # no_config()

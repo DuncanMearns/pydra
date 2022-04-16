@@ -30,7 +30,7 @@
 # >>> pydra.exit()
 """
 from pydra import Pydra, config, ports
-from pydra.core.workers import Worker
+from pydra.core.main.workers import Worker
 import time
 
 

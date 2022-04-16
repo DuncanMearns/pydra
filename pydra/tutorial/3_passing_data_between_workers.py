@@ -1,5 +1,5 @@
 from pydra import Pydra, config, ports
-from pydra.core.workers import Worker, Acquisition
+from pydra.core.main.workers import Worker, Acquisition
 import time
 
 

@@ -1,7 +1,7 @@
 from .messaging import PydraMessage
 import zmq
 
-__all__ = ("ZMQSender", "ZMQPublisher", "ZMQReceiver", "ZMQSubscriber", "SubscriptionManager")
+__all__ = ("ZMQSender", "ZMQPublisher", "ZMQReceiver", "ZMQSubscriber", "ZMQPoller")
 
 
 class ZMQProxy:
@@ -85,7 +85,7 @@ class ZMQSubscriber(ZMQProxy):
             self.socket.setsockopt(zmq.SUBSCRIBE, message.flag)
 
 
-class SubscriptionManager:
+class ZMQPoller:
     """Container class for managing subscriptions to many channels. Polling the subscription manager yields parsed Pydra
     messages received since the last time the poll method was called.
 
@@ -97,11 +97,13 @@ class SubscriptionManager:
 
     """
 
-    def __init__(self, subscriptions):
+    def __init__(self, subscriptions=(), receivers=()):
         self.poller = zmq.Poller()
-        self.subscriptions = {}
+        self._sockets = {}
         for (name, port, messages) in subscriptions:
             self.add_subscription(name, port, messages)
+        for (name, port) in receivers:
+            self.add_receiver(name, port)
 
     def add_subscription(self, name, port, messages):
         """Adds a new subscription.
@@ -118,12 +120,17 @@ class SubscriptionManager:
         subscriber = ZMQSubscriber()
         subscriber.add_connection(port, messages)
         self.poller.register(subscriber.socket, zmq.POLLIN)
-        self.subscriptions[name] = subscriber
+        self._sockets[name] = subscriber
+
+    def add_receiver(self, name, port):
+        receiver = ZMQReceiver(port)
+        self.poller.register(receiver.socket, zmq.POLLIN)
+        self._sockets[name] = receiver
 
     @property
     def sockets(self) -> set:
         """Returns the set of zmq sockets being subscribed to."""
-        return {subscriber.socket for subscriber in self.subscriptions.values()}
+        return {subscriber.socket for subscriber in self._sockets.values()}
 
     def poll(self):
         """Checks poller for new messages from all subscriptions.

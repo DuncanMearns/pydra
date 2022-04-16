@@ -1,5 +1,5 @@
 from pydra import Pydra, config, ports
-from pydra.core.workers import Worker
+from pydra.core.main.workers import Worker
 from pydra.gui import ControlWidget  # import the ModuleWidget class
 from PyQt5 import QtWidgets, QtCore  # import from PyQt
 
