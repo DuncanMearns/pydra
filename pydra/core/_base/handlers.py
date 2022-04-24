@@ -142,5 +142,5 @@ class ZMQPoller:
         events = dict(self.poller.poll(0))
         for sock in events:
             if sock in self.sockets:
-                flag, source, timestamp, other, args = PydraMessage.recv_socket(sock)
+                flag, source, timestamp, other, args = PydraMessage.recv(sock)
                 yield flag, source, timestamp, other, args

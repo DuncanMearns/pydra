@@ -37,7 +37,7 @@ class PydraSaver(Parallelized, PydraSender, PydraSubscriber):
     def __init__(self, pipelines: dict, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Add log message handling
-        self.msg_handlers["log"] = self.handle_log
+        self.msg_callbacks["log"] = self.handle_log
         # Create caches for storing worker messages and events
         self.event_log = []
         self.messages = []

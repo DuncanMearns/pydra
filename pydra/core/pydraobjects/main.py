@@ -1,5 +1,5 @@
 from .._base import *
-from .saver import PydraInterface, QUERY
+from .saver import PydraBackend, QUERY
 from .worker import Worker
 import zmq
 import warnings
@@ -14,8 +14,8 @@ class PydraMain(PydraReceiver, PydraPublisher, PydraSubscriber):
     def __init__(self, connections: dict = None):
         self.connections = connections or self.config["connections"]["pydra"]
         super().__init__(**self.connections)
-        self.msg_handlers["connection"] = self._worker_connected
-        self._interface = None
+        self.msg_callbacks["connection"] = self._worker_connected
+        self._backend = None
         self._workers = []
         self._connected = {}
 
@@ -27,7 +27,7 @@ class PydraMain(PydraReceiver, PydraPublisher, PydraSubscriber):
             for saver in savers:
                 saver._connections = self.config["connections"][saver.name]
         saver_tuples = [saver.to_tuple() for saver in savers]
-        self._interface = PydraInterface.start(saver_tuples, **connections)
+        self._backend = PydraBackend.start(saver_tuples, **connections)
         for t in range(3):
             time.sleep(1.)
         print("sending backend test")
@@ -84,7 +84,7 @@ class PydraMain(PydraReceiver, PydraPublisher, PydraSubscriber):
     def backend_test(self):
         return "connected"
 
-    @CONNECTION.recv
+    @CONNECTION.callback
     def _worker_connected(self, ret, **kwargs):
         self._connected[kwargs["source"]] = ret
         if ret:
@@ -107,7 +107,7 @@ class PydraMain(PydraReceiver, PydraPublisher, PydraSubscriber):
             process.join()
             print(f"Worker {process.worker_type.name} joined")
         try:
-            self._interface.join()
+            self._backend.join()
             print("Saver joined.")
         except AttributeError:
             pass

@@ -36,17 +36,17 @@ class PydraReader(PydraBase):
         super().__init__(*args, **kwargs)
         self.zmq_poller = ZMQPoller()
         # Set message handlers
-        self.msg_handlers = {
+        self.msg_callbacks = {
             "exit": self.exit
         }
         # Set event handlers
-        self.events = {}
+        self.event_callbacks = {}
 
     def poll(self):
         """Checks for poller for new messages from all subscriptions and passes them to appropriate handlers."""
         for msg, source, timestamp, flags, args in self.zmq_poller.poll():
             try:
-                self.msg_handlers[msg](*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
+                self.msg_callbacks[msg](*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
             except KeyError:
                 callback = "_".join(["handle", msg])
                 self.__getattribute__(callback)(*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
@@ -228,7 +228,7 @@ class PydraSubscriber(PydraReader):
     def recv_trigger(self, source, t):
         pass
 
-    @EVENT.recv
+    @EVENT.callback
     def handle_event(self, event_name, event_kw, **kwargs):
         """Handles EVENT messages received from other objects."""
         if event_name in self.events:

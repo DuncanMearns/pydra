@@ -68,7 +68,7 @@ class Saver(Parallelized, PydraSubscriber):
         pass
 
 
-class PydraInterface(Parallelized, PydraPublisher, PydraSender, PydraSubscriber):
+class PydraBackend(Parallelized, PydraPublisher, PydraSender, PydraSubscriber):
     """Singleton Saver class that integrates and handles incoming messages from all workers.
 
     Parameters
@@ -91,7 +91,7 @@ class PydraInterface(Parallelized, PydraPublisher, PydraSender, PydraSubscriber)
         A dictionary that maps data received from workers to the appropriate PipelineSaver object.
     """
 
-    name = "interface"
+    name = "backend"
 
     def __init__(self, savers=(), *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -120,7 +120,7 @@ class PydraInterface(Parallelized, PydraPublisher, PydraSender, PydraSubscriber)
     # def connected(self):
     #     return ()
 
-    @QUERY.recv
+    @QUERY.callback
     def handle_query(self, qtype, **kwargs):
         print("HERE")
         print(qtype, kwargs)
@@ -159,7 +159,7 @@ class PydraInterface(Parallelized, PydraPublisher, PydraSender, PydraSubscriber)
         #         pipeline.stop()
         #     self.recording = False
 
-    @QUERY.recv
+    @QUERY.callback
     def handle_query(self, qtype, **kwargs):
         try:
             self.queries[qtype]()

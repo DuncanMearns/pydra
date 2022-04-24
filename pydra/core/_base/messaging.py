@@ -150,11 +150,11 @@ class PydraMessage:
         return flag, source, t, flags, args
 
     @staticmethod
-    def recv_socket(sock):
+    def recv(sock):
         """Receives message from a zmq socket with message tags deserialized."""
         return sock.recv_serialized(PydraMessage.reader)
 
-    def recv(self, method):
+    def callback(self, method):
         def decode_message(obj, *args, **kwargs):
             args = self.decode(*args)
             result = method(obj, *args, **kwargs)
