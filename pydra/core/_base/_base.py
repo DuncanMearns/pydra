@@ -1,5 +1,5 @@
 from .handlers import *
-from .messaging import *
+from ..messaging import *
 
 
 class PydraType(type):
@@ -11,7 +11,7 @@ class PydraType(type):
         return super().__new__(mcs, name, args, kw, **kwargs)
 
 
-class PydraBase(metaclass=PydraType):
+class PydraObject(metaclass=PydraType):
     """Abstract base Pydra class. All Pydra objects in the network should be singletons with a unique class name."""
 
     name = ""
@@ -24,13 +24,13 @@ class PydraBase(metaclass=PydraType):
         return
 
 
-class PydraWriter(PydraBase):
+class PydraWriter(PydraObject):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
-class PydraReader(PydraBase):
+class PydraReader(PydraObject):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -64,6 +64,25 @@ class PydraSender(PydraWriter):
         else:
             raise ValueError("sender not specified")
 
+    @REQUEST.callback
+    def handle_request(self, qtype, **kwargs):
+        try:
+            callback = "_".join(["reply", qtype])
+            self.__getattribute__(callback)()
+        except AttributeError:
+            # TODO: SEND ERROR RATHER THAN RAISE ERROR
+            raise ValueError(f"Saver -{self.name}- cannot respond to {qtype} queries from Pydra.")
+        finally:
+            return
+
+    @_CONNECTION
+    def reply_connection(self):
+        raise NotImplementedError
+
+    @_DATA
+    def reply_data(self):
+        raise NotImplementedError
+
 
 class PydraReceiver(PydraReader):
 
@@ -88,8 +107,8 @@ class PydraPublisher(PydraWriter):
         else:
             raise ValueError("publisher or port not specified")
 
-    @MESSAGE
-    def send_message(self, s):
+    @STRING
+    def send_string(self, s):
         """Sends a string to the zmq_publisher."""
         return s
 
@@ -178,18 +197,12 @@ class PydraSubscriber(PydraReader):
         super().__init__(*args, **kwargs)
         for (name, port, messages) in subscriptions:
             self.add_subscription(name, port, messages)
-        # Set event handlers
-        self.events = {"_test_connection": self._check_connection}  # private event to test zmq connections
+        self.event_callbacks = {}  #{"_test_connection": self._test_connection}
 
     def add_subscription(self, name, port, messages):
         self.zmq_poller.add_subscription(name, port, messages)
 
-    def handle_message(self, s, **kwargs):
-        """Handles MESSAGE (i.e. string) messages received from other objects."""
-        s = MESSAGE.decode(s)[0]
-        self.recv_message(s, **kwargs)
-
-    def _check_connection(self, **kwargs):
+    def _test_connection(self, **kwargs):
         """Called by the 'test_connection' event. Informs pydra that 0MQ connections have been established and worker is
         receiving messages."""
         self.connected()
@@ -199,10 +212,15 @@ class PydraSubscriber(PydraReader):
         return True,
 
     @CONNECTION
-    def connection_failed(self):
+    def not_connected(self):
         return False,
 
-    def recv_message(self, s, **kwargs):
+    @STRING.callback
+    def handle_string(self, s, **kwargs):
+        """Handles MESSAGE (i.e. string) messages received from other objects."""
+        self.recv_str(s, **kwargs)
+
+    def recv_str(self, s, **kwargs):
         """Method for handling strings received from other objects. May be re-implemented in subclasses.
 
         Parameters
@@ -222,18 +240,22 @@ class PydraSubscriber(PydraReader):
         """
         print(f"{self.name} received from {kwargs.get('source', 'UNKNOWN')} at {kwargs.get('timestamp', 0.0)}:\n{s}")
 
+    @TRIGGER.callback
     def handle_trigger(self, *args, **kwargs):
         self.recv_trigger(kwargs["source"], kwargs["timestamp"])
 
     def recv_trigger(self, source, t):
-        pass
+        return
 
     @EVENT.callback
     def handle_event(self, event_name, event_kw, **kwargs):
         """Handles EVENT messages received from other objects."""
-        if event_name in self.events:
+        if hasattr(self, event_name) or event_name in self.event_callbacks:
             event_kw.update(**kwargs)
-            self.events[event_name](**event_kw)
+            try:
+                self.event_callbacks[event_name](**event_kw)
+            except KeyError:
+                self.__getattribute__(event_name)(**event_kw)
 
     def handle_data(self, *data, **kwargs):
         """Handles data messages (TIMESTAMPED, INDEXED, or FRAME) received from other objects."""

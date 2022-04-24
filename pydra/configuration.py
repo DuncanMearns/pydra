@@ -82,7 +82,7 @@ class SubscriberConfig:
 
 
 PydraConfig = dataclass(type("PydraConfig", (SubscriberConfig, ReceiverConfig, PublisherConfig), {}))
-InterfaceConfig = dataclass(type("InterfaceConfig", (SubscriberConfig, ReceiverConfig, PublisherConfig, SenderConfig), {}))
+BackendConfig = dataclass(type("BackendConfig", (SubscriberConfig, ReceiverConfig, PublisherConfig, SenderConfig), {}))
 WorkerConfig = dataclass(type("WorkerConfig", (SubscriberConfig, PublisherConfig), {}))
 SaverConfig = dataclass(type("SaverConfig", (SubscriberConfig, SenderConfig), {}))
 

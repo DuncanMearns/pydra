@@ -1,4 +1,4 @@
-from pydra.core._base.serializers import deserialize_string
+from pydra.core.messages.serializers import deserialize_string
 
 
 __all__ = ["format_zmq_connections"]

@@ -1,12 +1,7 @@
 from .serializers import *
-
 import zmq
 import warnings
 import time
-
-
-__all__ = ["PydraMessage", "EXIT", "CONNECTION", "MESSAGE", "EVENT", "DATA", "TIMESTAMPED", "INDEXED", "ARRAY", "FRAME",
-           "LOGGED", "EVENT_INFO", "DATA_INFO", "TRIGGER"]
 
 
 def PUB(obj) -> zmq.Socket:
@@ -176,112 +171,9 @@ class PydraMessage:
         return zmq_message
 
 
-ExitMessage = type("ExitMessage", (PydraMessage,), {"flag": b"exit"})
-EXIT = ExitMessage()
+class PushMessage(PydraMessage):
 
+    flag = b"reply"
 
-class ConnectionMessage(PydraMessage):
-
-    flag = b"connection"
-
-    def __init__(self):
-        super().__init__(bool)
-
-
-CONNECTION = ConnectionMessage()
-
-
-class StringMessage(PydraMessage):
-    """Decorator for sending a message as a string."""
-
-    flag = b"message"
-
-    def __init__(self):
-        super().__init__(str)
-
-    def serializer(self, args):
-        """Method called by wrapper to serialize the message and tags before sending over zmq."""
-        obj, method, result = args
-        out = self.message_tags(obj)
-        out += self.encode(result)
-        return out
-
-
-MESSAGE = StringMessage()
-
-
-class EventMessage(PydraMessage):
-    """Decorator for sending events."""
-
-    flag = b"event"
-
-    def __init__(self):
-        super().__init__(str, dict)
-
-
-EVENT = EventMessage()
-
-
-class DataMessage(PydraMessage):
-    """Decorator for sending data. Takes a data_flag as an argument for specifying the format of the data being sent."""
-
-    flag = b"data"
-
-    dtypes = {
-        b"t": (float, dict),
-        b"i": (float, int, dict),
-        b"a": (float, int, np.ndarray),
-        b"f": (float, int, np.ndarray)
-    }
-
-    def __init__(self, data_flag):
-        super().__init__(*self.dtypes[data_flag])
-        self.data_flags = data_flag
-
-    def message_tags(self, obj):
-        source = serialize_string(obj.name)
-        t = time.time()
-        t = serialize_float(t)
-        return [self.flag, source, t, self.data_flags]
-
-
-DATA = DataMessage
-TIMESTAMPED = DataMessage(b"t")
-INDEXED = DataMessage(b"i")
-ARRAY = DataMessage(b"a")
-FRAME = DataMessage(b"f")
-
-
-class LoggedMessage(PydraMessage):
-    """Decorator for logging events."""
-
-    flag = b"log"
-
-    def __init__(self):
-        super().__init__(str, dict)
-
-    def serializer(self, args):
-        obj, method, result = args
-        name = method.__name__
-        out = self.message_tags(obj)
-        out += self.encode(name, result)
-        return out
-
-
-LOGGED = LoggedMessage()
-
-# INFO message for sending event info between saver and pydra
-EVENT_INFO = PydraMessage(float, str, str, dict, np.ndarray)
-# INFO message for sending data info between saver and pydra
-DATA_INFO = PydraMessage(str, dict, np.ndarray)
-
-
-class TriggerMessage(PydraMessage):
-
-    flag = b"trigger"
-
-    def __init__(self):
-        super().__init__()
-
-
-TRIGGER = TriggerMessage()
+    def __init__(self, *dtypes):
+        super().__init__(*dtypes, socktype=PUSH)

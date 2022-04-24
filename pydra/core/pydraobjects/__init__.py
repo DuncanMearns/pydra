@@ -1,3 +1,3 @@
 from .main import PydraMain
-from .saver import Saver, QUERY
+from .saver import PydraBackend, Saver
 from .worker import Worker, Acquisition

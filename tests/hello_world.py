@@ -9,7 +9,7 @@ class HelloWorld(Worker):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.events["hello_world"] = self.hello_world
+        self.event_callbacks["hello_world"] = self.hello_world
 
     def hello_world(self, **kwargs):
         print("HELLO WORLD!")
@@ -36,6 +36,7 @@ def hello_world():
 def no_config():
     Pydra.configure()
     pydra = Pydra._run()
+    time.sleep(1.)
     pydra.exit()
 
 
