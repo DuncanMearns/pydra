@@ -44,8 +44,6 @@ class PydraReader(PydraObject):
         self.msg_callbacks = {
             "exit": self.exit
         }
-        # Create dictionary for overwriting event callbacks
-        self.event_callbacks = {}
 
     def poll(self):
         """Checks for poller for new messages from all subscriptions and passes them to appropriate handlers."""
@@ -205,6 +203,8 @@ class PydraSubscriber(PydraReader):
         super().__init__(*args, **kwargs)
         for (name, port, messages) in subscriptions:
             self.add_subscription(name, port, messages)
+        # Create dictionary for overwriting event callbacks
+        self.event_callbacks = {}
 
     def add_subscription(self, name, port, messages):
         self.zmq_poller.add_subscription(name, port, messages)
@@ -257,12 +257,12 @@ class PydraSubscriber(PydraReader):
     @EVENT.callback
     def handle_event(self, event_name, event_kw, **kwargs):
         """Handles EVENT messages received from other objects."""
-        if hasattr(self, event_name) or event_name in self.event_callbacks:
+        try:
+            f = self.event_callbacks.get(event_name, self.__getattribute__(event_name))
             event_kw.update(**kwargs)
-            try:
-                self.event_callbacks[event_name](**event_kw)
-            except KeyError:
-                self.__getattribute__(event_name)(**event_kw)
+            f(**event_kw)
+        except AttributeError:
+            return
 
     def handle_data(self, *data, **kwargs):
         """Handles data messages (TIMESTAMPED, INDEXED, or FRAME) received from other objects."""
