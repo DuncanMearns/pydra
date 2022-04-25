@@ -1,5 +1,6 @@
 from .handlers import *
 from ..messaging import *
+import traceback
 
 
 class PydraType(type):
@@ -23,6 +24,10 @@ class PydraObject(metaclass=PydraType):
         """Called when the EXIT message type is received. May be re-implemented in subclasses."""
         return
 
+    @ERROR
+    def raise_error(self, error: Exception, message: str):
+        return error, message
+
 
 class PydraWriter(PydraObject):
 
@@ -39,20 +44,23 @@ class PydraReader(PydraObject):
         self.msg_callbacks = {
             "exit": self.exit
         }
-        # Set event handlers
+        # Create dictionary for overwriting event callbacks
         self.event_callbacks = {}
 
     def poll(self):
         """Checks for poller for new messages from all subscriptions and passes them to appropriate handlers."""
         for msg, source, timestamp, flags, args in self.zmq_poller.poll():
-            try:
+            if msg in self.msg_callbacks:
                 self.msg_callbacks[msg](*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
-            except KeyError:
+                continue
+            try:
                 callback = "_".join(["handle", msg])
                 self.__getattribute__(callback)(*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
             except AttributeError:
-                # TODO: LOG THIS AS AN ERROR
-                return
+                raise NotImplementedError(f"{self.name} has no method to handle '{msg}' messages.")
+            except Exception as err:
+                message = traceback.format_exc()
+                self.raise_error(err, message)
 
 
 class PydraSender(PydraWriter):
@@ -197,7 +205,6 @@ class PydraSubscriber(PydraReader):
         super().__init__(*args, **kwargs)
         for (name, port, messages) in subscriptions:
             self.add_subscription(name, port, messages)
-        self.event_callbacks = {}  #{"_test_connection": self._test_connection}
 
     def add_subscription(self, name, port, messages):
         self.zmq_poller.add_subscription(name, port, messages)

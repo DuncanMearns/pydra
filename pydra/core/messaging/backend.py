@@ -9,7 +9,7 @@ ConnectionMessage = type("ConnectionMessage", (PydraMessage,), {"flag": b"connec
 CONNECTION = ConnectionMessage(bool)
 
 LogErrorMessage = type("LogErrorMessage", (PydraMessage,), {"flag": b"error"})
-ERROR = LogErrorMessage()
+ERROR = LogErrorMessage(object, str)
 
 RequestMessage = type("RequestMessage", (PydraMessage,), {"flag": b"request"})
 REQUEST = RequestMessage(str)
@@ -19,6 +19,9 @@ _CONNECTION = BEConnectionMessage(bool)
 
 BEDataMessage = type("BEDataMessage", (PushMessage,), {"flag": b"_data"})
 _DATA = BEDataMessage()
+
+BEErrorMessage = type("BEErrorMessage", (PushMessage,), {"flag": b"_error"})
+_ERROR = BEErrorMessage(object, str)
 
 # class LoggedMessage(PydraMessage):
 #     """Decorator for logging events."""

@@ -5,6 +5,8 @@ from .saver import PydraBackend
 from .worker import Worker
 import zmq
 import warnings
+import logging
+from datetime import datetime
 import time
 
 
@@ -69,6 +71,15 @@ class PydraMain(PydraReceiver, PydraPublisher, PydraSubscriber):
             process = worker.start(**kw)
         # Add to workers
         self._workers.append(process)
+
+    @ERROR.callback
+    def handle_error(self, error, message, **kwargs):
+        source = kwargs["source"]
+        t = kwargs["timestamp"]
+        error_info = f"{source} raised {repr(error)}: {datetime.fromtimestamp(t)}.\n"
+        logging.error(error_info + message)
+
+    handle__error = handle_error
 
     @CONNECTION.callback
     def handle_connection(self, ret, **kwargs):

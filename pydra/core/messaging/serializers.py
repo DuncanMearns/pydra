@@ -56,3 +56,11 @@ def serialize_array(a: np.ndarray):
 
 def deserialize_array(a_bytes: bytes):
     return pickle.loads(a_bytes)
+
+
+def serialize_objet(o: object):
+    return pickle.dumps(o)
+
+
+def deserialize_object(o_bytes: bytes):
+    return pickle.loads(o_bytes)

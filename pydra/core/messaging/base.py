@@ -46,7 +46,8 @@ class PydraMessage:
         float: ("f", serialize_float, deserialize_float),
         str: ("s", serialize_string, deserialize_string),
         dict: ("d", serialize_dict, deserialize_dict),
-        np.ndarray: ("a", serialize_array, deserialize_array)
+        np.ndarray: ("a", serialize_array, deserialize_array),
+        object: ("o", serialize_objet, deserialize_object)
     }
 
     def __init__(self, *dtypes, socktype=PUB):
