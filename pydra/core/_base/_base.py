@@ -94,11 +94,8 @@ class PydraReceiver(PydraReader):
 
     def __init__(self, receivers=(), *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if receivers:
-            for name, port in receivers:
-                self.add_receiver(name, port)
-        else:
-            raise ValueError("receivers not specified")
+        for name, port in receivers:
+            self.add_receiver(name, port)
 
     def add_receiver(self, name, port):
         self.zmq_poller.add_receiver(name, port)

@@ -6,7 +6,7 @@ import time
 def no_config():
     Pydra.configure(savers=(Saver,))
     pydra = Pydra._run()
-    time.sleep(1.)
+    time.sleep(3.)
     pydra.exit()
 
 
