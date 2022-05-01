@@ -1,0 +1,267 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Pydra network &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial_welcome.html">Welcome!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../new_structure/0_overview.html">Overview of Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Pydra network</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/structure/2_network.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pydra-network">
+<h1>Pydra network<a class="headerlink" href="#pydra-network" title="Permalink to this headline">¶</a></h1>
+<p>Pydra is, in essence, a network of processes connected over ZeroMQ. Each process contains a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">PydraObject</span></code> and runs an event loop. Each network contains a single instance of the main
+<a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> class and a single instance of the <code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code> class. In addition,
+the network may contain any number of <code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> instances.</p>
+<p><a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> has access to all other processes in the network. <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> broadcasts
+EVENT messages to all other processes, as well as providing the EXIT signal. This broadcast is achieved via a <em>PUB-SUB</em>
+pattern over a port that all other processes subscribe to. In addition, <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> pulls messages
+(<em>PUSH-PULL</em> pattern) from a direct line to the <code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code>. This channel is protected for
+communication exclusively between <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> and <code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code>.
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> objects receive messages from <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> as well as from other
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> objects. Each <code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> has a port to which it publishes
+all its messages. These messages are effectively spewed into the void, where they can be picked up by other
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> objects. All messages from <code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> objects are picked up
+by the <code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code>, which chooses to either ignore them, do something with them (such as saving
+data), or forward them to <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a>.</p>
+<p>Thus, the Pydra network forms a loop:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> -&gt; <code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> &amp; <code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> -&gt; <code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code> -&gt; <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a></p></li>
+</ul>
+<p>Within the network of <code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> objects, connections can be as simple or complicated as
+required, providing maximum flexibility.</p>
+<p>PydraObjects and their inputs / outputs:
+.. image:: ../_static/pydra_cheatsheet.png</p>
+<div class="section" id="processes-in-pydra">
+<h2>Processes in Pydra<a class="headerlink" href="#processes-in-pydra" title="Permalink to this headline">¶</a></h2>
+<p>The main <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> object is typically instantiated in the main process.
+The <code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code> instances, however, each run in their own
+processes. This is achieved via the <code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessMixIn</span></code> and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">PydraProcess</span></code> classes. A <code class="xref py py-class docutils literal notranslate"><span class="pre">PydraProcess</span></code> runs an event loop within
+a process. The process contains a single instance of either a <code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> or a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code> object. As the event loop runs, all ports that the object subscribes to are continuously
+checked for new messages. Once a message is received, it is passed to the appropriate handler. Handler methods <em>must</em>
+return (ideally quickly) so that ports can be checked for new messages. The event loop only ends, and the process
+terminates, once the EXIT signal has been received from <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a>.</p>
+<p>If a <code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> gets stuck in an endless loop (or crashes), it can become inaccessible even
+after all other processes have exited. If this happens, ZeroMQ sockets might still be open, preventing them from being
+reused and causing crashes when the program is restarted.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

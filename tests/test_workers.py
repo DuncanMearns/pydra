@@ -35,7 +35,6 @@ class MySaver(VideoSaver):
     workers = ("video",)
 
     def recv_frame(self, t, i, frame, **kwargs):
-        print(i, type(frame), frame.shape)
         super().recv_frame(t, i, frame, **kwargs)
 
 
@@ -46,7 +45,6 @@ savers = [MySaver]
 def main():
     Pydra.configure(modules=modules, savers=savers)
     print(Pydra.config["connections"]["mysaver"])
-    # return
     pydra = Pydra._run()
     time.sleep(3.)
     pydra.exit()

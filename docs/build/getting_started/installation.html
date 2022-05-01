@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Installation &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using Pydra" href="using_pydra.html" />
+    <link rel="prev" title="Pydra - experiment control" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#clone-or-fork-the-github-repository">Clone or fork the github repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-the-pydra-environment">Install the pydra environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-opencv">Install opencv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-pydra-to-the-environment">Add Pydra to the environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-additional-libraries">Install additional libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuring-your-ide-for-pydra">Configuring your IDE for Pydra</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial_welcome.html">Welcome!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../new_structure/0_overview.html">Overview of Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Installation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/getting_started/installation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installation">
+<span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="clone-or-fork-the-github-repository">
+<h2>Clone or fork the github repository<a class="headerlink" href="#clone-or-fork-the-github-repository" title="Permalink to this headline">¶</a></h2>
+<p>Download Pydra by cloning the repository (to download a static version of the code to your computer) or forking the
+repository to create a copy in your own github account. You should then be able to open Pydra as a project in the IDE
+of your choice. I like to use <a class="reference external" href="https://www.jetbrains.com/pycharm/download/#section=windows">PyCharm</a> community
+edition, which is a free and powerful IDE, but does have quite a steep learning curve.</p>
+</div>
+<div class="section" id="install-the-pydra-environment">
+<h2>Install the pydra environment<a class="headerlink" href="#install-the-pydra-environment" title="Permalink to this headline">¶</a></h2>
+<p>Pydra has an environment.yml file that should allow you to create a Python “environment” in which you can run Pydra
+code. To create the environment, first make sure that you have
+<a class="reference external" href="https://www.anaconda.com/products/individual">Anaconda</a> installed on your computer.  Help for managing environments
+in Anaconda can be found
+<a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html">here</a> . I recommend keeping
+note of the directory where you install Anaconda, since you might have to navigate back to this in the future.</p>
+<p>To create an environment for running Pydra, open a terminal window, such as Anaconda prompt. Next navigate to the Pydra
+repository. If you are using Windows you can navigate through directories using the <code class="docutils literal notranslate"><span class="pre">cd</span></code> command.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># To navigate to a higher directory type:</span>
+<span class="n">cd</span> <span class="o">..</span>
+<span class="c1"># To navigate to a lower directory type:</span>
+<span class="n">cd</span> <span class="o">&lt;</span><span class="n">FOLDER</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Once you are in the pydra directory, you can create an Anaconda environment by typing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">env</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="n">environment</span><span class="o">.</span><span class="n">yml</span>
+</pre></div>
+</div>
+<p>It is also possible to create the environment file without navigating to the pydra directory by typing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">env</span> <span class="n">create</span> <span class="o">-</span><span class="n">f</span> <span class="o">&lt;</span><span class="n">PATH</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Where &lt;PATH&gt; is the complete path to the environment.yml file in the pydra repository.</p>
+<p>To check that the environment is properly installed, you can check your Anaconda environments by typing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">env</span> <span class="nb">list</span>
+</pre></div>
+</div>
+<p>The pydra environment should be listed there as <code class="docutils literal notranslate"><span class="pre">pydra_env</span></code>.</p>
+</div>
+<div class="section" id="install-opencv">
+<h2>Install opencv<a class="headerlink" href="#install-opencv" title="Permalink to this headline">¶</a></h2>
+<p>For Pydra to work correctly, you need to install opencv. To do this, first you must activate the pydra environment by
+typing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">activate</span> <span class="n">pydra_env</span>
+</pre></div>
+</div>
+<p>Next, install opencv by typing:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">opencv</span><span class="o">-</span><span class="n">python</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="add-pydra-to-the-environment">
+<h2>Add Pydra to the environment<a class="headerlink" href="#add-pydra-to-the-environment" title="Permalink to this headline">¶</a></h2>
+<p>If you want to use Pydra without modifying the source code, you can add it to the <code class="docutils literal notranslate"><span class="pre">pydra_env</span></code> to be used in other
+projects. To do this, make sure your <code class="docutils literal notranslate"><span class="pre">pydra_env</span></code> is activated then type:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">&lt;</span><span class="n">PATH</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Where &lt;PATH&gt; is the path to your local copy of pydra (i.e. whichever folder contains the setup.py file).</p>
+<p>To install Pydra directly from Github, see answers to
+<a class="reference external" href="https://stackoverflow.com/questions/20101834/pip-install-from-git-repo-branch">this</a> question on stackoverflow.</p>
+</div>
+<div class="section" id="install-additional-libraries">
+<h2>Install additional libraries<a class="headerlink" href="#install-additional-libraries" title="Permalink to this headline">¶</a></h2>
+<p>To install other libraries in Pydra, make sure the environment is activated and then use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">&lt;</span><span class="n">LIBRARY</span><span class="o">&gt;</span>
+<span class="c1"># or</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="o">&lt;</span><span class="n">LIBRARY</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="configuring-your-ide-for-pydra">
+<h2>Configuring your IDE for Pydra<a class="headerlink" href="#configuring-your-ide-for-pydra" title="Permalink to this headline">¶</a></h2>
+<p>To start using Pydra, you will need to set the IDE interpreter for your pydra project to the environment you just
+installed. If you are using PyCharm, you can do this by going to
+<code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">&gt;</span> <span class="pre">Settings...</span> <span class="pre">&gt;</span> <span class="pre">Project:</span> <span class="pre">pydra</span> <span class="pre">&gt;</span> <span class="pre">Python</span> <span class="pre">Interpreter</span></code>.</p>
+<p>Next, click the cog in the top right and click <code class="docutils literal notranslate"><span class="pre">Add...</span></code>.</p>
+<p>Next select <code class="docutils literal notranslate"><span class="pre">Conda</span> <span class="pre">Environment</span></code> from the panel on the left, and then select <code class="docutils literal notranslate"><span class="pre">Existing</span> <span class="pre">environment</span></code> on the right.</p>
+<p>Click <code class="docutils literal notranslate"><span class="pre">...</span></code> next to the <code class="docutils literal notranslate"><span class="pre">Interpreter</span></code> dropdown and navigate to the <code class="docutils literal notranslate"><span class="pre">python.exe</span></code> file in your
+<code class="docutils literal notranslate"><span class="pre">pydra_env</span></code> folder. This will be in the <code class="docutils literal notranslate"><span class="pre">envs</span></code> folder of your Anaconda installation (which you should have kept
+note of from before). If you cannot find the <code class="docutils literal notranslate"><span class="pre">pydra_env</span></code> in the <code class="docutils literal notranslate"><span class="pre">envs</span></code> folder of your base Anaconda
+installation, check the <code class="docutils literal notranslate"><span class="pre">.conda</span></code> directory in your account if you are using Windows (located in
+<code class="docutils literal notranslate"><span class="pre">C:/Users/&lt;USERNAME&gt;</span></code>).</p>
+<p>Whew! You are now ready to start using Pydra!</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="using_pydra.html" class="btn btn-neutral float-right" title="Using Pydra" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../index.html" class="btn btn-neutral float-left" title="Pydra - experiment control" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

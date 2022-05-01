@@ -1,0 +1,538 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pydra.core package &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial_welcome.html">Welcome!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../new_structure/0_overview.html">Overview of Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>pydra.core package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api_docs/pydra.core.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pydra-core-package">
+<h1>pydra.core package<a class="headerlink" href="#pydra-core-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pydra.core.messaging.html">pydra.core.messaging package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pydra.core.messaging.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydra.core.messaging.html#module-pydra.core.messaging.serializers">pydra.core.messaging.serializers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydra.core.messaging.html#module-pydra.core.messaging">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pydra.core.saving.html">pydra.core.saving package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pydra.core.saving.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydra.core.saving.html#pydra-core-saving-threading-module">pydra.core.saving.threading module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pydra.core.saving.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pydra-core-base-module">
+<h2>pydra.core.base module<a class="headerlink" href="#pydra-core-base-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pydra-core-process-module">
+<h2>pydra.core.process module<a class="headerlink" href="#pydra-core-process-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pydra.core.protocol">
+<span id="pydra-core-protocol-module"></span><h2>pydra.core.protocol module<a class="headerlink" href="#module-pydra.core.protocol" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pydra.core.protocol.</span></span><span class="sig-name descname"><span class="pre">Protocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repetitions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QObject</span></code></p>
+<p>Class for creating and running protocols.</p>
+<p>Protocols are a queued sequence of events, timers and triggers. Events can be any callable method or function,
+timers introduce waits within the protocol, and triggers allow external triggers to be received before continuing.
+Protocols also allow for a “free-running mode”, which will cause the protocol to run continuously until interrupted.</p>
+<p>Protocols may be repeated any number of times with a time gap in between repetitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the protocol.</p></li>
+<li><p><strong>repetitions</strong> (<em>int</em>) – Number of times protocol is to be repeated.</p></li>
+<li><p><strong>interval</strong> (<em>float</em>) – Time between repetitions of the protocol.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.event_queue">
+<span class="sig-name descname"><span class="pre">event_queue</span></span><a class="headerlink" href="#pydra.core.protocol.Protocol.event_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of events, timers and triggers within the protocol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.rep">
+<span class="sig-name descname"><span class="pre">rep</span></span><a class="headerlink" href="#pydra.core.protocol.Protocol.rep" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current repetition number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.timer">
+<span class="sig-name descname"><span class="pre">timer</span></span><a class="headerlink" href="#pydra.core.protocol.Protocol.timer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Timer for controlling interval between repetitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>QtCore.QTimer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.flag">
+<span class="sig-name descname"><span class="pre">flag</span></span><a class="headerlink" href="#pydra.core.protocol.Protocol.flag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal flag for whether the protocol is currently running (includes repetitions and inter-rep intervals).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Notes</p>
+<p>The event queue is a list of Queued, Timer and TriggerContainer objects. These objects all implement a __call__
+method and contain a “finished” Qt signal. The finished signal of each object connect to the __call__ method of
+the next object in the event queue.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>For Queued object, the finished signal emits as soon as the queued method returns.</p></li>
+<li><p>For Timer objects, the finished signal emits after a predefined elapsed time.</p></li>
+<li><p>For TriggerContainer objects, the finished signal emits when the Trigger object emits its triggered signal.</p></li>
+</ul>
+</div></blockquote>
+<p>The free-running mode implements a special case of a TriggerContainer, whereby a trigger is never received and so
+a finished signal is never emitted.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.addEvent">
+<span class="sig-name descname"><span class="pre">addEvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.addEvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.addEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an event to the protocol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>callable</em>) – Any object that implements a __call__ method.</p></li>
+<li><p><strong>args</strong> (<em>iterable</em>) – Arguments passed to method when called.</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Keyword arguments passed to method when called.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.addTimer">
+<span class="sig-name descname"><span class="pre">addTimer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.addTimer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.addTimer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a timer to the protocol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msec</strong> (<em>int</em>) – The duration of the timer (in milliseconds).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.addTrigger">
+<span class="sig-name descname"><span class="pre">addTrigger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trigger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pydra.core.protocol.trigger.Trigger</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.addTrigger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.addTrigger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a timer to the protocol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>trigger</strong> (<em>Trigger</em>) – A Trigger object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.build">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">events</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freerun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interrupt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">callable</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds a protocol object from a list of events.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.clearFlag">
+<span class="sig-name descname"><span class="pre">clearFlag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.clearFlag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.clearFlag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the flag. Internal use only.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.completed">
+<span class="sig-name descname"><span class="pre">completed</span></span><a class="headerlink" href="#pydra.core.protocol.Protocol.completed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.end">
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called at the end of a repetition of the protocol.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.finished">
+<span class="sig-name descname"><span class="pre">finished</span></span><a class="headerlink" href="#pydra.core.protocol.Protocol.finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.freeRunningMode">
+<span class="sig-name descname"><span class="pre">freeRunningMode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.freeRunningMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.freeRunningMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cause protocol to enter free-running mode. No events, timers or triggers can be called after protocol enters
+free-running mode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.interrupt">
+<span class="sig-name descname"><span class="pre">interrupt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.interrupt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.interrupt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interrupts the protocol.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.interrupted">
+<span class="sig-name descname"><span class="pre">interrupted</span></span><a class="headerlink" href="#pydra.core.protocol.Protocol.interrupted" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.running">
+<span class="sig-name descname"><span class="pre">running</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.running"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.running" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether the protocol is running (includes repetitions and inter-rep intervals).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.setFlag">
+<span class="sig-name descname"><span class="pre">setFlag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.setFlag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.setFlag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the flag. Internal use only.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.setInterval">
+<span class="sig-name descname"><span class="pre">setInterval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.setInterval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.setInterval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be used to reset the interval.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.setRepetitions">
+<span class="sig-name descname"><span class="pre">setRepetitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.setRepetitions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.setRepetitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be used to reset the number of repetitions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Protocol.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Protocol.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called to start one repetition of the protocol.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.Protocol.started">
+<span class="sig-name descname"><span class="pre">started</span></span><a class="headerlink" href="#pydra.core.protocol.Protocol.started" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pydra.core.protocol.Queued">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pydra.core.protocol.</span></span><span class="sig-name descname"><span class="pre">Queued</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Queued"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Queued" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QObject</span></code></p>
+<p>Class for queueing methods and other callables in a Protocol.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.Queued.finished">
+<span class="sig-name descname"><span class="pre">finished</span></span><a class="headerlink" href="#pydra.core.protocol.Queued.finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Queued.interrupt">
+<span class="sig-name descname"><span class="pre">interrupt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Queued.interrupt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Queued.interrupt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pydra.core.protocol.Timer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pydra.core.protocol.</span></span><span class="sig-name descname"><span class="pre">Timer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Timer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Timer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QObject</span></code></p>
+<p>Class for introducing waits in a Protocol.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.Timer.finished">
+<span class="sig-name descname"><span class="pre">finished</span></span><a class="headerlink" href="#pydra.core.protocol.Timer.finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Timer.interrupt">
+<span class="sig-name descname"><span class="pre">interrupt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Timer.interrupt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Timer.interrupt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.Timer.timeout">
+<span class="sig-name descname"><span class="pre">timeout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#Timer.timeout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.Timer.timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pydra.core.protocol.TriggerContainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pydra.core.protocol.</span></span><span class="sig-name descname"><span class="pre">TriggerContainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trigger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#TriggerContainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.TriggerContainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QObject</span></code></p>
+<p>Class for introducing triggers in a Protocol.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.TriggerContainer.finished">
+<span class="sig-name descname"><span class="pre">finished</span></span><a class="headerlink" href="#pydra.core.protocol.TriggerContainer.finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.TriggerContainer.interrupt">
+<span class="sig-name descname"><span class="pre">interrupt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#TriggerContainer.interrupt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.TriggerContainer.interrupt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.TriggerContainer.interrupted">
+<span class="sig-name descname"><span class="pre">interrupted</span></span><a class="headerlink" href="#pydra.core.protocol.TriggerContainer.interrupted" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.TriggerContainer.timed_out">
+<span class="sig-name descname"><span class="pre">timed_out</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#TriggerContainer.timed_out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.TriggerContainer.timed_out" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pydra.core.protocol.TriggerContainer.timeout">
+<span class="sig-name descname"><span class="pre">timeout</span></span><a class="headerlink" href="#pydra.core.protocol.TriggerContainer.timeout" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pydra.core.protocol.TriggerContainer.trigger_received">
+<span class="sig-name descname"><span class="pre">trigger_received</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pydra/core/protocol.html#TriggerContainer.trigger_received"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pydra.core.protocol.TriggerContainer.trigger_received" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pydra.core.trigger">
+<span id="pydra-core-trigger-module"></span><h2>pydra.core.trigger module<a class="headerlink" href="#module-pydra.core.trigger" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="pydra-core-workers-module">
+<h2>pydra.core.workers module<a class="headerlink" href="#pydra-core-workers-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pydra.core">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pydra.core" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

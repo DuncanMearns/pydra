@@ -1,0 +1,321 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>PydraObjects &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial_welcome.html">Welcome!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../new_structure/0_overview.html">Overview of Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>PydraObjects</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/structure/3_objects.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pydraobjects">
+<h1>PydraObjects<a class="headerlink" href="#pydraobjects" title="Permalink to this headline">¶</a></h1>
+<p>This section provides more details about each type of <code class="xref py py-class docutils literal notranslate"><span class="pre">PydraObject</span></code>.</p>
+<div class="section" id="worker">
+<h2>Worker<a class="headerlink" href="#worker" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> is the main class that users need to worry about and work with. The base class
+provides the bare minimum required to function within the Pydra network. More specific use cases are also provided by
+Pydra.</p>
+<p><strong>Class attributes</strong></p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code>: Each worker within the Pydra network <strong>must</strong> have a <em>unique</em> name. Even if
+two workers are running the exact same code, they must be uniquely named. This is because Pydra provides a unique ZeroMQ
+port to each worker in the network for publishing its messages. Furthermore, connections between workers are established
+using their names.</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subscriptions</span></code>: Every worker automatically receives EXIT and EVENT messages
+from <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a>. In addition, they receive EVENT and DATA messages from all the workers whose names
+appear in their subscriptions.</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipeline</span></code>: For more advanced network architectures, workers may be assigned to a
+specific pipeline.</p>
+<p><strong>Events</strong></p>
+<p>Every worker contains an <code class="xref py py-obj docutils literal notranslate"><span class="pre">events</span></code> attribute, which is a dictionary specified in the constructor. The event
+dictionary maps strings to methods. When an EVENT message is received, the event handler checks whether the event name
+appears in the worker’s event dictionary. If it does, then that method is called along with keyword arguments delivered
+with the EVENT message. These keyword arguments will also contain the message tags associated with the EVENT. These tags
+include the <em>“source”</em> of the EVENT, in case users want to have different functionality for the same EVENT received from
+different workers.</p>
+<p><a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> has a some special, protected events that it sends to all workers which are necessary for
+initializing the network and establishing communication with the <code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code>. Therefore, new
+events should <em>always</em> be added to the <code class="xref py py-obj docutils literal notranslate"><span class="pre">events</span></code> dictionary by updating the pre-existing attribute, rather than by
+overwriting it.</p>
+<p><a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> sends out a few events that may optionally be added to a worker’s <cite>events</cite> dictionary, but
+are not included by default. These include <em>“start_recording”</em> and <em>“stop_recording”</em>, as well as events for changing
+working directories and file names.</p>
+<p><strong>The event loop</strong></p>
+<p>Pydra workers run in processes that are separate from the main process. Therefore, they are not instantiated until they
+have been migrated to their own process. After the <code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> object is created (by calling its
+constructor, along with parameters passed from <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a>), its
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">run()</span></code> method is immediately called. The <code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code> method does three things:</p>
+<ol class="arabic simple">
+<li><p>First, the worker’s <code class="xref py py-meth docutils literal notranslate"><span class="pre">setup()</span></code> method is called once.</p></li>
+</ol>
+<p>2. Next, the worker enters its event loop. While the event loop is running, it constantly calls the
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">_process()</span></code> method. In the base <cite>Worker</cite> class, this polls the worker’s sockets
+for new messages. Polling receives and handles all messages that have arrived since the last pass of the event loop. If
+no messages have been received, it will return immediately without blocking. Therefore, overrides of the
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">_process()</span></code> method must always include a call to <code class="xref py py-obj docutils literal notranslate"><span class="pre">super()</span></code>.
+3. Finally, after the EXIT signal has been received from <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a>, the event loop terminates, and the
+worker calls its <code class="xref py py-meth docutils literal notranslate"><span class="pre">cleanup()</span></code> method. After cleanup, the process is free to join
+the main process.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">setup()</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">_process()</span></code> and <code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanup()</span></code> methods can all be overridden in subclasses of <code class="xref py py-obj docutils literal notranslate"><span class="pre">Worker</span></code>,
+with the caveats mentioned above.</p>
+<p><strong>Sending and receiving messages</strong></p>
+<p>Workers can communicate with other workers, with the <code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code>, and with
+<a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> (via the <code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code>). Whilst custom message types can be created and
+sent using decorators, for convenience the base <code class="xref py py-class docutils literal notranslate"><span class="pre">PydraObject</span></code> class provides a simple means of
+broadcasting common message types. Broadcast messages are received by other “subscribed” workers, and by the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code>.</p>
+<p>EVENT messages can be sent with the <code class="xref py py-meth docutils literal notranslate"><span class="pre">send_event()</span></code> method. This takes a string
+(the event name) and optional keyword arguments that will be passed to the receiver’s corresponding method.</p>
+<p>DATA messages can be sent with one of three methods:</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_frame()</span></code> can be used to send FRAME type data messages, consisting of</p></li>
+</ul>
+<p>timestamped and indexed numpy arrays.</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_indexed()</span></code> can be used to send INDEXED type data messages, consisting of a</p></li>
+</ul>
+<p>timestamp and index, as well as a dictionary of named data values.</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_timestamped()</span></code> can be used to send TIMESTAMPED type data messages. Timestamped</p></li>
+</ul>
+<p>messages are similar to indexed messages, consisting of a dictionary of named data values. However, timestamped data do
+not have any index associated with them.</p>
+<p>Just as workers can send DATA messages using the methods highlighted above, they can also receive data. The
+corresponding methods for handling received data are:</p>
+<ul class="simple">
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">recv_frame()</span></code> for FRAME type data.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">recv_indexed()</span></code> for INDEXED type data.</p></li>
+<li><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">recv_timestamped()</span></code> for TIMESTAMPED type data.</p></li>
+</ul>
+<p>Note that these methods are called for any and all data received from workers in the <code class="xref py py-obj docutils literal notranslate"><span class="pre">subscriptions</span></code>. If workers
+will be receiving the same data type from multiple sources in the network - and those data need to be handled separately
+- the <em>“source”</em> of every message is included within the keyword arguments passed to every <code class="xref py py-obj docutils literal notranslate"><span class="pre">recv_</span></code> method.</p>
+<p>If the functionality of a <code class="xref py py-class docutils literal notranslate"><span class="pre">Worker</span></code> is significantly affected by whom it receives messages
+from, consider distributing the tasks among multiple separate workers, provided the processing power of the computer
+allows it (remember - every worker runs in its own process). Workers can be assigned to pipelines to ensure that like
+data are saved together.</p>
+<p>Finally, messages that are destined for the main <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> object need to be decorated with the LOGGED
+message type. Note, however, that DATA from all workers are <em>automatically</em> forwarded to <a class="reference internal" href="../api_docs/pydra.html#pydra.pydra.Pydra" title="pydra.pydra.Pydra"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pydra</span></code></a> by
+the <code class="xref py py-class docutils literal notranslate"><span class="pre">Saver</span></code>.</p>
+</div>
+<div class="section" id="pydra">
+<h2>Pydra<a class="headerlink" href="#pydra" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="saver">
+<h2>Saver<a class="headerlink" href="#saver" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

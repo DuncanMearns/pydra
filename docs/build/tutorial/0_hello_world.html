@@ -1,0 +1,326 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Hello world &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Communication between workers" href="1_communication_between_workers.html" />
+    <link rel="prev" title="Welcome!" href="../tutorial_welcome.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tutorial_welcome.html">Welcome!</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../new_structure/0_overview.html">Overview of Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Hello world</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorial/0_hello_world.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="hello-world">
+<h1>Hello world<a class="headerlink" href="#hello-world" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd"># Hello world example for Pydra.</span>
+<span class="sd">#</span>
+<span class="sd"># In this example, we create a Pydra Worker class called HelloWorld. When we run Pydra, this worker will be migrated to</span>
+<span class="sd"># a separate process and start receiving events. Whenever an event is received, our worker will check whether it can</span>
+<span class="sd"># respond to the event and then call a corresponding method. In this example, our worker has a single event called</span>
+<span class="sd"># &quot;hello_world&quot; which calls the method hello_world.</span>
+<span class="sd">#</span>
+<span class="sd"># To use our worker class, we must create a module. Modules are dictionaries, and to include our worker, we must assign</span>
+<span class="sd"># it to the &quot;worker&quot; key. Note, that this should be the class itself, and not an instance. Modules are added to the config</span>
+<span class="sd"># dictionary used to initialize Pydra.</span>
+<span class="sd">#</span>
+<span class="sd"># Since Pydra runs a 0MQ network, connections between ports must be configured. This is done under the hood when we  call</span>
+<span class="sd"># Pydra&#39;s configure method. This method additionally takes a list of ports that Pydra should use to configure the 0MQ</span>
+<span class="sd"># network. Most applications of Pydra will first involve configuring the network.</span>
+<span class="sd"># &gt;&gt;&gt; from pydra import Pydra, config, ports</span>
+<span class="sd"># &gt;&gt;&gt; Pydra.configure(config, ports)</span>
+<span class="sd">#</span>
+<span class="sd"># To start using Pydra, we create an instance of the Pydra class. The config dictionary is unpacked by Pydra&#39;s constructor</span>
+<span class="sd"># and should be passed using the **kwargs pattern. The Pydra class should only be substantiated once. Instantiating the</span>
+<span class="sd"># Pydra class will migrate workers to new processes and setup the 0MQ network.</span>
+<span class="sd"># &gt;&gt;&gt; pydra = Pydra(**config)</span>
+<span class="sd">#</span>
+<span class="sd"># Once Pydra is configuring and an instance has been instantiated, we can start sending events to the workers we created</span>
+<span class="sd"># and passed to Pydra in our modules. Calling Pydra&#39;s send_event method will allow us to broadcast events to our workers.</span>
+<span class="sd"># &gt;&gt;&gt; pydra.send_event(&quot;hello_world&quot;)</span>
+<span class="sd">#</span>
+<span class="sd"># After we are finished sending events to our workers, we should make sure that all our processes rejoin the main process</span>
+<span class="sd"># and 0MQ connections are properly closed. Calling Pydra&#39;s exit method ensures a clean exit.</span>
+<span class="sd"># &gt;&gt;&gt; pydra.exit()</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">pydra</span> <span class="kn">import</span> <span class="n">Pydra</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">ports</span>
+<span class="kn">from</span> <span class="nn">pydra.core.main.workers</span> <span class="kn">import</span> <span class="n">Worker</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Worker class&quot;&quot;&quot;</span>
+
+    <span class="c1"># Every pydra worker must have a unique name</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;hello_world&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># The worker&#39;s constructor is only called after it has been migrated to a new process</span>
+        <span class="c1"># Call to super() within the constructor is needed to initialize connections in the network</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Add an event called &quot;hello_world&quot; to the worker and map it to a corresponding method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="s2">&quot;hello_world&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hello_world</span>
+
+    <span class="k">def</span> <span class="nf">hello_world</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># keyword arguments are passed from the event handler</span>
+        <span class="sd">&quot;&quot;&quot;Method called when pydra sends the &#39;hello_world&#39; event.&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;hello, world!&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># Create a module for our HelloWorld worker</span>
+<span class="n">HELLOWORLD</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;worker&quot;</span><span class="p">:</span> <span class="n">HelloWorld</span>
+<span class="p">}</span>
+
+
+<span class="c1"># Add the HELLOWORLD module to pydra&#39;s configuration dictionary</span>
+<span class="n">config</span><span class="p">[</span><span class="s2">&quot;modules&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">HELLOWORLD</span><span class="p">]</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Configure 0MQ connections</span>
+    <span class="n">Pydra</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ports</span><span class="p">)</span>
+
+    <span class="c1"># Create the pydra object</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;CREATING THE PYDRA OBJECT&quot;</span><span class="p">)</span>
+    <span class="n">pydra</span> <span class="o">=</span> <span class="n">Pydra</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Send an event called &quot;hello_world&quot; to the network</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">SENDING HELLO_WORLD EVENT&quot;</span><span class="p">)</span>
+    <span class="n">pydra</span><span class="o">.</span><span class="n">send_event</span><span class="p">(</span><span class="s2">&quot;hello_world&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Sleep for one second</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="c1"># Send an event called &quot;goodbye_world&quot; to the network</span>
+    <span class="c1"># This will be ignored unless one of our workers implements such an event</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">SENDING GOODBYE_WORLD EVENT&quot;</span><span class="p">)</span>
+    <span class="n">pydra</span><span class="o">.</span><span class="n">send_event</span><span class="p">(</span><span class="s2">&quot;goodbye_world&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Sleep for one second</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="c1"># Exit (should be called for clean exiting of processes)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">SENDING EXIT SIGNAL</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">pydra</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="1_communication_between_workers.html" class="btn btn-neutral float-right" title="Communication between workers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../tutorial_welcome.html" class="btn btn-neutral float-left" title="Welcome!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

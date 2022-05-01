@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pydra.configuration &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../about.html" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started/using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial_welcome.html">Welcome!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../new_structure/0_overview.html">Overview of Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pydra.configuration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pydra.configuration</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+
+<div class="viewcode-block" id="Port"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.configuration.Port">[docs]</a><span class="k">class</span> <span class="nc">Port</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__val</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">val</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__val</span>
+
+    <span class="nd">@val</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot change the value of a port.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;tcp://*:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;tcp://localhost:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="PortManager"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.configuration.PortManager">[docs]</a><span class="k">class</span> <span class="nc">PortManager</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">=</span> <span class="n">start</span>
+
+<div class="viewcode-block" id="PortManager.next"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.configuration.PortManager.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">Port</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">port</span></div></div>
+
+
+<span class="n">ports</span> <span class="o">=</span> <span class="n">PortManager</span><span class="p">(</span><span class="mi">5555</span><span class="p">)</span>
+<span class="n">_ports</span> <span class="o">=</span> <span class="n">PortManager</span><span class="p">(</span><span class="mi">6000</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Configuration"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.configuration.Configuration">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Configuration</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">connections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">connection_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">connection_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">connection_dict</span></div>
+
+
+<div class="viewcode-block" id="SenderConfig"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.configuration.SenderConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">SenderConfig</span><span class="p">(</span><span class="n">Configuration</span><span class="p">):</span>
+    <span class="n">sender</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">recv</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="PublisherConfig"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.configuration.PublisherConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">PublisherConfig</span><span class="p">(</span><span class="n">Configuration</span><span class="p">):</span>
+    <span class="n">publisher</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">sub</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="ReceiverConfig"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.configuration.ReceiverConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ReceiverConfig</span><span class="p">(</span><span class="n">Configuration</span><span class="p">):</span>
+    <span class="n">receivers</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[])</span>
+
+<div class="viewcode-block" id="ReceiverConfig.add_receiver"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.configuration.ReceiverConfig.add_receiver">[docs]</a>    <span class="k">def</span> <span class="nf">add_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">:</span> <span class="n">SenderConfig</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">sender</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">sender</span><span class="o">.</span><span class="n">recv</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="SubscriberConfig"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.configuration.SubscriberConfig">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">SubscriberConfig</span><span class="p">:</span>
+    <span class="n">subscriptions</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[])</span>
+
+<div class="viewcode-block" id="SubscriberConfig.add_subscription"><a class="viewcode-back" href="../../api_docs/pydra.html#pydra.configuration.SubscriberConfig.add_subscription">[docs]</a>    <span class="k">def</span> <span class="nf">add_subscription</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">publisher</span><span class="p">:</span> <span class="n">PublisherConfig</span><span class="p">,</span> <span class="n">messages</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subscriptions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">publisher</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">publisher</span><span class="o">.</span><span class="n">sub</span><span class="p">,</span> <span class="n">messages</span><span class="p">))</span></div></div>
+
+
+<span class="n">PydraConfig</span> <span class="o">=</span> <span class="n">dataclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="s2">&quot;PydraConfig&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">SubscriberConfig</span><span class="p">,</span> <span class="n">ReceiverConfig</span><span class="p">,</span> <span class="n">PublisherConfig</span><span class="p">),</span> <span class="p">{}))</span>
+<span class="n">BackendConfig</span> <span class="o">=</span> <span class="n">dataclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="s2">&quot;BackendConfig&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">SubscriberConfig</span><span class="p">,</span> <span class="n">ReceiverConfig</span><span class="p">,</span> <span class="n">PublisherConfig</span><span class="p">,</span> <span class="n">SenderConfig</span><span class="p">),</span> <span class="p">{}))</span>
+<span class="n">WorkerConfig</span> <span class="o">=</span> <span class="n">dataclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="s2">&quot;WorkerConfig&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">SubscriberConfig</span><span class="p">,</span> <span class="n">PublisherConfig</span><span class="p">),</span> <span class="p">{}))</span>
+<span class="n">SaverConfig</span> <span class="o">=</span> <span class="n">dataclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="s2">&quot;SaverConfig&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">SubscriberConfig</span><span class="p">,</span> <span class="n">SenderConfig</span><span class="p">),</span> <span class="p">{}))</span>
+
+
+<span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+
+    <span class="s2">&quot;connections&quot;</span><span class="p">:</span> <span class="p">{},</span>
+
+    <span class="s2">&quot;modules&quot;</span><span class="p">:</span> <span class="p">[],</span>
+
+    <span class="s2">&quot;savers&quot;</span><span class="p">:</span> <span class="p">[],</span>
+
+    <span class="s2">&quot;trigger&quot;</span><span class="p">:</span> <span class="kc">None</span>
+
+<span class="p">}</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

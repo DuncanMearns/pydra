@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pydra.core.messaging.base &mdash; pydra  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="author" title="About these documents" href="../../../../about.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> pydra
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/using_pydra.html">Using Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial_welcome.html">Welcome!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/0_hello_world.html">Hello world</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/1_communication_between_workers.html">Communication between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/2_events_with_arguments.html">Events with arguments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/3_passing_data_between_workers.html">Passing data between workers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/4_data_types.html">Data types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/5_pydra_gui.html">Pydra gui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial/6_advanced_functionality.html">Advanced functionality</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../new_structure/0_overview.html">Overview of Pydra</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_guide.html">API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pydra</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pydra.core.messaging.base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pydra.core.messaging.base</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">.serializers</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">zmq</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="k">def</span> <span class="nf">PUB</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Socket</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">zmq_publisher</span><span class="o">.</span><span class="n">socket</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Message failed to publish: Pydra object </span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s2"> is not a publisher.&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">PUSH</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">zmq</span><span class="o">.</span><span class="n">Socket</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">zmq_sender</span><span class="o">.</span><span class="n">socket</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Message failed to send: Pydra object </span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s2"> is not a sender.&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="PydraMessage"><a class="viewcode-back" href="../../../../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage">[docs]</a><span class="k">class</span> <span class="nc">PydraMessage</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Base Message class for serializing and deserializing messages passed between pydra objects.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dtypes : iterable of types</span>
+<span class="sd">        The data types to be encoded and decoded.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    flag : bytes</span>
+<span class="sd">        Unique string specifying the message type represented in bytes (class attribute).</span>
+<span class="sd">    dtypes : str</span>
+<span class="sd">        Characters representing each data type to be encoded/decoded in the message.</span>
+<span class="sd">    encoders : list of functions</span>
+<span class="sd">        Functions for serializing each data type in the message.</span>
+<span class="sd">    decoders : list of functions</span>
+<span class="sd">        Functions for deserializing each data type in the message.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">flag</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+
+    <span class="n">_serializers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">bool</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">serialize_bool</span><span class="p">,</span> <span class="n">deserialize_bool</span><span class="p">),</span>
+        <span class="nb">int</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="n">serialize_int</span><span class="p">,</span> <span class="n">deserialize_int</span><span class="p">),</span>
+        <span class="nb">float</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="n">serialize_float</span><span class="p">,</span> <span class="n">deserialize_float</span><span class="p">),</span>
+        <span class="nb">str</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">serialize_string</span><span class="p">,</span> <span class="n">deserialize_string</span><span class="p">),</span>
+        <span class="nb">dict</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="n">serialize_dict</span><span class="p">,</span> <span class="n">deserialize_dict</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">serialize_array</span><span class="p">,</span> <span class="n">deserialize_array</span><span class="p">),</span>
+        <span class="nb">object</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">serialize_objet</span><span class="p">,</span> <span class="n">deserialize_object</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">dtypes</span><span class="p">,</span> <span class="n">socktype</span><span class="o">=</span><span class="n">PUB</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_socket</span> <span class="o">=</span> <span class="n">socktype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoders</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decoders</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="n">dtypes</span><span class="p">:</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">serializer</span><span class="p">,</span> <span class="n">deserializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_serializers</span><span class="p">[</span><span class="n">dtype</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span> <span class="o">+=</span> <span class="n">s</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">encoders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">serializer</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decoders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deserializer</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PydraMessage.encode"><a class="viewcode-back" href="../../../../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encodes parts of a message.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : iterable</span>
+<span class="sd">            Iterable of values with same types as specified in the constructor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of bytes encoding serialized parts of the message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoders</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">encoder</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="PydraMessage.decode"><a class="viewcode-back" href="../../../../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage.decode">[docs]</a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Decodes parts of a message.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : iterable</span>
+<span class="sd">            Iterable of bytes to be decoded into data types specified in the constructor.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            Deserialized list of objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">decoder</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoders</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">decoder</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="PydraMessage.message_tags"><a class="viewcode-back" href="../../../../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage.message_tags">[docs]</a>    <span class="k">def</span> <span class="nf">message_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generates tags that are sent with the message over a zmq socket.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        obj</span>
+<span class="sd">            A PydraObject that is able to send messages over zmq.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            List of bytes containing: the message flag, source, timestamp, and additional flags for decoding message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">serialize_string</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>    <span class="c1"># the name of the object/worker sending the message</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">serialize_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span><span class="p">)</span>  <span class="c1"># flags for decoding the message</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">serialize_float</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>                 <span class="c1"># the time at which the message was sent</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">flag</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flags</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="PydraMessage.serializer"><a class="viewcode-back" href="../../../../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage.serializer">[docs]</a>    <span class="k">def</span> <span class="nf">serializer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method called by wrapper to serialize the message and tags before sending over zmq.&quot;&quot;&quot;</span>
+        <span class="n">obj</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">message_tags</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="PydraMessage.reader"><a class="viewcode-back" href="../../../../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage.reader">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">reader</span><span class="p">(</span><span class="n">parts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Decodes message tags and returns them along with serialized message.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Message flag, source, timestamp, additional flags and serialized parts of message</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flag</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span> <span class="o">=</span> <span class="n">parts</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="n">deserialize_string</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">deserialize_string</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">deserialize_float</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="n">deserialize_string</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">flag</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">args</span></div>
+
+<div class="viewcode-block" id="PydraMessage.recv"><a class="viewcode-back" href="../../../../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage.recv">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">recv</span><span class="p">(</span><span class="n">sock</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Receives message from a zmq socket with message tags deserialized.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">sock</span><span class="o">.</span><span class="n">recv_serialized</span><span class="p">(</span><span class="n">PydraMessage</span><span class="o">.</span><span class="n">reader</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PydraMessage.callback"><a class="viewcode-back" href="../../../../api_docs/pydra.core.messaging.html#pydra.core.messaging.PydraMessage.callback">[docs]</a>    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">decode_message</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">decode_message</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Decorator for sending messages using ZeroMQ.</span>
+
+<span class="sd">        The wrapper function, zmq_message, runs the method and sends the result to a zmq socket along with message tags</span>
+<span class="sd">        to assist with decoding once received.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">zmq_message</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">socket</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_socket</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">socket</span><span class="p">:</span>
+                <span class="n">socket</span><span class="o">.</span><span class="n">send_serialized</span><span class="p">((</span><span class="n">obj</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">result</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">zmq_message</span></div>
+
+
+<span class="k">class</span> <span class="nc">PushMessage</span><span class="p">(</span><span class="n">PydraMessage</span><span class="p">):</span>
+
+    <span class="n">flag</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;reply&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">dtypes</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">dtypes</span><span class="p">,</span> <span class="n">socktype</span><span class="o">=</span><span class="n">PUSH</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Duncan Mearns.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
