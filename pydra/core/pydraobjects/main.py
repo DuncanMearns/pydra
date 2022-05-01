@@ -11,6 +11,35 @@ import time
 
 
 class PydraMain(PydraReceiver, PydraPublisher, PydraSubscriber):
+    """The singleton main pydra class, implementing network initialization and front/backend connections. May be further
+    subclassed.
+
+    Parameters
+    ----------
+    connections : dict
+        Connections dictionary. Overrides default config in config class attribute.
+    modules : list
+        List of modules. Overrides default config in config class attribute.
+    savers : list
+        List of savers. Overrides default config in config class attribute.
+
+    Attributes
+    ----------
+    config : dict
+        Class attribute. The default setup configuration. Can be overridden through __init__.
+    connections : dict
+        Copy of connections parameter, or from config.
+    modules : list
+        Copy of modules parameter, or from config.
+    savers : list
+        Copy of savers parameter, or from config with connections initialized.
+    _backend : PydraBackend
+        The PydraBackend instance.
+    _workers : list
+        List of instantiated worker processes/threads.
+    _setup_state : SetupState
+        Instance of SetupState. Updates during setup method call, ensuring network initializes properly.
+    """
 
     config = {}
 
@@ -44,8 +73,8 @@ class PydraMain(PydraReceiver, PydraPublisher, PydraSubscriber):
     def start_backend(self, connections: dict = None):
         # Start saver and wait for it to respond
         connections = connections or self.config["connections"]["backend"]
-        saver_tuples = tuple(saver.to_tuple() for saver in self.savers)
-        self._backend = PydraBackend.start(saver_tuples, **connections)
+        savers = [saver.to_constructor() for saver in self.savers]
+        self._backend = PydraBackend.start(tuple(savers), **connections)
 
     def load_module(self, idx):
         try:

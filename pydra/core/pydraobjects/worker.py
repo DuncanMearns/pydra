@@ -3,17 +3,14 @@ from ..utils import Parallelized
 
 
 class Worker(Parallelized, PydraPublisher, PydraSubscriber):
-    """Base worker class. Receives and handles messages. Runs in a separate process.
+    """Base worker class.
 
     Attributes
     ----------
     name : str
         A unique string identifying the worker. Must be specified in all subclasses.
     subscriptions : tuple
-        Names of other workers in the network from which this one can receive data and events.
-    pipeline : str
-        The name of the pipeline to which this worker belongs. Only necessary if there are multiple data streams that
-        need to be saved separately.
+        Names of other workers in the network from which this one can receive pydra messages.
     """
 
     name = "worker"

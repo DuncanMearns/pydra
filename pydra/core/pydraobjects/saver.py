@@ -4,7 +4,48 @@ from ..utils import Parallelized
 import numpy as np
 
 
+class SaverConstructor:
+    """Container class for type, args, kwargs, and connections for Saver classes. Allows dynamically modified Saver
+    types to be passed to new processes for instantiation.
+
+    Parameters
+    ----------
+    cls_type : PydraType
+        The class to be constructed. Should be a subclass of Saver.
+    args : tuple
+        A copy of the args class attribute.
+    kwargs : dict
+        A copy of the kwargs class attribute.
+    connections : dict
+        A copy of the  _connections private class attribute. Should be properly initialized with connections to backend.
+    """
+
+    def __init__(self, cls_type, args, kwargs, connections):
+        self.cls_type = cls_type
+        self.args = args
+        self.kwargs = kwargs
+        self.connections = connections
+
+    def __call__(self, *args, **kwargs):
+        """Returns a new Saver class that can be instantiated."""
+        return type(self.cls_type.name, (self.cls_type,), {"args": self.args, "kwargs": self.kwargs,
+                                                           "_connections": self.connections})
+
+
 class Saver(Parallelized, PydraSender, PydraSubscriber):
+    """Base saver class.
+
+    Attributes
+    ----------
+    workers : tuple
+        Tuple of worker names (str) that saver listens to.
+    args : tuple
+        Passed to *args when saver instantiated.
+    kwargs : dict
+        Passed to **kwargs when saver instantiated.
+    _connections : dict
+        Private attribute containing zmq connections. Must be set before instantiation.
+    """
 
     workers = ()
     args = ()
@@ -13,18 +54,21 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
 
     @classmethod
     def start(cls, *args, **kwargs):
+        """Overrides Parallelized start method. Spawns an instantiated Saver object in a new thread."""
         kw = cls.kwargs.copy()
         kw.update(cls._connections)
         return super().start_thread(*cls.args, **kw)
 
     @classmethod
-    def to_tuple(cls):
-        return cls, cls.args, cls.kwargs, cls._connections
+    def to_constructor(cls):
+        """Returns a constructor object for current saver class, preserving changes to class attributes."""
+        return SaverConstructor(cls, cls.args, cls.kwargs, cls._connections)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def setup(self):
+        """Sends a connected signal."""
         self.connected()
 
     @_CONNECTION

@@ -4,26 +4,25 @@ from ..utils import Parallelized
 
 
 class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, PydraSubscriber):
-    """Singleton Saver class that integrates and handles incoming messages from all workers.
+    """Singleton backend class that acts as interface between main pydra class and savers.
 
     Parameters
     ----------
-    connections : dict
-        Dictionary of workers (as a list of names) assigned to each pipeline (keys). Passed from pydra pipelines
-        property.
+    savers : tuple
+        A tuple of saver constructor objects, allows saver objects to be instantiated in new threads/processes while
+        preserving modifications to class attributes.
 
     Attributes
     ----------
-    event_log : list
-        Logged messages from pydra objects.
-    messages : list
-        List of string-type messages received from pydra objects.
-    recording : bool
-        Stores whether data are currently being saved.
+    event_callbacks : dict
+        Dictionary containing callback methods for event messages.
     savers : list
-        List that stores all PipelineSaver objects.
-    targets : dict
-        A dictionary that maps data received from workers to the appropriate PipelineSaver object.
+        Tuple of saver constructors running in the backend.
+    _threads : list
+        List of running saver threads.
+    _saver_connections : dict
+        Tracks whether saver objects have successfully connected to zmq sockets. Automatically updated by _CONNECTION
+        message callback.
     """
 
     name = "backend"
@@ -40,14 +39,15 @@ class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, Pyd
 
     def setup(self):
         """Start saver threads."""
-        for cls_type, args, kwargs, connections in self.savers:
-            new_cls = type(cls_type.name, (cls_type,), {"args": args, "kwargs": kwargs, "_connections": connections})
-            thread = new_cls.start()
-            self._threads.append(thread)
-            self._saver_connections[new_cls.name] = False
+        for constructor in self.savers:
+            new_cls = constructor()  # generate the saver class by calling the constructor
+            thread = new_cls.start()  # instantiate saver in new thread
+            self._threads.append(thread)  # add to list of open threads
+            self._saver_connections[new_cls.name] = False  # add unconnected saver to connections dict
 
     @property
     def _savers_connected(self):
+        """Returns True when all savers are connected to zmq sockets, otherwise False."""
         return all(self._saver_connections.values())
 
     @_CONNECTION
@@ -56,15 +56,16 @@ class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, Pyd
 
     @_CONNECTION.callback
     def handle__connection(self, ret, **kwargs):
+        """Callback for _CONNECTION messages from savers. Updates the _saver_connections dictionary."""
         self._saver_connections[kwargs["source"]] = ret
 
     def _process(self):
-        """Receive messages from workers."""
+        """Receive messages."""
         self.poll()
 
     @EXIT
     def _exit(self):
-        """Broadcasts an exit signal."""
+        """Broadcasts exit signal to savers."""
         return ()
 
     def exit(self, *args, **kwargs):

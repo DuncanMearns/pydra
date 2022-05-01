@@ -3,7 +3,7 @@ import pydra.configuration as configuration
 
 
 class Pydra(PydraMain):
-    """Class for main Pydra object."""
+    """Main user class for creating a configured Pydra instance."""
 
     name = "pydra"
 
@@ -14,7 +14,7 @@ class Pydra(PydraMain):
 
     @staticmethod
     def _run():
-        """Run Pydra with the current configuration."""
+        """Return an instantiated Pydra object with the current configuration."""
         pydra = Pydra()
         pydra.setup()
         return pydra
@@ -25,6 +25,21 @@ class Pydra(PydraMain):
                   config: dict = None,
                   public: configuration.PortManager = None,
                   private: configuration.PortManager = None):
+        """Generates a configuration dictionary (stored in config class attribute).
+
+        Parameters
+        ----------
+            modules : tuple
+                List of modules to include in configuration.
+            savers : tuple
+                List of savers to include in configuration.
+            config : dict (optional)
+                A pre-configured dictionary.
+            public : configuration.PortManager (optional)
+                Ports to use for frontend zmq connections.
+            private : configuration.PortManager (optional)
+                Ports to use for backend zmq connections.
+        """
 
         config = config or configuration.config
         public = public or configuration.ports
@@ -33,11 +48,11 @@ class Pydra(PydraMain):
         # Get backend ports
         pub, sub = private.next()
         send, recv = private.next()
-        ipub, isub = private.next()
+        bpub, bsub = private.next()
 
         # Initialize backend configuration
         pydra_config = configuration.PydraConfig("pydra", pub, sub)
-        backend_config = configuration.BackendConfig("backend", send, recv, ipub, isub)
+        backend_config = configuration.BackendConfig("backend", send, recv, bpub, bsub)
         backend_config.add_subscription(pydra_config, (EXIT, EVENT, REQUEST))
         pydra_config.add_receiver(backend_config)
 
