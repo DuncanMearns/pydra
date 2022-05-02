@@ -9,11 +9,6 @@ class Pydra(PydraMain):
 
     @staticmethod
     def run():
-        pydra = Pydra._run()
-        pydra.exit()
-
-    @staticmethod
-    def _run():
         """Return an instantiated Pydra object with the current configuration."""
         pydra = Pydra()
         pydra.setup()

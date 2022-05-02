@@ -26,7 +26,7 @@ modules = [HELLOWORLD]
 
 def hello_world():
     Pydra.configure(modules=modules)
-    pydra = Pydra._run()
+    pydra = Pydra.run()
     print("Sending hello_world event")
     pydra.send_event("hello_world")
     time.sleep(1.)
@@ -35,7 +35,7 @@ def hello_world():
 
 def no_config():
     Pydra.configure()
-    pydra = Pydra._run()
+    pydra = Pydra.run()
     time.sleep(1.)
     pydra.exit()
 

@@ -45,7 +45,7 @@ savers = [MySaver]
 def main():
     Pydra.configure(modules=modules, savers=savers)
     print(Pydra.config["connections"]["mysaver"])
-    pydra = Pydra._run()
+    pydra = Pydra.run()
     time.sleep(3.)
     pydra.exit()
 
