@@ -1,4 +1,4 @@
-from pydra.modules.cameras.worker import CameraAcquisition, setter
+from modules.cameras.worker import CameraAcquisition, setter
 import cv2
 
 

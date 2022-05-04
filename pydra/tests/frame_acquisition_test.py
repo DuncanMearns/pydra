@@ -1,7 +1,8 @@
-from pydra import Pydra, ports, config
-from pydra.core import Worker, Acquisition
+from pydra import Pydra, config
+from pydra.app import PydraApp
+from pydra.core import Acquisition
 from pydra.gui import ControlWidget
-from modules.cameras.widget import FramePlotter
+# from pydra_modules.cameras.widget import FramePlotter
 from PyQt5 import QtWidgets
 import numpy as np
 import time
@@ -12,10 +13,10 @@ class AcquisitionWorker(Acquisition):
 
     name = "acquisition"  # remember, every worker must have a unique name
 
-    def __init__(self, value, *args, **kwargs):
+    def __init__(self, value=0, *args, **kwargs):
         super().__init__(*args, **kwargs)  # always call super() constructor
         self.value = value  # this worker has a value attribute
-        self.events["set_value"] = self.set_value  # we can change the worker's value with a set_value event
+        self.event_callbacks["set_value"] = self.set_value  # we can change the worker's value with a set_value event
         self.i = 0  # this will store the frame index
 
     def set_value(self, value=0, **kwargs):
@@ -36,7 +37,7 @@ class AcquisitionWorker(Acquisition):
         # Increment the frame index
         self.i += 1
         # Sleep (simulates the camera frame rate)
-        time.sleep(0.01)
+        # time.sleep(0.01)
 
 
 class AcquisitionWidget(ControlWidget):
@@ -65,50 +66,16 @@ class AcquisitionWidget(ControlWidget):
         self.setEnabled(True)  # enable the widget again once recording finishes
 
 
-class TrackingOverlay(FramePlotter):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def updatePlots(self, data_cache, **kwargs):
-        super().updatePlots(data_cache, **kwargs)
-        x = kwargs["tracking"]["x"]
-        y = kwargs["tracking"]["y"]
-        points = 125 + np.array([x, y]) * 50  # create numpy array
-        self.updateOverlay("frame", *points)
-
-
-class TrackingWorker(Worker):
-    """This worker will simulate a tracking worker."""
-
-    name = "tracking"  # the worker is called "tracking"
-    subscriptions = ("acquisition",)  # it receives messages from "acquisition"
-
-    def recv_frame(self, t, i, frame, **kwargs):
-        """This method is called whenever the worker receives frame data."""
-        data = dict(x=np.random.rand(), y=np.random.rand())  # create some random x, y coordinates
-        # Send coordinates as indexed data
-        self.send_indexed(t, i, data)  # the timestamp and index should be the same as the received frame!!!
-
-
 # Create the acquisition module
 ACQUISITION = {
     "worker": AcquisitionWorker,
-    "params": {"value": 0},  # params are passed to the constructor of the worker
+    "params": {},  # params are passed to the constructor of the worker
     "controller": AcquisitionWidget,
-    "plotter": TrackingOverlay
+    # "plotter": FramePlotter
 }
 
-# Create the tracking module
-TRACKING = {
-    "worker": TrackingWorker
-}
-
-# Add modules to config
-config["modules"] = [ACQUISITION, TRACKING]
+config["modules"] = [ACQUISITION]
 
 
 if __name__ == "__main__":
-    # Run pydra
-    config = Pydra.configure(config, ports)
-    pydra = Pydra.run(working_dir="D:\pydra_tests", **config)
+    PydraApp.run(config)

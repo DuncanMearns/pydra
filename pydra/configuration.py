@@ -97,4 +97,8 @@ config = {
 
     "trigger": None
 
+    # Additional config parameters:
+    #   "default_directory"
+    #   "default_filename"
+
 }

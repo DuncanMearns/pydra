@@ -1,26 +1,9 @@
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore
 import importlib.util
 from pydra import Pydra
-from pydra.gui import StartWindow, images  #, MainWindow
-
-
-class MainWindow(QtWidgets.QMainWindow):
-
-    def __init__(self, pydra, *args):
-        super().__init__(*args)
-        self.pydra = pydra
-        # Start the pydra event loop
-        self.pydra.setup()
-        # Set window title
-        self.setWindowTitle("Pydra - Experiment Control")
-        # Set window icon
-        self.setWindowIcon(QtGui.QIcon(images.icons["python_logo"]))
-        # Create the state machine
-        # self._create_state_machine()
-
-    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        self.pydra.exit()
-        a0.accept()
+from pydra.gui import StartWindow, MainWindow
+import sys
+import os
 
 
 class PydraApp(QtWidgets.QApplication):
@@ -29,18 +12,21 @@ class PydraApp(QtWidgets.QApplication):
     hasConfig = QtCore.pyqtSignal()  # signal emitted when config is set
 
     @staticmethod
-    def run():
+    def run(config=None):
         """Static method to run the PydraApp."""
         import sys
-        app = PydraApp(sys.argv)
+        app = PydraApp(sys.argv, config)
         app.start()
         return sys.exit(app.exec())
 
-    def __init__(self, argv):
+    def __init__(self, argv, config: dict = None):
         super().__init__(argv)
         self.aboutToQuit.connect(self.closeAllWindows, QtCore.Qt.QueuedConnection)  # ensure always quits
         self.hasConfig.connect(self.main, QtCore.Qt.QueuedConnection)  # run main when config is specified
-        if len(argv) > 1:  # take config filepath from argv if exists
+        if config:
+            self.config_file = "user provided"
+            self.config = config
+        elif len(argv) > 1:  # take config filepath from argv if exists
             self.config_file = argv[1]
             self.config = self.config_from_file(self.config_file)
 
@@ -87,6 +73,7 @@ class PydraApp(QtWidgets.QApplication):
         """Slot to load a config from the given python file."""
         self.config_file = pypath
         self.config = self.config_from_file(pypath)
+        print(self.config)
 
     @staticmethod
     def config_from_file(pypath):
@@ -94,9 +81,13 @@ class PydraApp(QtWidgets.QApplication):
         if not pypath.endswith(".py"):
             raise ValueError("Path is not a python file.")
         try:
-            spec = importlib.util.spec_from_file_location("pydra_config", pypath)
+            dirname, modname = os.path.split(pypath)
+            modname = modname.split(".")[0]
+            sys.path.append(dirname)
+            spec = importlib.util.spec_from_file_location(modname, pypath)
             mod = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(mod)
+            sys.modules[modname] = mod
         except FileNotFoundError:
             print("Path to stimulus file does not exist.")
             return

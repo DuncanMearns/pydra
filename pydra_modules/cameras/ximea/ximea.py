@@ -4,7 +4,7 @@ except NameError:
     raise Exception(
         "The xiapi package must be installed to use a Ximea camera!"
     )
-from pydra.modules.cameras.worker import CameraAcquisition, setter
+from modules.cameras.worker import CameraAcquisition, setter
 
 
 class XimeaCamera(CameraAcquisition):

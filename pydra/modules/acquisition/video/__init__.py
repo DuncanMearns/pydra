@@ -1,5 +1,5 @@
 from .video import VideoWorker
-from ..widget import CameraWidget, FramePlotter
+from pydra_modules.cameras.widget import CameraWidget, FramePlotter
 
 VIDEO = {
     "worker": VideoWorker,

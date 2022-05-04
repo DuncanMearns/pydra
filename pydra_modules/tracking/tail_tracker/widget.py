@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, QtCore
 from pydra.gui import ControlWidget, Plotter
-from pydra.modules.cameras.widget import FramePlotter
+from modules.cameras.widget import FramePlotter
 from tailtracker.gui import TailInitializationWidget
 
 

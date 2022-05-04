@@ -2,13 +2,14 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from pydra.utilities import clock
 from .toolbar import RecordingToolbar
 from .plotter import DisplayContainer
-from .states import StateEnabled
+from .states import Stateful
 from .protocol import ProtocolWindow
 from .module import PydraDockWidget
 from .cache import WorkerCache
+from .images import icons
 
 
-class MainWindow(QtWidgets.QMainWindow, StateEnabled):
+class MainWindow(Stateful, QtWidgets.QMainWindow):
     """Main window for Pydra application.
 
     Parameters
@@ -17,37 +18,34 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
         The Pydra instance.
     """
 
-    def __init__(self, pydra, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Give app access to pydra
+    def __init__(self, pydra, *args):
+        super().__init__(*args)
+        # Start pydra event loop
         self.pydra = pydra
-
+        self.pydra.setup()
+        # ================
         # Set window title
         self.setWindowTitle("Pydra - Experiment Control")
-        # Create the state machine
-        self._create_state_machine()
-        # ==========================
-
+        self.setWindowIcon(QtGui.QIcon(icons["python_logo"]))
+        # ==============
         # Create menubar
         self.setMenuBar(QtWidgets.QMenuBar())
         self.windowMenu = self.menuWidget().addMenu("Window")
-
-        # Get worker events for building protocols
-        self.worker_events = self.pydra.worker_events
-        self.protocol_window = ProtocolWindow(self.worker_events, self.pydra.protocols, parent=self)
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.protocol_window)
-
-        # Add toolbar for recording
+        # ======================
+        # Create protocol window
+        # self.worker_events = self.pydra.worker_events
+        # self.protocol_window = ProtocolWindow(self.worker_events, self.pydra.protocols, parent=self)
+        # self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.protocol_window)
+        # =====================
+        # Add recording toolbar
         self.recording_toolbar = RecordingToolbar(parent=self)
         self.addToolBar(self.recording_toolbar)
-        self.idleState.addTransition(self.recording_toolbar.record, self.runningState)
-        self.runningState.addTransition(self.recording_toolbar.record, self.idleState)
-        self.runningState.entered.connect(self.run_protocol)
-        self.runningState.exited.connect(self.pydra.end_protocol)
-
+        # self.runningState.entered.connect(self.run_protocol)
+        # self.runningState.exited.connect(self.pydra.end_protocol)
+        # ==================
         # Create data caches
         self.caches = {}
-
+        # =====================
         # Create display widget
         self.display_container = DisplayContainer()
         self.setCentralWidget(self.display_container)
@@ -68,12 +66,12 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
                 # Create plotting widget
                 plotter = module["plotter"](name=name, params=params)
                 self.add_plotter(name, plotter)
-
+        # =================================
         # Send any missed events to widgets
-        for worker, log in self.pydra._event_log.items():
-            for (t, event_name, event_kw) in log:
-                self.controllers[worker].receiveLogged(event_name, event_kw)
-
+        # for worker, log in self.pydra._event_log.items():
+        #     for (t, event_name, event_kw) in log:
+        #         self.controllers[worker].receiveLogged(event_name, event_kw)
+        # =====================
         # Plotting update timer
         self.update_interval = 30
         self.update_timer = QtCore.QTimer()
@@ -83,10 +81,10 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
 
         # =======================
         # Start the state machine
-        self._start_state_machine()
+        self.stateMachine.start()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        self.pydra.shutdown()
+        self.pydra.exit()
         a0.accept()
 
     def run_protocol(self):
@@ -122,18 +120,19 @@ class MainWindow(QtWidgets.QMainWindow, StateEnabled):
     @QtCore.pyqtSlot()
     def update_plots(self):
         """Updates widgets with data received from pydra."""
-        for worker, data, frame in self.pydra.request_data():
-            self.caches[worker].update(clock.t0, data, frame)
-        for worker, widget in self._to_update:
-            kw = dict([(w, cache) for (w, cache) in self.caches.items() if w != worker])
-            widget.updatePlots(self.caches[worker], **kw)
-        # Check logged events
-        ret, log = self.pydra.request_events()
-        if ret:
-            for (t, worker, event_name, event_kw) in log:
-                self.controllers[worker].receiveLogged(event_name, event_kw)
+        return
+        # for worker, data, frame in self.pydra.request_data():
+        #     self.caches[worker].update(clock.t0, data, frame)
+        # for worker, widget in self._to_update:
+        #     kw = dict([(w, cache) for (w, cache) in self.caches.items() if w != worker])
+        #     widget.updatePlots(self.caches[worker], **kw)
+        # # Check logged events
+        # ret, log = self.pydra.request_events()
+        # if ret:
+        #     for (t, worker, event_name, event_kw) in log:
+        #         self.controllers[worker].receiveLogged(event_name, event_kw)
 
-    def enterRunning(self):
-        for worker, cache in self.caches.items():
-            cache.clear()
-        super().enterRunning()
+    # def enterRunning(self):
+    #     for worker, cache in self.caches.items():
+    #         cache.clear()
+    #     super().enterRunning()

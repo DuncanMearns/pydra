@@ -1,5 +1,6 @@
 from pydra.core import *
 import pydra.configuration as configuration
+import os
 
 
 class Pydra(PydraMain):
@@ -14,6 +15,24 @@ class Pydra(PydraMain):
         pydra.setup()
         return pydra
 
+    def __init__(self):
+        super().__init__()
+        self.working_dir = self.config.get("default_directory", os.getcwd())
+        self.filename = self.config.get("default_filename", "")
+        self.recording_idx = 0
+
+    @EVENT
+    def start_recording(self):
+        """Broadcasts a start_recording event."""
+        return "start_recording", dict(directory=str(self.working_dir),
+                                       filename=str(self.filename),
+                                       idx=int(self.recording_idx))
+
+    @EVENT
+    def stop_recording(self):
+        """Broadcasts a start_recording event."""
+        return "stop_recording", {}
+    
     @staticmethod
     def configure(modules=(),
                   savers=(),

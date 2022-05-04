@@ -3,7 +3,7 @@ try:
     from pymba import VimbaException
 except ImportError:
     pass
-from pydra.modules.cameras.worker import CameraAcquisition
+from modules.cameras.worker import CameraAcquisition
 import numpy as np
 
 

@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, QtCore
 
-from ..states import StateEnabled
+from ..states import Stateful
 from .directory_widget import DirectoryWidget
 from .file_naming import FileNamingWidget
 from .protocol_widget import ProtocolWidget
@@ -12,7 +12,7 @@ BUTTON_WIDTH = 100
 BUTTON_HEIGHT = 50
 
 
-class RecordButton(QtWidgets.QPushButton, StateEnabled):
+class RecordButton(Stateful, QtWidgets.QPushButton):
 
     def __init__(self, *args, **kwargs):
         super().__init__("RECORD", *args, **kwargs)
@@ -46,9 +46,7 @@ def checked(method):
     return check_naming_conflict
 
 
-class RecordingToolbar(QtWidgets.QToolBar, StateEnabled):
-
-    record = QtCore.pyqtSignal()
+class RecordingToolbar(Stateful, QtWidgets.QToolBar):
 
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
@@ -57,24 +55,25 @@ class RecordingToolbar(QtWidgets.QToolBar, StateEnabled):
         self.setMovable(False)
         # Record button
         self.record_button = RecordButton()
-        self.record_button.clicked.connect(self.record_button_clicked)
+        self.stateMachine.idle.addTransition(self.record_button.clicked, self.stateMachine.running)
+        self.stateMachine.running.addTransition(self.record_button.clicked, self.stateMachine.idle)
         self.addWidget(self.record_button)
         self.addSeparator()
-        # Directory widget
-        self.directory_widget = DirectoryWidget(self.parent().pydra.working_dir)
-        self.addWidget(self.directory_widget)
-        self.addSeparator()
-        # File naming widget
-        self.filename_widget = FileNamingWidget()
-        self.addWidget(self.filename_widget)
-        self.addSeparator()
-        # Protocol widget
-        self.protocol_widget = ProtocolWidget()
-        self.protocol_widget.editor_clicked.connect(self.show_protocol)
-        self.addWidget(self.protocol_widget)
-        # Signals
-        self.directory_widget.changed.connect(self.set_working_directory)
-        self.filename_widget.changed.connect(self.set_filename)
+        # # Directory widget
+        # self.directory_widget = DirectoryWidget(self.parent().pydra.working_dir)
+        # self.addWidget(self.directory_widget)
+        # self.addSeparator()
+        # # File naming widget
+        # self.filename_widget = FileNamingWidget()
+        # self.addWidget(self.filename_widget)
+        # self.addSeparator()
+        # # Protocol widget
+        # self.protocol_widget = ProtocolWidget()
+        # self.protocol_widget.editor_clicked.connect(self.show_protocol)
+        # self.addWidget(self.protocol_widget)
+        # # Signals
+        # self.directory_widget.changed.connect(self.set_working_directory)
+        # self.filename_widget.changed.connect(self.set_filename)
 
     @checked
     def set_filename(self, filename):
@@ -86,7 +85,3 @@ class RecordingToolbar(QtWidgets.QToolBar, StateEnabled):
 
     def show_protocol(self):
         self.parent().protocol_window.show()
-
-    @QtCore.pyqtSlot()
-    def record_button_clicked(self):
-        self.record.emit()
