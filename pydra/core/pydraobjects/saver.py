@@ -2,6 +2,9 @@ from .._base import *
 from ..messaging import *
 from ..utils import Parallelized
 import numpy as np
+import os
+import cv2
+from collections import deque
 
 
 class SaverConstructor:
@@ -52,6 +55,10 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
     kwargs = {}
     _connections = {}
 
+    # States
+    idle = 0
+    recording = 1
+
     @classmethod
     def start(cls, *args, **kwargs):
         """Overrides Parallelized start method. Spawns an instantiated Saver object in a new thread."""
@@ -66,6 +73,7 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.state = self.idle
 
     def setup(self):
         """Sends a connected signal."""
@@ -82,17 +90,24 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
     def _process(self):
         self.poll()
 
+    def new_file(self, directory, filename, ext=""):
+        if ext:
+            filename = ".".join((filename, ext))
+        f = os.path.join(directory, filename)
+        return f
+
 
 class VideoSaver(Saver):
 
     name = "video_saver"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, frame_rate=100., fourcc="XVID", *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.frame_rate = None
-        self.fourcc = None
+        self.frame_rate = frame_rate
+        self.fourcc = fourcc
         self.writer = None
         self.cached = np.empty(())
+        self.t_cache = deque(np.empty(100) * np.nan, 100)
 
     @property
     def frame_size(self):
@@ -102,9 +117,30 @@ class VideoSaver(Saver):
     def is_color(self):
         return self.cached.ndim == 3
 
+    @property
+    def real_frame_rate(self):
+        a = np.array(self.t_cache)
+        a = a[~np.isnan(a)]
+        return 1. / np.mean(np.diff(a))
+
     def recv_frame(self, t, i, frame, **kwargs):
         self.cached = frame
-        return
+        self.t_cache.append(t)
+        if i % 100 == 0:
+            print(i, "received")
+        if self.state == self.recording:
+            self.writer.write(frame)
+
+    def start_recording(self, directory=None, filename=None, **kwargs):
+        path = self.new_file(directory, filename, "avi")
+        print("video saver starts recording", path, self.real_frame_rate)
+        self.state = self.recording
+        fourcc = cv2.VideoWriter_fourcc(*self.fourcc)
+        self.writer = cv2.VideoWriter(path, fourcc, self.frame_rate, self.frame_size, self.is_color)
+
+    def stop_recording(self, **kwargs):
+        self.writer.release()
+        self.state = self.idle
 
 
 class HDF5Saver(Saver):

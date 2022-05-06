@@ -22,7 +22,6 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         super().__init__(*args)
         # Start pydra event loop
         self.pydra = pydra
-        self.pydra.setup()
         # ================
         # Set window title
         self.setWindowTitle("Pydra - Experiment Control")

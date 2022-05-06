@@ -42,17 +42,10 @@ class PydraApp(QtWidgets.QApplication):
         """Create a main window with a configured pydra instance."""
         self.start_window.setEnabled(False)
         self.start_window.showMessage(f"Starting pydra with config from {self.config_file}")
-        pydra = self.pydra_instance(self.config)
+        pydra = Pydra.run(config=self.config)
         self.main_window = MainWindow(pydra)
         self.main_window.show()
         self.start_window.finish(self.main_window)
-
-    @staticmethod
-    def pydra_instance(config: dict):
-        """Return a configured pydra instance."""
-        Pydra.configure(config=config)
-        pydra = Pydra()
-        return pydra
 
     @property
     def config(self):

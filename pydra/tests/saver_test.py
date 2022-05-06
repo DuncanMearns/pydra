@@ -1,14 +1,20 @@
 from pydra import Pydra
-from pydra.core import Saver
+from pydra.tests.frame_acquisition import config
 import time
 
 
-def no_config():
-    Pydra.configure(savers=(Saver,))
-    pydra = Pydra.run()
-    time.sleep(3.)
+def test_frame_saver():
+    pydra = Pydra.run(config=config)
+    time.sleep(1.)
+    pydra.send_event("set_value", value=10)
+    time.sleep(1.)
+    pydra.filename = "test_video"
+    pydra.start_recording()
+    time.sleep(5.)
+    pydra.stop_recording()
+    time.sleep(1.)
     pydra.exit()
 
 
 if __name__ == "__main__":
-    no_config()
+    test_frame_saver()

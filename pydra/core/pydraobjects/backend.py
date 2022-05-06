@@ -1,6 +1,7 @@
 from .._base import PydraReceiver, PydraPublisher, PydraSender, PydraSubscriber
 from ..messaging import _CONNECTION, EXIT
 from ..utils import Parallelized
+import time
 
 
 class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, PydraSubscriber):
@@ -72,6 +73,7 @@ class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, Pyd
         """Terminates the process loop."""
         # if self.recording:
         #     self.stop_recording()
+        print("Backend exiting...")
         self._exit()
         for thread in self._threads:
             thread.join()
@@ -80,6 +82,8 @@ class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, Pyd
     def start_recording(self, directory: str = None, filename: str = None, **kwargs):
         """Implements a start_recording event. Starts saving data."""
         print("START RECORDING")
+        self.send_event("start_recording", directory=directory, filename=filename)
+        # print("START RECORDING")
         # if not self.recording:
         #     for pipeline in self.savers:
         #         pipeline.start(directory, filename)
@@ -88,6 +92,7 @@ class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, Pyd
     def stop_recording(self, **kwargs):
         """Implements a stop_recording event. Stops saving data."""
         print("STOP RECORDING")
+        self.send_event("stop_recording")
         # if self.recording:
         #     for pipeline in self.savers:
         #         pipeline.stop()

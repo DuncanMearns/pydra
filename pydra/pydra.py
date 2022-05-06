@@ -9,8 +9,9 @@ class Pydra(PydraMain):
     name = "pydra"
 
     @staticmethod
-    def run():
+    def run(modules=(), savers=(), config: dict = None, public=None, private=None):
         """Return an instantiated Pydra object with the current configuration."""
+        Pydra.configure(modules, savers, config, public, private)
         pydra = Pydra()
         pydra.setup()
         return pydra
@@ -32,7 +33,7 @@ class Pydra(PydraMain):
     def stop_recording(self):
         """Broadcasts a start_recording event."""
         return "stop_recording", {}
-    
+
     @staticmethod
     def configure(modules=(),
                   savers=(),
