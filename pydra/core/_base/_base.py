@@ -29,13 +29,13 @@ class PydraObject(metaclass=PydraType):
         return error, message
 
 
-class PydraWriter(PydraObject):
+class PydraMessenger(PydraObject):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
-class PydraReader(PydraObject):
+class PydraListener(PydraObject):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -61,7 +61,7 @@ class PydraReader(PydraObject):
                 self.raise_error(err, message)
 
 
-class PydraSender(PydraWriter):
+class PydraSender(PydraMessenger):
 
     def __init__(self, sender=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,8 +89,12 @@ class PydraSender(PydraWriter):
     def reply_data(self):
         raise NotImplementedError
 
+    @_ERROR
+    def raise_error(self, error: Exception, message: str):
+        return error, message
 
-class PydraReceiver(PydraReader):
+
+class PydraReceiver(PydraListener):
 
     def __init__(self, receivers=(), *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -101,7 +105,7 @@ class PydraReceiver(PydraReader):
         self.zmq_poller.add_receiver(name, port)
 
 
-class PydraPublisher(PydraWriter):
+class PydraPublisher(PydraMessenger):
 
     def __init__(self, publisher=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -194,7 +198,7 @@ class PydraPublisher(PydraWriter):
         return t, i, frame
 
 
-class PydraSubscriber(PydraReader):
+class PydraSubscriber(PydraListener):
 
     def __init__(self, subscriptions=(), *args, **kwargs):
         super().__init__(*args, **kwargs)

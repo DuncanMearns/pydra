@@ -1,6 +1,6 @@
 from .base import PydraMessage, PushMessage
 
-__all__ = ("EXIT", "CONNECTION", "ERROR", "REQUEST", "_CONNECTION", "_DATA")
+__all__ = ("EXIT", "CONNECTION", "ERROR", "REQUEST", "_CONNECTION", "_DATA", "_ERROR")
 
 ExitMessage = type("ExitMessage", (PydraMessage,), {"flag": b"exit"})
 EXIT = ExitMessage()

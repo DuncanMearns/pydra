@@ -1,10 +1,31 @@
 from .._base import *
 from ..messaging import *
 from ..utils import Parallelized
+from ..utils.cache import DataCache, TempCache
 import numpy as np
 import os
 import cv2
 from collections import deque
+import h5py
+
+
+class conditional:
+
+    def __init__(self, method=None, condition=None):
+        self.method = method
+        self.condition = condition if condition else lambda obj: False
+        self.object = None
+
+    def __get__(self, instance, owner):
+        self.object = instance
+        return self.__call__
+
+    def __call__(self, *args, **kwargs):
+        if self.condition(self.object):
+            self.method(self.object, *args, **kwargs)
+
+    def when(self, condition):
+        return type(self)(self.method, condition)
 
 
 class SaverConstructor:
@@ -90,14 +111,75 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
     def _process(self):
         self.poll()
 
-    def new_file(self, directory, filename, ext=""):
+    @staticmethod
+    def new_file(directory, filename, ext=""):
         if ext:
             filename = ".".join((filename, ext))
         f = os.path.join(directory, filename)
         return f
 
+    def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
+        self.state = self.recording
 
-class VideoSaver(Saver):
+    def stop_recording(self, **kwargs):
+        self.state = self.idle
+
+    def is_saving(self):
+        return self.state == self.recording
+
+
+class HDF5Saver(Saver):
+
+    name = "hdf5_saver"
+
+    def __init__(self, cache=50000, arr_cache=500, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.h5_file = None
+        self.cachesize = cache
+        self.arr_cachesize = arr_cache
+        self.caches = dict([(worker, DataCache()) for worker in self.workers])
+        self.temp = dict([(worker, TempCache(self.cachesize, self.arr_cachesize)) for worker in self.workers])
+
+    @property
+    def h5_file(self) -> h5py.File:
+        if self._h5_file:
+            return self._h5_file
+
+    @h5_file.setter
+    def h5_file(self, val):
+        self._h5_file = val
+
+    def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
+        super().start_recording(directory=directory, filename=filename, idx=idx, **kwargs)
+        path = self.new_file(directory, filename, "hdf5")
+        self.h5_file = h5py.File(path, "w")
+
+    def stop_recording(self, **kwargs):
+        # stuff here
+        super().stop_recording(**kwargs)
+
+    def recv_indexed(self, t, i, data, **kwargs):
+        self.recv_data(t, i, data)
+
+    def recv_array(self, t, i, a, **kwargs):
+        self.recv_data(t, i, arr=a)
+
+    def recv_timestamped(self, t, data, **kwargs):
+        self.recv_data(t, data=data)
+
+    def recv_data(self, t, i=None, data=None, arr=None, **kwargs):
+        worker = kwargs["source"]
+        self.temp[worker].append(t, i, data, arr)
+        self.save_data(worker, t, i, data, arr)
+
+    @conditional
+    def save_data(self, worker, t, i, data, arr):
+        self.caches[worker].append(t, i, data, arr)
+
+    save_data = save_data.when(Saver.is_saving)
+
+
+class VideoSaver(HDF5Saver):
 
     name = "video_saver"
 
@@ -106,63 +188,47 @@ class VideoSaver(Saver):
         self.frame_rate = frame_rate
         self.fourcc = fourcc
         self.writer = None
-        self.cached = np.empty(())
-        self.t_cache = deque(np.empty(100) * np.nan, 100)
+        self.video_cache = np.empty(())
+        self.t_cache = []
+        self.t_temp = deque(np.empty(self.arr_cachesize) * np.nan, self.arr_cachesize)
 
     @property
     def frame_size(self):
-        return self.cached.shape[1], self.cached.shape[0]
+        return self.video_cache.shape[1], self.video_cache.shape[0]
 
     @property
     def is_color(self):
-        return self.cached.ndim == 3
+        return self.video_cache.ndim == 3
 
     @property
     def real_frame_rate(self):
-        a = np.array(self.t_cache)
+        a = np.array(self.t_temp)
         a = a[~np.isnan(a)]
         return 1. / np.mean(np.diff(a))
 
     def recv_frame(self, t, i, frame, **kwargs):
-        self.cached = frame
-        self.t_cache.append(t)
+        self.video_cache = frame
+        self.t_temp.append(t)
         if i % 100 == 0:
             print(i, "received")
-        if self.state == self.recording:
-            self.writer.write(frame)
+        self.save_frame(t, i, frame)
 
-    def start_recording(self, directory=None, filename=None, **kwargs):
+    @conditional
+    def save_frame(self, t, i, frame):
+        self.writer.write(frame)
+        self.t_cache.append((t, i))
+
+    save_frame = save_frame.when(Saver.is_saving)
+
+    def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
+        super().start_recording(directory, filename, idx, **kwargs)
         path = self.new_file(directory, filename, "avi")
         print("video saver starts recording", path, self.real_frame_rate)
-        self.state = self.recording
         fourcc = cv2.VideoWriter_fourcc(*self.fourcc)
         self.writer = cv2.VideoWriter(path, fourcc, self.frame_rate, self.frame_size, self.is_color)
+        self.t_cache = []
 
     def stop_recording(self, **kwargs):
         self.writer.release()
-        self.state = self.idle
-
-
-class HDF5Saver(Saver):
-
-    name = "hdf5_saver"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def recv_indexed(self, t, i, data, **kwargs):
-        return
-
-    def recv_array(self, t, i, a, **kwargs):
-        return
-
-
-class CSVSaver(Saver):
-
-    name = "csv_saver"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def recv_timestamped(self, t, data, **kwargs):
-        return
+        self.h5_file.create_dataset(self.name, data=np.array(self.t_cache))
+        super().stop_recording(**kwargs)

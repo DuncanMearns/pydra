@@ -1,5 +1,5 @@
 from .._base import PydraReceiver, PydraPublisher, PydraSender, PydraSubscriber
-from ..messaging import _CONNECTION, EXIT
+from ..messaging import *
 from ..utils import Parallelized
 import time
 
@@ -59,6 +59,10 @@ class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, Pyd
     def handle__connection(self, ret, **kwargs):
         """Callback for _CONNECTION messages from savers. Updates the _saver_connections dictionary."""
         self._saver_connections[kwargs["source"]] = ret
+
+    @_ERROR.callback
+    def handle__error(self, error, message, **kwargs):
+        self.raise_error(error, message)
 
     def _process(self):
         """Receive messages."""
