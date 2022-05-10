@@ -2,6 +2,7 @@ from .._base import *
 from ..messaging import *
 from ..utils import Parallelized
 from ..utils.cache import DataCache, TempCache
+from ..utils.conditional import conditional
 import numpy as np
 import os
 import cv2
@@ -9,23 +10,13 @@ from collections import deque
 import h5py
 
 
-class conditional:
-
-    def __init__(self, method=None, condition=None):
-        self.method = method
-        self.condition = condition if condition else lambda obj: False
-        self.object = None
+class saver(conditional):
+    """Conditional decorator for methods only called when object.is_saving() evaluates True."""
 
     def __get__(self, instance, owner):
         self.object = instance
+        self.condition = owner.is_saving
         return self.__call__
-
-    def __call__(self, *args, **kwargs):
-        if self.condition(self.object):
-            self.method(self.object, *args, **kwargs)
-
-    def when(self, condition):
-        return type(self)(self.method, condition)
 
 
 class SaverConstructor:
@@ -172,11 +163,9 @@ class HDF5Saver(Saver):
         self.temp[worker].append(t, i, data, arr)
         self.save_data(worker, t, i, data, arr)
 
-    @conditional
+    @saver
     def save_data(self, worker, t, i, data, arr):
         self.caches[worker].append(t, i, data, arr)
-
-    save_data = save_data.when(Saver.is_saving)
 
 
 class VideoSaver(HDF5Saver):
@@ -213,12 +202,10 @@ class VideoSaver(HDF5Saver):
             print(i, "received")
         self.save_frame(t, i, frame)
 
-    @conditional
+    @saver
     def save_frame(self, t, i, frame):
         self.writer.write(frame)
         self.t_cache.append((t, i))
-
-    save_frame = save_frame.when(Saver.is_saving)
 
     def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
         super().start_recording(directory, filename, idx, **kwargs)
