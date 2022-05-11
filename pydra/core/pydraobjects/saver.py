@@ -2,7 +2,7 @@ from .._base import *
 from ..messaging import *
 from ..utils import Parallelized
 from ..utils.cache import DataCache, TempCache
-from ..utils.conditional import conditional
+from ..utils.state import state_descriptor
 import numpy as np
 import os
 import cv2
@@ -10,13 +10,7 @@ from collections import deque
 import h5py
 
 
-class saver(conditional):
-    """Conditional decorator for methods only called when object.is_saving() evaluates True."""
-
-    def __get__(self, instance, owner):
-        self.object = instance
-        self.condition = owner.is_saving
-        return self.__call__
+recording_state = state_descriptor.new_type("recording_state")
 
 
 class SaverConstructor:
@@ -68,8 +62,8 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
     _connections = {}
 
     # States
-    idle = 0
-    recording = 1
+    idle = recording_state(0)
+    recording = recording_state(1)
 
     @classmethod
     def start(cls, *args, **kwargs):
@@ -85,7 +79,7 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.state = self.idle
+        self.idle()
 
     def setup(self):
         """Sends a connected signal."""
@@ -110,13 +104,10 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
         return f
 
     def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
-        self.state = self.recording
+        self.recording()
 
     def stop_recording(self, **kwargs):
-        self.state = self.idle
-
-    def is_saving(self):
-        return self.state == self.recording
+        self.idle()
 
 
 class HDF5Saver(Saver):
@@ -161,9 +152,9 @@ class HDF5Saver(Saver):
     def recv_data(self, t, i=None, data=None, arr=None, **kwargs):
         worker = kwargs["source"]
         self.temp[worker].append(t, i, data, arr)
-        self.save_data(worker, t, i, data, arr)
+        if self.recording:
+            self.save_data(worker, t, i, data, arr)
 
-    @saver
     def save_data(self, worker, t, i, data, arr):
         self.caches[worker].append(t, i, data, arr)
 
@@ -200,9 +191,9 @@ class VideoSaver(HDF5Saver):
         self.t_temp.append(t)
         if i % 100 == 0:
             print(i, "received")
-        self.save_frame(t, i, frame)
+        if self.recording:
+            self.save_frame(t, i, frame)
 
-    @saver
     def save_frame(self, t, i, frame):
         self.writer.write(frame)
         self.t_cache.append((t, i))
