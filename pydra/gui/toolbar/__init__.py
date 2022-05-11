@@ -1,9 +1,9 @@
 from PyQt5 import QtWidgets, QtCore
 
 from ..states import Stateful
-from .directory_widget import DirectoryWidget
-from .file_naming import FileNamingWidget
-from .protocol_widget import ProtocolWidget
+# from .directory_widget import DirectoryWidget
+# from .file_naming import FileNamingWidget
+# from .protocol_widget import ProtocolWidget
 
 from pathlib import Path
 

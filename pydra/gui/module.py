@@ -1,4 +1,4 @@
-from .states import StateEnabled
+from .states import Stateful
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 
@@ -6,7 +6,7 @@ def disabled(method):
     return None
 
 
-class ControlWidget(QtWidgets.QWidget, StateEnabled):
+class ControlWidget(Stateful, QtWidgets.QWidget):
 
     sendEvent = QtCore.pyqtSignal(str, dict)
 
@@ -30,7 +30,7 @@ class ControlWidget(QtWidgets.QWidget, StateEnabled):
         return
 
 
-class PydraDockWidget(QtWidgets.QDockWidget, StateEnabled):
+class PydraDockWidget(Stateful, QtWidgets.QDockWidget):
 
     def __init__(self, widget: ControlWidget, name: str, *args, **kwargs):
         super().__init__(name, *args, **kwargs)

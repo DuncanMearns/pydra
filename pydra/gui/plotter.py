@@ -2,11 +2,11 @@ from PyQt5 import QtWidgets
 import pyqtgraph as pg
 import numpy as np
 from pyqtgraph.dockarea import DockArea, Dock
-from .states import StateEnabled
+from .states import Stateful
 pg.setConfigOption("imageAxisOrder", "row-major")
 
 
-class DisplayContainer(QtWidgets.QWidget, StateEnabled):
+class DisplayContainer(Stateful, QtWidgets.QWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -20,7 +20,7 @@ class DisplayContainer(QtWidgets.QWidget, StateEnabled):
         self._dock_area.addDock(dock)
 
 
-class Plotter(pg.GraphicsLayoutWidget, StateEnabled):
+class Plotter(Stateful, pg.GraphicsLayoutWidget):
 
     def __init__(self, name, *args, **kwargs):
         super().__init__()
