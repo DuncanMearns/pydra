@@ -1,6 +1,6 @@
 from .base import PydraMessage
-from .backend import *
-from .frontend import *
+from .private import *
+from .public import *
 
 __all__ = ("PydraMessage",
            "DATA", "TIMESTAMPED", "INDEXED", "FRAME", "ARRAY", "EVENT", "STRING", "TRIGGER",

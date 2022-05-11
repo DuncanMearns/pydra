@@ -1,5 +1,5 @@
 from pydra.core import Worker
-from pydra.utilities.labjack import LabJack
+from pydra.utils.labjack import LabJack
 import time
 
 

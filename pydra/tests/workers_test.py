@@ -1,5 +1,4 @@
-from pydra import Pydra
-from pydra.core import Acquisition, VideoSaver, FRAME
+from pydra import Pydra, Acquisition, VideoSaver, FRAME
 import time
 import numpy as np
 
@@ -43,9 +42,7 @@ savers = [MySaver]
 
 
 def main():
-    Pydra.configure(modules=modules, savers=savers)
-    print(Pydra.config["connections"]["mysaver"])
-    pydra = Pydra.run()
+    pydra = Pydra.run(modules=modules, savers=savers)
     time.sleep(3.)
     pydra.exit()
 

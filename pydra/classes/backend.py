@@ -1,7 +1,6 @@
 from .._base import PydraReceiver, PydraPublisher, PydraSender, PydraSubscriber
 from ..messaging import *
-from ..utils import Parallelized
-import time
+from ._runner import Parallelized
 
 
 class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, PydraSubscriber):

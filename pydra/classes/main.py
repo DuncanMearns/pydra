@@ -1,13 +1,12 @@
 from .._base import *
 from ..messaging import *
-from ..utils.setup import SetupStateMachine
+from ._setup import SetupStateMachine
 from .backend import PydraBackend
 from .worker import Worker
+
 import zmq
-import warnings
 import logging
 from datetime import datetime
-import time
 
 
 class PydraMain(PydraReceiver, PydraPublisher, PydraSubscriber):

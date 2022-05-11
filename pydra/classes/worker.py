@@ -1,5 +1,5 @@
 from .._base import *
-from ..utils import Parallelized
+from ._runner import Parallelized
 
 
 class Worker(Parallelized, PydraPublisher, PydraSubscriber):

@@ -1,5 +1,5 @@
 from .handlers import *
-from ..messaging import *
+from pydra.messaging import *
 import traceback
 
 

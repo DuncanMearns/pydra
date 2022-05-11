@@ -1,6 +1,7 @@
 """Module for setting up Pydra. Handles different setup states and ensures each process/thread is connected."""
+from ..utils.state import state_descriptor
+
 import time
-from .state import state_descriptor
 
 
 setup_state = state_descriptor.new_type("setup_state")

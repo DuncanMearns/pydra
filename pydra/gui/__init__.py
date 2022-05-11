@@ -8,7 +8,7 @@ from .protocol import ProtocolWindow
 from .cache import WorkerCache
 from .images import icons
 # from .connections import NetworkConfiguration
-from pydra.utilities import clock
+from pydra.utils import clock
 
 
 class MainWindow(Stateful, QtWidgets.QMainWindow):

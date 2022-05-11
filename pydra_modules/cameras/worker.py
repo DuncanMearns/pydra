@@ -1,5 +1,5 @@
 from pydra.core import Acquisition
-from pydra.core.messaging import LOGGED
+from pydra.messaging import LOGGED
 import time
 import numpy as np
 

@@ -1,5 +1,6 @@
 from .base import PydraMessage
 from .serializers import serialize_string, serialize_float
+
 import numpy as np
 import time
 

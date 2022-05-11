@@ -1,5 +1,4 @@
-from pydra import Pydra
-from pydra.core import Worker
+from pydra import Pydra, Worker
 import time
 
 

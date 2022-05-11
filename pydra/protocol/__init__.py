@@ -1,8 +1,9 @@
+from ..utils.state import state_descriptor
+
 import warnings
 from threading import Thread
 import queue
 import time
-from ..utils.state import state_descriptor
 
 
 exit_code = state_descriptor.new_type("exit_code")

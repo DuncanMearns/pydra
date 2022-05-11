@@ -1,6 +1,6 @@
-from pydra.core._base import *
+from pydra._base import *
 from ..mixins import *
-from pydra.core.utils.threads import *
+from pydra.utils import *
 
 import zmq
 import queue

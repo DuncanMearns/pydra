@@ -1,8 +1,9 @@
 from .._base import *
 from ..messaging import *
-from ..utils import Parallelized
 from ..utils.cache import DataCache, TempCache
 from ..utils.state import state_descriptor
+from ._runner import Parallelized
+
 import numpy as np
 import os
 import cv2

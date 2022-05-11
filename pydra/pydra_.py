@@ -1,7 +1,6 @@
-from pydra.core import PydraObject, PydraSaver, Protocol, Trigger
-from pydra.core.messaging import *
-from pydra.utilities.string_formatting import *
-from pydra.utilities import clock
+from pydra.core import PydraObject, PydraSaver, Protocol
+from pydra.messaging import *
+from pydra.utils.string_formatting import *
 from pydra.gui import *
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal, pyqtSlot

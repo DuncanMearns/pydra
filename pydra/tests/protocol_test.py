@@ -1,6 +1,6 @@
 from pydra.tests.hello_world import modules
 from pydra import Pydra
-from pydra.core.protocol import Protocol
+from pydra.protocol import Protocol
 import time
 
 

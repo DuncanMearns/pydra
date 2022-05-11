@@ -1,4 +1,4 @@
-from ..messaging import PydraMessage
+from pydra.messaging import PydraMessage
 import zmq
 
 __all__ = ("ZMQSender", "ZMQPublisher", "ZMQReceiver", "ZMQSubscriber", "ZMQPoller")
