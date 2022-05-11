@@ -1,6 +1,15 @@
 from pydra.core import *
 import pydra.configuration as configuration
+from threading import Lock
 import os
+
+
+def blocking(method):
+    def blocked(pydra_instance, *args, **kwargs):
+        with pydra_instance.event_lock:
+            ret = method(pydra_instance, *args, **kwargs)
+        return ret
+    return blocked
 
 
 class Pydra(PydraMain):
@@ -18,21 +27,25 @@ class Pydra(PydraMain):
 
     def __init__(self):
         super().__init__()
+        self.event_lock = Lock()
         self.working_dir = self.config.get("default_directory", os.getcwd())
         self.filename = self.config.get("default_filename", "")
         self.recording_idx = 0
 
-    @EVENT
+    @blocking
+    def send_event(self, event_name, **kwargs):
+        super().send_event(event_name, **kwargs)
+
     def start_recording(self):
         """Broadcasts a start_recording event."""
-        return "start_recording", dict(directory=str(self.working_dir),
-                                       filename=str(self.filename),
-                                       idx=int(self.recording_idx))
+        directory = str(self.working_dir)
+        filename = str(self.filename)
+        idx = int(self.recording_idx)
+        self.send_event("start_recording", directory=directory, filename=filename, idx=idx)
 
-    @EVENT
     def stop_recording(self):
         """Broadcasts a start_recording event."""
-        return "stop_recording", {}
+        self.send_event("stop_recording")
 
     @staticmethod
     def configure(modules=(),

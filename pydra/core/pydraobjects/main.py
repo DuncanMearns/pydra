@@ -1,6 +1,6 @@
 from .._base import *
 from ..messaging import *
-from ..utils.states import NotConnected, SetupFinished
+from ..utils.setup import SetupStateMachine
 from .backend import PydraBackend
 from .worker import Worker
 import zmq
@@ -50,7 +50,8 @@ class PydraMain(PydraReceiver, PydraPublisher, PydraSubscriber):
         super().__init__(**self.connections)
         self._backend = None
         self._workers = []
-        self._setup_state = NotConnected(self)
+        self._connection_times = {}
+        self._state_machine = SetupStateMachine(self)
 
     @property
     def savers(self):
@@ -65,10 +66,9 @@ class PydraMain(PydraReceiver, PydraPublisher, PydraSubscriber):
                 saver._connections = self.config["connections"][saver.name]
 
     def setup(self):
-        self._setup_state = self._setup_state()
-        while not isinstance(self._setup_state, SetupFinished):
+        while not self._state_machine.finished:
             self.poll()
-            self._setup_state = self._setup_state()
+            self._state_machine.update()
 
     def start_backend(self, connections: dict = None):
         # Start saver and wait for it to respond
@@ -113,7 +113,7 @@ class PydraMain(PydraReceiver, PydraPublisher, PydraSubscriber):
     @CONNECTION.callback
     def handle_connection(self, ret, **kwargs):
         t = kwargs["timestamp"]
-        self._setup_state.connections[kwargs["source"]] = ret, t
+        self._connection_times[kwargs["source"]] = ret, t
 
     handle__connection = handle_connection
 
