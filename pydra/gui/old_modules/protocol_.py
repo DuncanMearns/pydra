@@ -1,9 +1,9 @@
+from pydra.gui.statemachine import Stateful
+from pydra.gui.helpers import SpinboxWidget
 from PyQt5 import QtWidgets, QtCore
-from ..states import StateEnabled
-from ..widgets import SpinboxWidget
 
 
-class ProtocolWidget(QtWidgets.QGroupBox, StateEnabled):
+class ProtocolWidget(Stateful, QtWidgets.QGroupBox):
 
     editor_clicked = QtCore.pyqtSignal()
 
@@ -62,3 +62,4 @@ class ProtocolWidget(QtWidgets.QGroupBox, StateEnabled):
     def enterIdle(self):
         self.progress_label.setText(f"")
         super().enterIdle()
+

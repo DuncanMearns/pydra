@@ -1,5 +1,5 @@
-from PyQt5 import QtCore, QtWidgets, QtGui
 from .images import icons
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 
 class StartWindow(QtWidgets.QSplashScreen):

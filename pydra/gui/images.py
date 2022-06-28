@@ -4,7 +4,7 @@ import pkg_resources
 
 def get_image(image_name):
     return QPixmap(
-        pkg_resources.resource_filename(__name__, "./icons/" + image_name)
+        pkg_resources.resource_filename(__name__, "./images/" + image_name)
     )
 
 
