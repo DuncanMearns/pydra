@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
 
 from ..layout import *
-from ..statemachine import Stateful
+from ..dynamic import Stateful
 
 
 class RecordButton(Stateful, QtWidgets.QPushButton):

@@ -157,5 +157,5 @@ class FramePlotter(Plotter):
         super().__init__(*args, **kwargs)
         self.addImagePlot("frame", pen=None, symbol='o')
 
-    def updatePlots(self, data_cache, **kwargs):
+    def dynamicUpdate(self, data_cache, **kwargs):
         self.updateImage("frame", data_cache.array)

@@ -1,4 +1,4 @@
-from .statemachine import Stateful
+from .dynamic import Stateful, DynamicUpdate
 
 import pyqtgraph as pg
 import numpy as np
@@ -6,7 +6,7 @@ import numpy as np
 pg.setConfigOption("imageAxisOrder", "row-major")
 
 
-class Plotter(Stateful, pg.GraphicsLayoutWidget):
+class Plotter(DynamicUpdate, Stateful, pg.GraphicsLayoutWidget):
 
     def __init__(self, name, *args, **kwargs):
         super().__init__()
@@ -69,5 +69,5 @@ class Plotter(Stateful, pg.GraphicsLayoutWidget):
         for param, data in self.overlay_data.items():
             data.setData([], [])
 
-    def updatePlots(self, data_cache, **kwargs):
+    def dynamicUpdate(self):
         return

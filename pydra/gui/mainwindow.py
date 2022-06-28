@@ -1,4 +1,4 @@
-from .statemachine import Stateful
+from .dynamic import Stateful, DynamicUpdate
 from .cache import WorkerCache
 from .images import icons
 from .experiment_dock import ExperimentWidget
@@ -83,7 +83,6 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         self.controllers = {}
         self._control_docks = {}
         self.plotters = {}
-        self._to_update = []
         for module in self.pydra.modules:
             name = module["worker"].name
             params = module.get("params", {})
@@ -133,9 +132,6 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
 
     def add_controller(self, name, widget):
         self.controllers[name] = widget
-        # Check update enabled
-        if widget.update_enabled:
-            self._to_update.append((name, widget))
         # Create dock widget and add to main window
         dock_widget = ControlDock(widget, name)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock_widget)
@@ -145,7 +141,6 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
     def add_plotter(self, name, widget):
         self.plotters[name] = widget
         self.display_container.add(name, widget)
-        self._to_update.append((name, widget))
 
     @QtCore.pyqtSlot()
     def _update(self):
@@ -155,18 +150,14 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
 
     def update_gui(self, data):
         """Updates widgets with data received from pydra."""
-        print("HERE!", data)
-        return
-        # for worker, data, frame in self.pydra.request_data():
-        #     self.caches[worker].update(clock.t0, data, frame)
-        # for worker, widget in self._to_update:
-        #     kw = dict([(w, cache) for (w, cache) in self.caches.items() if w != worker])
-        #     widget.updatePlots(self.caches[worker], **kw)
-        # # Check logged events
-        # ret, log = self.pydra.request_events()
-        # if ret:
-        #     for (t, worker, event_name, event_kw) in log:
-        #         self.controllers[worker].receiveLogged(event_name, event_kw)
+        to_update = []
+        for worker, new_data in data.items():
+            for widget in [self.plotters.get(worker, None), self.controllers.get(worker, None)]:
+                if isinstance(widget, DynamicUpdate):
+                    widget.cache.update(new_data)
+                    to_update.append(widget)
+        for widget in to_update:
+            widget.dynamicUpdate()
 
     def enterRunning(self):
         self.pydra.start_recording()

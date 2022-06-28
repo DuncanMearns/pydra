@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 from ..layout import *
-from ..statemachine import Stateful
+from ..dynamic import Stateful
 
 
 class FileNamingWidget(Stateful, QtWidgets.QGroupBox):

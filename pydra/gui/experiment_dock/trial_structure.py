@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, QtCore
 
-from ..statemachine import Stateful
+from ..dynamic import Stateful
 from ..helpers import TimeUnitWidget
 from .protocol_builder import ProtocolBuilder
 

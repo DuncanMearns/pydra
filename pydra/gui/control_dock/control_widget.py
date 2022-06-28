@@ -1,12 +1,8 @@
-from ..statemachine import Stateful
+from ..dynamic import Stateful, DynamicUpdate
 from PyQt5 import QtWidgets, QtCore
 
 
-def disabled(method):
-    return None
-
-
-class ControlWidget(Stateful, QtWidgets.QWidget):
+class ControlWidget(DynamicUpdate, Stateful, QtWidgets.QWidget):
 
     sendEvent = QtCore.pyqtSignal(str, dict)
 
@@ -16,15 +12,6 @@ class ControlWidget(Stateful, QtWidgets.QWidget):
 
     def send_event(self, event_name, **kwargs):
         self.sendEvent.emit(event_name, kwargs)
-
-    @property
-    def update_enabled(self):
-        attr = getattr(self, "updatePlots", None)
-        return callable(attr)
-
-    @disabled
-    def updatePlots(self, data_cache, **kwargs) -> None:
-        return
 
     def receiveLogged(self, event_name, kw) -> None:
         return

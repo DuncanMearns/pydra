@@ -71,7 +71,7 @@ class TrackingOverlay(FramePlotter):
         super().__init__(*args, **kwargs)
 
     def updatePlots(self, data_cache, **kwargs):
-        super().updatePlots(data_cache, **kwargs)
+        super().dynamicUpdate(data_cache, **kwargs)
         x = kwargs["tracking"]["x"]
         y = kwargs["tracking"]["y"]
         points = 125 + np.array([x, y]) * 50  # create numpy array

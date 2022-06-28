@@ -33,7 +33,7 @@ class TailTrackerWidget(ControlWidget):
     def update_image(self):
         self.dialog.widget.new_image(self.last_image)
 
-    def updatePlots(self, data_cache, **kwargs):
+    def dynamicUpdate(self, data_cache, **kwargs):
         # Get the acquisition plotter
         try:
             acquisition_cache = kwargs[self.acquisition]
@@ -63,7 +63,7 @@ class TailPlotter(Plotter):
         super().__init__(*args, **kwargs)
         self.addParamPlot("angle")
 
-    def updatePlots(self, data_cache, **kwargs):
+    def dynamicUpdate(self, data_cache, **kwargs):
         t = data_cache.t
         angle = data_cache["angle"]
         self.updateParam("angle", t, angle)
@@ -75,7 +75,7 @@ class TailOverlay(FramePlotter):
         super().__init__(*args, **kwargs)
 
     def updatePlots(self, data_cache, **kwargs):
-        super().updatePlots(data_cache, **kwargs)
+        super().dynamicUpdate(data_cache, **kwargs)
         tail_points = kwargs["tail"].array
         if len(tail_points.shape):
             self.updateOverlay("frame", *tail_points.T)

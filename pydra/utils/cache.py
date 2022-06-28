@@ -53,6 +53,18 @@ class DataCache:
         except KeyError:
             return np.empty((0, 3))
 
+    @property
+    def data(self) -> dict:
+        return dict(self._data)
+
+    @property
+    def arr(self) -> np.ndarray:
+        return np.array(self._arr)
+
+    @property
+    def events(self) -> list:
+        return list(self._events)
+
 
 class TempCache(DataCache):
 
@@ -83,3 +95,7 @@ class TempCache(DataCache):
 
     def set_arr_cachesize(self, size):
         self._arr = deque(maxlen=size)
+
+    @property
+    def data(self) -> dict:
+        return dict([(k, list(vals)) for k, vals in self._data.items()])

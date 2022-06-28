@@ -168,7 +168,19 @@ class HDF5Saver(Saver):
         self.caches[worker].append(t, i, data, arr)
 
     def flush(self) -> dict:
-        return {}
+        flushed = super().flush()
+        data = {}
+        for worker, cache in self.temp.items():
+            if worker in flushed.keys():
+                raise ValueError("Saver is overwriting data in cache when flushed.")
+            data[worker] = {
+                "data": cache.data,
+                "array": cache.arr,
+                "events": cache.events
+            }
+            cache.clear()
+        flushed.update(data)
+        return flushed
 
 
 class VideoSaver(HDF5Saver):
@@ -177,6 +189,7 @@ class VideoSaver(HDF5Saver):
 
     def __init__(self, frame_rate=100., fourcc="XVID", *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.source = self.name
         self.frame_rate = frame_rate
         self.fourcc = fourcc
         self.writer = None
@@ -196,9 +209,12 @@ class VideoSaver(HDF5Saver):
     def real_frame_rate(self):
         a = np.array(self.t_temp)
         a = a[~np.isnan(a)]
-        return 1. / np.mean(np.diff(a))
+        if len(a) > 1:
+            return 1. / np.mean(np.diff(a))
+        return 0
 
     def recv_frame(self, t, i, frame, **kwargs):
+        self.source = kwargs["source"]
         self.video_cache = frame
         self.t_temp.append(t)
         if i % 100 == 0:
@@ -225,4 +241,12 @@ class VideoSaver(HDF5Saver):
 
     def flush(self) -> dict:
         flushed = super().flush()
-        return {}
+        data = {
+            "frame": self.video_cache,
+            "frame_rate": self.real_frame_rate
+        }
+        if self.source in flushed.keys():
+            flushed[self.source].update(data)
+        else:
+            flushed[self.source] = data
+        return flushed

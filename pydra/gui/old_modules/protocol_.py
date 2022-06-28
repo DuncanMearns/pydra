@@ -1,4 +1,4 @@
-from pydra.gui.statemachine import Stateful
+from pydra.gui.dynamic import Stateful
 from pydra.gui.helpers import SpinboxWidget
 from PyQt5 import QtWidgets, QtCore
 
