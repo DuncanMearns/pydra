@@ -139,7 +139,7 @@ class ZMQPoller:
         ------
         flag, source, timestamp, other, args
         """
-        events = dict(self.poller.poll(0))
+        events = dict(self.poller.poll(1))
         for sock in events:
             if sock in self.sockets:
                 flag, source, timestamp, other, args = PydraMessage.recv(sock)

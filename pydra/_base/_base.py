@@ -76,8 +76,7 @@ class PydraSender(PydraMessenger):
             callback = "_".join(["reply", qtype])
             self.__getattribute__(callback)()
         except AttributeError:
-            # TODO: SEND ERROR RATHER THAN RAISE ERROR
-            raise ValueError(f"Saver -{self.name}- cannot respond to {qtype} queries from Pydra.")
+            self.raise_error(ValueError(), f"Saver -{self.name}- cannot respond to {qtype} queries from Pydra.")
         finally:
             return
 
@@ -85,7 +84,6 @@ class PydraSender(PydraMessenger):
     def reply_connection(self):
         raise NotImplementedError
 
-    @_DATA
     def reply_data(self):
         raise NotImplementedError
 
@@ -196,6 +194,10 @@ class PydraPublisher(PydraMessenger):
             A numpy array containing data.
         """
         return t, i, frame
+
+    @REQUEST
+    def send_request(self, what: str):
+        return what,
 
 
 class PydraSubscriber(PydraListener):

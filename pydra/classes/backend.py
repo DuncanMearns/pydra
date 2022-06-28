@@ -72,6 +72,14 @@ class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, Pyd
         """Broadcasts exit signal to savers."""
         return ()
 
+    def reply_data(self):
+        self.send_request("data")
+
+    @FORWARD
+    def handle__data(self, data, **kwargs):
+        """Receives requested data from savers."""
+        return data, kwargs
+
     def exit(self, *args, **kwargs):
         """Terminates the process loop."""
         # if self.recording:
@@ -86,17 +94,8 @@ class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, Pyd
         """Implements a start_recording event. Starts saving data."""
         print("START RECORDING")
         self.send_event("start_recording", directory=directory, filename=filename)
-        # print("START RECORDING")
-        # if not self.recording:
-        #     for pipeline in self.savers:
-        #         pipeline.start(directory, filename)
-        #     self.recording = True
 
     def stop_recording(self, **kwargs):
         """Implements a stop_recording event. Stops saving data."""
         print("STOP RECORDING")
         self.send_event("stop_recording")
-        # if self.recording:
-        #     for pipeline in self.savers:
-        #         pipeline.stop()
-        #     self.recording = False

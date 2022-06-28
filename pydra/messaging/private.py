@@ -1,6 +1,6 @@
 from .base import PydraMessage, PushMessage
 
-__all__ = ("EXIT", "CONNECTION", "ERROR", "REQUEST", "_CONNECTION", "_DATA", "_ERROR")
+__all__ = ("EXIT", "CONNECTION", "ERROR", "REQUEST", "_CONNECTION", "_DATA", "_ERROR", "FORWARD")
 
 ExitMessage = type("ExitMessage", (PydraMessage,), {"flag": b"exit"})
 EXIT = ExitMessage()
@@ -18,10 +18,13 @@ BEConnectionMessage = type("BEConnectionMessage", (PushMessage,), {"flag": b"_co
 _CONNECTION = BEConnectionMessage(bool)
 
 BEDataMessage = type("BEDataMessage", (PushMessage,), {"flag": b"_data"})
-_DATA = BEDataMessage()
+_DATA = BEDataMessage(object)
 
 BEErrorMessage = type("BEErrorMessage", (PushMessage,), {"flag": b"_error"})
 _ERROR = BEErrorMessage(object, str)
+
+ForwardMessage = type("ForwardMessage", (PushMessage,), {"flag": b"_forward"})
+FORWARD = ForwardMessage(bytes, dict)
 
 # class LoggedMessage(PydraMessage):
 #     """Decorator for logging events."""

@@ -24,11 +24,6 @@ class Worker(Parallelized, PydraPublisher, PydraSubscriber):
         """Handles all messages received over network from ZeroMQ."""
         self.poll()
 
-    # @LOGGED
-    # def _events_info(self, **kwargs):
-    #     """Logs implemented events."""
-    #     return dict(events=[key for key in self.events if not key.startswith("_")])
-
 
 class Acquisition(Worker):
     """Base worker class for acquiring data. Implements an independent acquire method after checking for messages."""

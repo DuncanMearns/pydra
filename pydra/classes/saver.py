@@ -104,6 +104,14 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
         f = os.path.join(directory, filename)
         return f
 
+    def flush(self) -> dict:
+        return {}
+
+    @_DATA
+    def reply_data(self):
+        flushed = self.flush()
+        return flushed,
+
     def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
         self.recording()
 
@@ -159,6 +167,9 @@ class HDF5Saver(Saver):
     def save_data(self, worker, t, i, data, arr):
         self.caches[worker].append(t, i, data, arr)
 
+    def flush(self) -> dict:
+        return {}
+
 
 class VideoSaver(HDF5Saver):
 
@@ -211,3 +222,7 @@ class VideoSaver(HDF5Saver):
         self.writer.release()
         self.h5_file.create_dataset(self.name, data=np.array(self.t_cache))
         super().stop_recording(**kwargs)
+
+    def flush(self) -> dict:
+        flushed = super().flush()
+        return {}

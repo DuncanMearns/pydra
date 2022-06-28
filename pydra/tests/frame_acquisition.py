@@ -1,7 +1,7 @@
 from pydra import Acquisition, VideoSaver
 from pydra.configuration import config
 from pydra.gui import ControlWidget
-# from pydra_modules.cameras.widget import FramePlotter
+from pydra.modules.acquisition.frame_plotter import FramePlotter
 from PyQt5 import QtWidgets
 import numpy as np
 import time
@@ -102,7 +102,7 @@ ACQUISITION = {
     "worker": AcquisitionWorker,
     "params": {},  # params are passed to the constructor of the worker
     "controller": AcquisitionWidget,
-    # "plotter": FramePlotter
+    "plotter": FramePlotter
 }
 
 
