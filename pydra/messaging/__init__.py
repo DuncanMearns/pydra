@@ -4,5 +4,4 @@ from .public import *
 
 __all__ = ("PydraMessage",
            "DATA", "TIMESTAMPED", "INDEXED", "FRAME", "ARRAY", "EVENT", "STRING", "TRIGGER",
-           "EXIT", "CONNECTION", "ERROR", "REQUEST",
-           "FORWARD", "_CONNECTION", "_DATA", "_ERROR")
+           "EXIT", "ERROR", "CONNECTION", "REQUEST", "BACKEND")

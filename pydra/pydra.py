@@ -193,11 +193,11 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
 
     handle__connection = handle_connection
 
-    @FORWARD.callback
+    @BACKEND.FORWARD.callback
     def handle__forward(self, data, origin, **kwargs):
         self.receive_data(data, **origin)
 
-    @_DATA.callback
+    @BACKEND.DATA.callback
     def receive_data(self, data, **kwargs):
         return data
 

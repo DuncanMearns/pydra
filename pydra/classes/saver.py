@@ -86,11 +86,11 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
         """Sends a connected signal."""
         self.connected()
 
-    @_CONNECTION
+    @BACKEND.CONNECTION
     def connected(self):
         return True,
 
-    @_CONNECTION
+    @BACKEND.CONNECTION
     def not_connected(self):
         return False,
 
@@ -107,7 +107,7 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
     def flush(self) -> dict:
         return {}
 
-    @_DATA
+    @BACKEND.DATA
     def reply_data(self):
         flushed = self.flush()
         return flushed,

@@ -50,16 +50,16 @@ class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, Pyd
         """Returns True when all savers are connected to zmq sockets, otherwise False."""
         return all(self._saver_connections.values())
 
-    @_CONNECTION
+    @BACKEND.CONNECTION
     def connected(self):
         return self._savers_connected,
 
-    @_CONNECTION.callback
+    @BACKEND.CONNECTION.callback
     def handle__connection(self, ret, **kwargs):
         """Callback for _CONNECTION messages from savers. Updates the _saver_connections dictionary."""
         self._saver_connections[kwargs["source"]] = ret
 
-    @_ERROR.callback
+    @BACKEND.ERROR.callback
     def handle__error(self, error, message, **kwargs):
         self.raise_error(error, message)
 
@@ -75,7 +75,7 @@ class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, Pyd
     def reply_data(self):
         self.send_request("data")
 
-    @FORWARD
+    @BACKEND.FORWARD
     def handle__data(self, data, **kwargs):
         """Receives requested data from savers."""
         return data, kwargs

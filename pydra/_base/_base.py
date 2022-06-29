@@ -80,14 +80,14 @@ class PydraSender(PydraMessenger):
         finally:
             return
 
-    @_CONNECTION
+    @BACKEND.CONNECTION
     def reply_connection(self):
         raise NotImplementedError
 
     def reply_data(self):
         raise NotImplementedError
 
-    @_ERROR
+    @BACKEND.ERROR
     def raise_error(self, error: Exception, message: str):
         return error, message
 
