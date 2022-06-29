@@ -8,4 +8,7 @@ class FramePlotter(Plotter):
         self.addImagePlot("frame", pen=None, symbol='o')
 
     def dynamicUpdate(self):
-        self.updateImage("frame", self.cache.frame)
+        try:
+            self.updateImage("frame", self.cache.frame)
+        except AttributeError:
+            return
