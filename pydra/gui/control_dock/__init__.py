@@ -4,6 +4,8 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 
 class ControlDock(QtWidgets.QDockWidget):
 
+    widgetEvent = QtCore.pyqtSignal(str, str, dict)
+
     def __init__(self, widget: ControlWidget, name: str, *args, **kwargs):
         super().__init__(name, *args, **kwargs)
         self.setWidget(widget)
@@ -25,7 +27,7 @@ class ControlDock(QtWidgets.QDockWidget):
         self.displayAction.setChecked(True)
         self.displayAction.triggered.connect(self.toggle_visibility)
         # Widget events
-        self.widget().sendEvent.connect(self.send_event)
+        self.widget().widgetEvent.connect(self.widgetEvent)
 
     @QtCore.pyqtSlot(bool)
     def toggle_visibility(self, state):
@@ -37,7 +39,3 @@ class ControlDock(QtWidgets.QDockWidget):
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         self.displayAction.setChecked(False)
         event.accept()
-
-    @QtCore.pyqtSlot(str, dict)
-    def send_event(self, event_name, kwargs):
-        self.parent().pydra.send_event(event_name, target=self.name, **kwargs)

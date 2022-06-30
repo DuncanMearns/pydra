@@ -1,4 +1,5 @@
-from pydra.gui.helpers import TimeUnitWidget
+from pydra.gui.helpers import SignalProxy, TimeUnitWidget
+from pydra.protocol import events
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 
@@ -29,6 +30,15 @@ class EventContainer:
         self._event_handler.selectionChanged.emit(None)
 
 
+class ChangesProtocol:
+    """Mixin for classes that can modify the protocol by allowing them to emit a 'changed' signal."""
+    _protocol_change_proxy = SignalProxy()
+
+    @QtCore.pyqtSlot()
+    def changed(self, *args):  # eat arguments from any connected signals
+        self._protocol_change_proxy.emit()
+
+
 class FocusWrapper:
     """Wraps Qt focusInEvent, allowing the parent event widget to be selected when child gets focus."""
 
@@ -41,7 +51,20 @@ class FocusWrapper:
         self.focus_event(*args, **kwargs)
 
 
-class EventPicker(QtWidgets.QWidget):
+class WaitWidget(ChangesProtocol, TimeUnitWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.addMilliseconds(minval=1, maxval=999)
+        self.addSeconds(minval=1, maxval=999)
+        self.addMinutes(minval=1, maxval=999)
+        self.valueChanged.connect(self.changed)
+
+    def to_event(self):
+        return events.PAUSE(self.value / 1000.)
+
+
+class EventPicker(ChangesProtocol, QtWidgets.QWidget):
 
     def __init__(self, event_names, targets=()):
         super().__init__()
@@ -57,6 +80,7 @@ class EventPicker(QtWidgets.QWidget):
         self.button.clicked.connect(self.options_dialog)
         self.layout().addWidget(self.combo_box)
         self.layout().addWidget(self.button)
+        self.combo_box.currentIndexChanged.connect(self.changed)
 
     @QtCore.pyqtSlot()
     def options_dialog(self):
@@ -99,14 +123,23 @@ class EventPicker(QtWidgets.QWidget):
             if not val:
                 continue
             self.advanced_options["kwargs"][key] = val
+        self.changed()  # emits the protocol changed signal
+
+    def to_event(self):
+        event_name = self.combo_box.currentText()
+        event_kw = self.advanced_options["kwargs"]
+        target = self.advanced_options["target"]
+        if target:
+            event_kw["target"] = target
+        return events.EVENT(event_name, event_kw)
 
 
-class EventWidget(EventContainer, QtWidgets.QFrame):
+class EventWidget(ChangesProtocol, EventContainer, QtWidgets.QFrame):
     """Widget for adding an event to a protocol"""
 
     def __init__(self, event_names: tuple = ()):
         super().__init__()
-        self.event_names  = event_names
+        self.event_names = event_names
         # Layout
         self.setLayout(QtWidgets.QHBoxLayout())
         self.set_formatting()
@@ -156,6 +189,7 @@ class EventWidget(EventContainer, QtWidgets.QFrame):
         new = self.event_widgets[idx]
         old = self.layout().replaceWidget(self.current_widget, new)
         old.widget().setParent(None)
+        self.changed()  # emits the changed signal
 
     @staticmethod
     def dropdown_widget():
@@ -165,10 +199,7 @@ class EventWidget(EventContainer, QtWidgets.QFrame):
 
     @staticmethod
     def wait_widget():
-        w = TimeUnitWidget()
-        w.addMilliseconds(minval=1, maxval=999)
-        w.addSeconds(minval=1, maxval=999)
-        w.addMinutes(minval=1, maxval=999)
+        w = WaitWidget()
         return w
 
     @staticmethod
@@ -176,13 +207,18 @@ class EventWidget(EventContainer, QtWidgets.QFrame):
         w = EventPicker(event_names)
         return w
 
+    def to_event(self):
+        return self.current_widget.to_event()
 
-class ProtocolBuilder(EventContainer, QtWidgets.QWidget):
+
+class ProtocolBuilder(ChangesProtocol, EventContainer, QtWidgets.QWidget):
+
+    protocol_changed = QtCore.pyqtSignal(list)
 
     def __init__(self, event_names):
         super().__init__()
         self.event_names = event_names
-        self.events = []
+        self.event_widgets = []
         # Layout
         self.setLayout(QtWidgets.QVBoxLayout())
         # Event window
@@ -200,21 +236,33 @@ class ProtocolBuilder(EventContainer, QtWidgets.QWidget):
         self.buttons_container.layout().addWidget(self.ADD)
         self.buttons_container.layout().addWidget(self.DEL)
         self.layout().addWidget(self.buttons_container)
+        # Catch any changes to protocol
+        self._protocol_change_proxy.connect(self.update_protocol)
 
     @QtCore.pyqtSlot()
     def addEvent(self):
         new_event = EventWidget(self.event_names)
         new_event.select()
-        self.events.append(new_event)
+        self.event_widgets.append(new_event)
         self.event_window.layout().addWidget(new_event)
         self.DEL.setEnabled(True)
+        self.changed()  # emits the changed signal
 
     @QtCore.pyqtSlot()
     def removeEvent(self):
         w = self.selected()
         if w:
-            self.events.remove(w)
+            self.event_widgets.remove(w)
             w.setParent(None)
             self.unselect()
-        if not len(self.events):
+        if not len(self.event_widgets):
             self.DEL.setEnabled(False)
+        self.update_protocol()
+        self.changed()  # emits the changed signal
+
+    def to_protocol(self):
+        return [w.to_event() for w in self.event_widgets]
+
+    @QtCore.pyqtSlot()
+    def update_protocol(self):
+        self.protocol_changed.emit(self.to_protocol())

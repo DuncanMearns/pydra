@@ -29,6 +29,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
 
     directory_changed = QtCore.pyqtSignal(str)
     filename_changed = QtCore.pyqtSignal(str)
+    trial_number_changed = QtCore.pyqtSignal(int)
 
     def __init__(self, directory, filename, n_trial_digits=3):
         super().__init__("File naming")
@@ -38,11 +39,10 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         # -----------------
         # Working directory
         # -----------------
-        self.directory = str(directory)
         # Label
         self.directory_label = QtWidgets.QLabel("Working directory")
         # Editor
-        self.directory_editor = QtWidgets.QLineEdit(self.directory)
+        self.directory_editor = QtWidgets.QLineEdit(directory)
         self.directory_editor.setReadOnly(True)
         self.directory_editor.setMinimumSize(self.minWidth, LINEEDIT_HEIGHT)
         self.directory_editor.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
@@ -87,15 +87,22 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
     def filename(self):
         return self.filename_editor.text() + "_" + self.trial_number_editor.text()
 
+    @property
+    def directory(self):
+        return self.directory_editor.text()
+
+    @property
+    def trial_number(self):
+        return self.trial_number_editor.value()
+
     @QtCore.pyqtSlot()
     def change_directory(self):
         """Opens a dialog to changes the current working directory."""
         directory = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select directory', self.directory)
         directory = str(directory)
         if directory != '':
-            self.directory = directory
-            self.directory_changed.emit(directory)
             self.check_validity()
+            self.directory_changed.emit(directory)
 
     @QtCore.pyqtSlot()
     def change_filename(self):
@@ -104,6 +111,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
 
     @QtCore.pyqtSlot(int)
     def change_trial_number(self, i):
+        self.trial_number_changed.emit(i)
         self.change_filename()
 
     @QtCore.pyqtSlot(str)

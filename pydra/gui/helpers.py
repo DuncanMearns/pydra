@@ -2,6 +2,17 @@ from PyQt5 import QtWidgets, QtCore
 from collections import OrderedDict
 
 
+class SignalProxy(QtCore.QObject):
+    """QObject containing a signal that can be accessed by multiple different classes."""
+    signal = QtCore.pyqtSignal()
+
+    def emit(self):
+        self.signal.emit()
+
+    def connect(self, slot):
+        self.signal.connect(slot)
+
+
 class UnitWidget(QtWidgets.QWidget):
 
     valueChanged = QtCore.pyqtSignal(int)
@@ -51,8 +62,12 @@ class UnitWidget(QtWidgets.QWidget):
         self.dropdown.addItem(name)
         self.dropdown.setCurrentIndex(0)
 
+    def setValue(self, val):
+        self.spinbox.setValue(val)
+
 
 class TimeUnitWidget(UnitWidget):
+    """UnitWidget with value stored in milliseconds."""
 
     def addMilliseconds(self, **kwargs):
         self.addUnit("ms", self.milliseconds, **kwargs)

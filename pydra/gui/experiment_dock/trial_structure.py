@@ -1,11 +1,20 @@
 from PyQt5 import QtWidgets, QtCore
 
 from ..dynamic import Stateful
-from ..helpers import TimeUnitWidget
-from .protocol_builder import ProtocolBuilder
+from ..helpers import SignalProxy, TimeUnitWidget
+from .protocol_builder import ProtocolBuilder, events
 
 
-class ProtocolTab(Stateful, QtWidgets.QWidget):
+class ChangesProtocol:
+    """Mixin for classes that can modify the protocol by allowing them to emit a 'changed' signal."""
+    _protocol_change_proxy = SignalProxy()
+
+    @QtCore.pyqtSlot()
+    def changed(self, *args):  # eat arguments from any connected signals
+        self._protocol_change_proxy.emit()
+
+
+class ProtocolTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
 
     def __init__(self):
         super().__init__()
@@ -25,6 +34,7 @@ class ProtocolTab(Stateful, QtWidgets.QWidget):
         self.reps_spinbox.setMinimum(1)
         self.reps_spinbox.setMaximum(999)
         self.reps_spinbox.setValue(1)
+        self.reps_spinbox.valueChanged.connect(self.changed)
         # Interval
         self.interval_label = QtWidgets.QLabel("Interval:")
         self.interval_label.setToolTip("Time between protocol repetitions")
@@ -32,6 +42,7 @@ class ProtocolTab(Stateful, QtWidgets.QWidget):
         self.interval_widget.addMilliseconds(minval=0, maxval=60_000)
         self.interval_widget.addSeconds(minval=0, maxval=600)
         self.interval_widget.addMinutes(minval=0, maxval=300)
+        self.interval_widget.valueChanged.connect(self.changed)
         # Add to layout
         self.reps_widget.layout().addWidget(self.reps_label)
         self.reps_widget.layout().addWidget(self.reps_spinbox)
@@ -46,6 +57,7 @@ class ProtocolTab(Stateful, QtWidgets.QWidget):
         # BUILDER
         # -------
         self.builder_widget = ProtocolBuilder(("hello_world",))
+        self.builder_widget.protocol_changed.connect(self.changed)
         self.layout().addWidget(self.builder_widget)
         # -----------
         # SAVE / LOAD
@@ -68,8 +80,26 @@ class ProtocolTab(Stateful, QtWidgets.QWidget):
         divider.setLineWidth(1)
         return divider
 
+    @property
+    def n_reps(self):
+        return self.reps_spinbox.value()
 
-class TimedTab(Stateful, QtWidgets.QWidget):
+    @property
+    def interval(self):
+        """The inter-rep interval in seconds"""
+        return self.interval_widget.value / 1000
+
+    def to_protocol(self):
+        event_list = self.builder_widget.to_protocol()
+        protocol = list(event_list)
+        t = self.interval
+        for i in range(self.n_reps - 1):
+            protocol.append(events.PAUSE(t))
+            protocol.extend(list(event_list))
+        return protocol
+
+
+class TimedTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
 
     def __init__(self):
         super().__init__()
@@ -84,6 +114,7 @@ class TimedTab(Stateful, QtWidgets.QWidget):
         self.duration_widget = TimeUnitWidget()
         self.duration_widget.addSeconds(minval=1)
         self.duration_widget.addMinutes(minval=1)
+        self.duration_widget.valueChanged.connect(self.changed)
         # Add to layout
         self.layout().addWidget(self.freerun_checkbox, 0, 0, 1, 2)
         self.layout().addWidget(self.duration_label, 1, 0, 1, 1)
@@ -97,9 +128,17 @@ class TimedTab(Stateful, QtWidgets.QWidget):
         else:  # not checked
             self.duration_label.setVisible(True)
             self.duration_widget.setVisible(True)
+        self.changed()
+
+    def to_protocol(self):
+        if self.freerun_checkbox.checkState():
+            return [events.FREERUN()]
+        return [events.PAUSE(self.duration_widget.value / 1000)]
 
 
-class TrialStructureWidget(Stateful, QtWidgets.QGroupBox):
+class TrialStructureWidget(ChangesProtocol, Stateful, QtWidgets.QGroupBox):
+
+    protocol_changed = QtCore.pyqtSignal(list)
 
     def __init__(self, triggers=()):
         super().__init__("Trial structure")
@@ -133,6 +172,7 @@ class TrialStructureWidget(Stateful, QtWidgets.QGroupBox):
         self.tab_widget.addTab(self.timed_widget, "Timed")
         self.tab_widget.addTab(self.protocol_widget, "Protocol")
         self.layout().addWidget(self.tab_widget, 1, 0, 1, 3)
+        self.tab_widget.currentChanged.connect(self.changed)
         # ----
         # STOP
         # ----
@@ -150,3 +190,15 @@ class TrialStructureWidget(Stateful, QtWidgets.QGroupBox):
         self.layout().addWidget(self.stop_label, 2, 0)
         self.layout().addWidget(self.stop_trigger_check, 2, 1)
         self.layout().addWidget(self.stop_trigger_dropdown, 2, 2)
+        # --------------------------
+        # Catch all protocol changes
+        # --------------------------
+        self._protocol_change_proxy.connect(self.update_protocol)
+
+    @property
+    def protocol(self):
+        return self.tab_widget.currentWidget().to_protocol()
+
+    @QtCore.pyqtSlot()
+    def update_protocol(self):
+        self.protocol_changed.emit(self.protocol)
