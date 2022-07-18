@@ -10,6 +10,8 @@ class RecordButton(Stateful, QtWidgets.QPushButton):
         super().__init__("START EXPERIMENT")
         self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPlay')))
         self.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
+        self.stateMachine.idle.addTransition(self.clicked, self.stateMachine.running)
+        self.stateMachine.running.addTransition(self.clicked, self.stateMachine.idle)
 
     def enterIdle(self):
         self.setEnabled(True)
