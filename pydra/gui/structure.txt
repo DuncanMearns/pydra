@@ -1,0 +1,14 @@
+- MainWindow
+    - central widget (display)
+    - experiment dock
+        - buttons
+        - file naming -> filename, directory, trial_number
+        - trial control -> n_trials, inter_trial_interval
+        - trial structure -> protocol
+            - timed tab
+            - protocol tab
+    - control dock (control widgets)
+
+- StartWindow
+
+- StateMachine

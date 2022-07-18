@@ -130,7 +130,8 @@ class ProtocolThread(Thread):
         while not self.flag:
             try:
                 # check for messages in queue
-                msg = self.msg_q.get_nowait()
+                # msg = self.msg_q.get_nowait()
+                msg = self.msg_q.get(timeout=0.001)
                 # call method corresponding to code
                 self.callback.get(msg, lambda: 0)()
             except queue.Empty:

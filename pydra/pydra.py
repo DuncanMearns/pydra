@@ -9,7 +9,6 @@ import logging
 from datetime import datetime
 import time
 from threading import Lock
-import os
 
 
 setup_state = state_descriptor.new_type("setup_state")
@@ -125,9 +124,6 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
         self._connection_times = {}
         self._state_machine = SetupStateMachine(self)
         self.event_lock = Lock()
-        self.working_dir = self.config.get("default_directory", os.getcwd())
-        self.filename = self.config.get("default_filename", "")
-        self.recording_idx = 0
 
     @property
     def savers(self):
@@ -228,17 +224,6 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
     @blocking
     def send_event(self, event_name, **kwargs):
         super().send_event(event_name, **kwargs)
-
-    def start_recording(self):
-        """Broadcasts a start_recording event."""
-        directory = str(self.working_dir)
-        filename = str(self.filename)
-        idx = int(self.recording_idx)
-        self.send_event("start_recording", directory=directory, filename=filename, idx=idx)
-
-    def stop_recording(self):
-        """Broadcasts a start_recording event."""
-        self.send_event("stop_recording")
 
     @staticmethod
     def configure(modules=(),

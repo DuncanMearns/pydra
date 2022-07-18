@@ -1,4 +1,4 @@
-from pydra.protocol import build_protocol
+from .qprotocol import QProtocol, build_qprotocol, events
 from .dynamic import Stateful, DynamicUpdate
 from .cache import WorkerCache
 from .images import icons
@@ -22,18 +22,29 @@ def connect_signal(method, signal):
 class PydraInterface(Stateful, QtCore.QObject):
 
     newData = QtCore.pyqtSignal(dict)
+    recording_started = QtCore.pyqtSignal(int)
 
     def __init__(self, pydra):
         super().__init__()
         # Pydra
         self.pydra = pydra
-        self.protocol = None
         # Wrap pydra methods
         self.pydra.receive_data = connect_signal(self.pydra.receive_data, self.newData)
         # Trial
         self.directory = self.config.get("default_directory", os.getcwd())
         self.filename = self.config.get("default_filename", "")
         self.trial_index = 0
+        # Protocol
+        self.n_trials = 1
+        self.inter_trial_interval = 0  # ms
+        self.protocol_list = []
+        self.protocol = None
+        # Connections
+        self.recording_started.connect(self.dummy)
+
+    @QtCore.pyqtSlot(int)
+    def dummy(self, i):
+        print(f"Recording {i} start")
 
     def __getattr__(self, item):
         return getattr(self.pydra, item)
@@ -46,42 +57,59 @@ class PydraInterface(Stateful, QtCore.QObject):
 
     @QtCore.pyqtSlot(str)
     def set_filename(self, fname):
-        print(fname)
+        self.filename = fname
 
     @QtCore.pyqtSlot(str)
     def set_directory(self, directory):
-        print(directory)
+        self.directory = directory
 
     @QtCore.pyqtSlot(int)
     def set_trial_number(self, idx):
-        print(idx)
+        self.trial_index = idx
 
     @QtCore.pyqtSlot(int)
     def set_n_trials(self, n):
-        print(n)
+        self.n_trials = n
 
     @QtCore.pyqtSlot(int)
     def set_inter_trial_interval(self, ms):
-        print(ms)
+        self.inter_trial_interval = ms
 
     @QtCore.pyqtSlot(list)
     def set_protocol(self, event_list):
-        print(event_list)
+        self.protocol_list = event_list
 
     @QtCore.pyqtSlot(str, str, dict)
     def send_event(self, target, event_name, event_kw):
         self.pydra.send_event(event_name, target=target, **event_kw)
 
+    def _make_protocol(self) -> QProtocol:
+        protocol_list = list(self.protocol_list)
+        directory = str(self.directory)
+        filename = str(self.filename)
+        trial_index = int(self.trial_index)
+        # Add start recording to protocol
+        protocol_list.insert(0, events.EVENT("start_recording",
+                                             dict(directory=directory, filename=filename, idx=trial_index)))
+        # Add stop recording to protocol
+        protocol_list.append(events.EVENT("stop_recording"))
+        # Create protocol
+        protocol = build_qprotocol(self.pydra, protocol_list)
+        return protocol
+
+    def startRecord(self):
+        self.protocol = self._make_protocol()
+        self.stateMachine.recording.addTransition(self.protocol.finished, self.stateMachine.running)
+        self.protocol.run()
+        self.recording_started.emit(self.trial_index)
+
+    @QtCore.pyqtSlot()
+    def protocol_finished(self):
+        print("HERE!")
+
     def enterIdle(self):
         """Broadcasts a start_recording event."""
         self.pydra.send_event("stop_recording")
-
-    def enterRunning(self):
-        """Broadcasts a start_recording event."""
-        directory = str(self.directory)
-        filename = str(self.filename)
-        idx = int(self.trial_index)
-        self.pydra.send_event("start_recording", directory=directory, filename=filename, idx=idx)
 
 
 class CentralWidget(QtWidgets.QWidget):
