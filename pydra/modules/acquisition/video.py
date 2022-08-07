@@ -1,4 +1,5 @@
-from modules.cameras.worker import CameraAcquisition, setter
+from .camera import CameraAcquisition, setter
+from .widget import CameraWidget, FramePlotter
 import cv2
 
 
@@ -38,3 +39,11 @@ class VideoWorker(CameraAcquisition):
     @property
     def frame_count(self):
         return self.cap.get(cv2.CAP_PROP_FRAME_COUNT)
+
+
+VIDEO = {
+    "worker": VideoWorker,
+    "params": {},
+    "controller": CameraWidget,
+    "plotter": FramePlotter
+}

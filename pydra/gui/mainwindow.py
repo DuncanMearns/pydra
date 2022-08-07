@@ -167,8 +167,8 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         # self.stateMachine.running.entered.connect(self.run_protocol)
         # self.runningState.exited.connect(self.pydra.end_protocol)
         # ==================
-        # Create data caches
-        self.caches = {}
+        # # Create data caches
+        # self.caches = {}
         # =====================
         # Create display widget
         self.display_container = CentralWidget()
@@ -180,7 +180,7 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         for module in self.pydra.modules:
             name = module["worker"].name
             params = module.get("params", {})
-            self.caches[name] = WorkerCache(params.get("cachesize", 50000))
+            # self.caches[name] = WorkerCache(params.get("cachesize", 50000))
             if "controller" in module.keys():
                 # Create control widget
                 widget = module["controller"](name=name, params=params)

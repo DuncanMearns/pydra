@@ -1,7 +1,7 @@
 from pydra import Acquisition, VideoSaver
 from pydra.configuration import config
 from pydra.gui import ControlWidget
-from pydra.modules.acquisition.frame_plotter import FramePlotter
+from pydra.modules.acquisition.widget import FramePlotter
 from PyQt5 import QtWidgets
 import numpy as np
 import time

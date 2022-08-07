@@ -150,13 +150,13 @@ class HDF5Saver(Saver):
         super().stop_recording(**kwargs)
 
     def recv_indexed(self, t, i, data, **kwargs):
-        self.recv_data(t, i, data)
+        self.recv_data(t, i, data, **kwargs)
 
     def recv_array(self, t, i, a, **kwargs):
-        self.recv_data(t, i, arr=a)
+        self.recv_data(t, i, arr=a, **kwargs)
 
     def recv_timestamped(self, t, data, **kwargs):
-        self.recv_data(t, data=data)
+        self.recv_data(t, data=data, **kwargs)
 
     def recv_data(self, t, i=None, data=None, arr=None, **kwargs):
         worker = kwargs["source"]
@@ -217,8 +217,6 @@ class VideoSaver(HDF5Saver):
         self.source = kwargs["source"]
         self.video_cache = frame
         self.t_temp.append(t)
-        if i % 100 == 0:
-            print(i, "received")
         if self.recording:
             self.save_frame(t, i, frame)
 

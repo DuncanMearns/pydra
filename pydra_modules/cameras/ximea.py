@@ -4,12 +4,10 @@ except NameError:
     raise Exception(
         "The xiapi package must be installed to use a Ximea camera!"
     )
-from modules.cameras.worker import CameraAcquisition, setter
+from pydra.modules.acquisition.camera import Camera, setter, CAMERA
 
 
-class XimeaCamera(CameraAcquisition):
-
-    name = "ximea"
+class XimeaCamera(Camera):
 
     def __init__(self, *args, camera_id=0, **kwargs):
         super().__init__(*args, **kwargs)
@@ -20,7 +18,6 @@ class XimeaCamera(CameraAcquisition):
         self.camera = xiapi.Camera(self.camera_id)
         self.camera.open_device()
         self.frame = xiapi.Image()
-
         # If camera supports hardware downsampling (MQ013xG-ON does,
         # MQ003MG-CM does not):
         if self.camera.get_device_name() in [b"MQ013MG-ON", b"MQ013RG-ON", b"MQ013CG-ON"]:
@@ -33,7 +30,19 @@ class XimeaCamera(CameraAcquisition):
             self.camera.set_downsampling("XI_DWN_2x2")
         except xiapi.Xi_error:
             pass
-        self.set_params(self.params)
+        self.set_params(**self.params)
+
+    def read(self):
+        try:
+            self.camera.get_image(self.frame)
+            frame = self.frame.get_image_data_numpy()
+        except xiapi.Xi_error:
+            frame = self.empty()
+        return frame
+
+    def shutdown(self):
+        self.camera.stop_acquisition()
+        self.camera.close_device()
 
     @setter
     def frame_rate(self, fps: float):
@@ -89,14 +98,7 @@ class XimeaCamera(CameraAcquisition):
             pass
         return self.camera.get_gain()
 
-    def read(self):
-        try:
-            self.camera.get_image(self.frame)
-            frame = self.frame.get_image_data_numpy()
-        except xiapi.Xi_error:
-            frame = self.empty()
-        return frame
 
-    def cleanup(self):
-        self.camera.stop_acquisition()
-        self.camera.close_device()
+XIMEA = dict(CAMERA)
+XIMEA["worker"].name = "ximea"
+XIMEA["params"]["camera_type"] = XimeaCamera

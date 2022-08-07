@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, QtCore
 from pydra.gui import ControlWidget, Plotter
-from pydra.gui.widgets import SpinboxWidget, DoubleSpinboxWidget
+from pydra.gui.helpers import SpinboxWidget, DoubleSpinboxWidget
 
 
 class ParameterGroupBox(QtWidgets.QGroupBox):
@@ -144,9 +144,13 @@ class CameraWidget(ControlWidget):
     def enterIdle(self):
         self.setEnabled(True)
 
-    def receiveLogged(self, event_name, kw) -> None:
+    def dynamicUpdate(self):
         try:
-            getattr(self, event_name)(**kw)
+            new_events = self.cache.events
+            if len(new_events):
+                t, new_params = new_events[-1]
+                self.cache.clear()
+                self.set_params(**new_params)
         except AttributeError:
             return
 
@@ -157,5 +161,8 @@ class FramePlotter(Plotter):
         super().__init__(*args, **kwargs)
         self.addImagePlot("frame", pen=None, symbol='o')
 
-    def dynamicUpdate(self, data_cache, **kwargs):
-        self.updateImage("frame", data_cache.array)
+    def dynamicUpdate(self):
+        try:
+            self.updateImage("frame", self.cache.frame)
+        except AttributeError:
+            return

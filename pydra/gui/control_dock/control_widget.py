@@ -12,6 +12,3 @@ class ControlWidget(DynamicUpdate, Stateful, QtWidgets.QWidget):
 
     def send_event(self, event_name, **kwargs):
         self.widgetEvent.emit(self.name, event_name, kwargs)
-
-    def receiveLogged(self, event_name, kw) -> None:
-        return

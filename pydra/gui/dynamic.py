@@ -84,6 +84,8 @@ class GUICache(TempCache):
         return
 
     def new_events(self, events: list):
+        for t, data in events:
+            self.append_event(t, data)
         return
 
 

@@ -73,8 +73,7 @@ def blocking(method):
 
 
 class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
-    """The singleton main pydra class, implementing network initialization and front/backend connections. May be further
-    subclassed.
+    """The singleton main pydra class, implementing network initialization and front/backend connections.
 
     Parameters
     ----------
