@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from collections import OrderedDict
 
 
@@ -91,6 +91,12 @@ class TimeUnitWidget(UnitWidget):
         return t * 60_000
 
 
+def disable_wheel(method):
+    def disabled_wheel_event(a0):
+        a0.ignore()
+    return disabled_wheel_event
+
+
 class SpinboxWidget(QtWidgets.QWidget):
 
     valueChanged = QtCore.pyqtSignal(int)
@@ -106,6 +112,7 @@ class SpinboxWidget(QtWidgets.QWidget):
         if suffix is not None:
             self.spinbox.setSuffix(f" {suffix}")
         self.spinbox.valueChanged.connect(self.valueChanged)
+        self.spinbox.wheelEvent = disable_wheel(self.spinbox.wheelEvent)
         self.layout().addRow(f"{label}: ", self.spinbox)
 
     def setValue(self, val, emit=True):
@@ -135,6 +142,7 @@ class DoubleSpinboxWidget(QtWidgets.QWidget):
         if suffix is not None:
             self.spinbox.setSuffix(f" {suffix}")
         self.spinbox.valueChanged.connect(lambda val: self.valueChanged.emit(val))
+        self.spinbox.wheelEvent = disable_wheel(self.spinbox.wheelEvent)
         self.layout().addRow(f"{label}: ", self.spinbox)
 
     def setValue(self, val, emit=True):
