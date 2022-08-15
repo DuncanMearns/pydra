@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, QtCore
 
-from ..dynamic import Stateful
+from ..state_machine import Stateful
 from ..helpers import SignalProxy, TimeUnitWidget
 from .protocol_builder import ProtocolBuilder, events
 
@@ -193,15 +193,16 @@ class TrialStructureWidget(ChangesProtocol, Stateful, QtWidgets.QGroupBox):
         # --------------------------
         # Catch all protocol changes
         # --------------------------
+        self.protocol_changed.connect(self.stateMachine.set_protocol)
         self._protocol_change_proxy.connect(self.update_protocol)
 
     @property
-    def protocol(self):
+    def protocol_list(self) -> list:
         return self.tab_widget.currentWidget().to_protocol()
 
     @QtCore.pyqtSlot()
     def update_protocol(self):
-        self.protocol_changed.emit(self.protocol)
+        self.protocol_changed.emit(self.protocol_list)
 
     def enterIdle(self):
         self.setEnabled(True)

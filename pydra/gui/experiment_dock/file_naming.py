@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 import os
 
 from ..layout import *
-from ..dynamic import Stateful
+from ..state_machine import Stateful
 
 
 class SpinBoxLeadingZeros(QtWidgets.QSpinBox):

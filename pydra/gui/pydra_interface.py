@@ -1,7 +1,6 @@
-import os
 from PyQt5 import QtCore
 
-from .dynamic import Stateful
+from .state_machine import Stateful
 from ..protocol import Protocol, events, build_protocol
 
 
@@ -17,23 +16,19 @@ class PydraInterface(Stateful, QtCore.QObject):
 
     newData = QtCore.pyqtSignal(dict)
 
-    def __init__(self, pydra, check_msec: int = 10):
+    def __init__(self, pydra):
         super().__init__()
-        # Pydra
+        # Set the pydra instance
         self.pydra = pydra
         # Wrap pydra methods
         self.pydra.receive_data = connect_signal(self.pydra.receive_data, self.newData)
-        # Trial
-        self.stateMachine.directory_changed.connect(self.new_directory)
-        self.stateMachine.filename_changed.connect(self.new_filename)
-        self.stateMachine.trial_number_changed.connect(self.new_trial_number)
-        self.stateMachine.n_trials_changed.connect(self.new_n_trials)
-        self.stateMachine.inter_trial_interval_changed.connect(self.new_inter_trial_interval)
         # Protocol
-        self.protocol_list = []
-        self.protocol = None
-        # Check for protocol updates
+        self.protocol_ = None
+        # Check for pydra and protocol updates
+        self.stateMachine.update_timer.timeout.connect(self.fetch_messages)
         self.stateMachine.update_timer.timeout.connect(self.check_protocol_status)
+        # Handle state transitions
+        self.stateMachine.ready_to_start.entered.connect(self.enterReady)
 
     def __getattr__(self, item):
         return getattr(self.pydra, item)
@@ -44,36 +39,12 @@ class PydraInterface(Stateful, QtCore.QObject):
         self.pydra.poll()
         self.pydra.send_request("data")
 
-    @QtCore.pyqtSlot(str)
-    def new_directory(self, val):
-        print("Directory changed", val, self.directory)
-
-    @QtCore.pyqtSlot(str)
-    def new_filename(self, val):
-        print("Filename changed", val, self.filename)
-
-    @QtCore.pyqtSlot(int)
-    def new_trial_number(self, val):
-        print("Trial number changed", val, self.trial_number)
-
-    @QtCore.pyqtSlot(int)
-    def new_n_trials(self, val):
-        print("N trials changed", val, self.n_trials)
-
-    @QtCore.pyqtSlot(int)
-    def new_inter_trial_interval(self, val):
-        print("Inter trial interval changed", val, self.inter_trial_interval)
-
-    @QtCore.pyqtSlot(list)
-    def set_protocol(self, event_list):
-        self.protocol_list = event_list
-
     @QtCore.pyqtSlot(str, str, dict)
     def send_event(self, target, event_name, event_kw):
         self.pydra.send_event(event_name, target=target, **event_kw)
 
     def _make_protocol(self) -> Protocol:
-        protocol_list = list(self.protocol_list)
+        protocol_list = list(self.protocol)
         directory = str(self.directory)
         filename = str(self.filename)
         trial_number = int(self.trial_number)
@@ -87,54 +58,48 @@ class PydraInterface(Stateful, QtCore.QObject):
         return protocol
 
     @QtCore.pyqtSlot()
-    def start_experiment(self):
+    def trigger_experiment_start(self):
+        """Emits the start_experiment signal from the stateMachine, triggering the running state."""
         self.stateMachine.start_experiment.emit()
 
     @QtCore.pyqtSlot()
+    def trigger_recording_start(self):
+        """Emits the start_recording signal from the stateMachine, triggering the recording state"""
+        self.stateMachine.start_recording.emit()
+
+    @QtCore.pyqtSlot()
     def interrupt(self):
-        self.protocol.interrupt()
+        self.protocol_.interrupt()
         self.pydra.send_event("stop_recording")
         self.stateMachine.experiment_finished.emit()
 
     @QtCore.pyqtSlot()
-    def start_protocol(self):
-        self.stateMachine.start_recording.emit()
-
-    @QtCore.pyqtSlot()
     def check_protocol_status(self) -> bool:
         try:
-            if self.protocol.is_running():
+            if self.protocol_.is_running():
                 return True
         except AttributeError:
             return False
         self.stateMachine.recording_finished.emit()
         return False
 
-    def enterIdle(self):
-        print("ENTER IDLE")
-
     def enterRunning(self):
-        print("ENTER RUNNING")
-        self._trial_index = 0
-        self.start_protocol()
+        self.stateMachine.set_trial_index(0)
+
+    def enterReady(self):
+        """Ensures entry into the recording state when running state is entered."""
+        self.trigger_recording_start()
 
     def startRecord(self):
-        print("START RECORD")
-        self.protocol = self._make_protocol()
-        self.protocol.run()
-
-    def stopRecord(self):
-        print("STOP RECORD")
-        self._trial_index += 1
-        if self._trial_index >= self.n_trials:
-            self.stateMachine.experiment_finished.emit()
+        self.stateMachine.set_trial_index(self.trial_index + 1)
+        self.protocol_ = self._make_protocol()
+        self.protocol_.run()
 
     def startWait(self):
-        print("START WAIT")
-        if self._trial_index < self.n_trials:
+        if self.trial_index < self.n_trials:
             self.wait_timer = QtCore.QTimer()
             self.wait_timer.setSingleShot(True)
-            self.wait_timer.timeout.connect(self.start_protocol)
+            self.wait_timer.timeout.connect(self.trigger_recording_start)
             self.wait_timer.start(self.inter_trial_interval)
             return
         self.stateMachine.experiment_finished.emit()

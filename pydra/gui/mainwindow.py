@@ -1,11 +1,12 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from pyqtgraph.dockarea import DockArea, Dock
 
-from .dynamic import Stateful, DynamicUpdate
+from .dynamic import DynamicUpdate
+from .state_machine import Stateful
 from .images import icons
-from .experiment_dock import ExperimentWidget
-from .control_dock import ControlDock
+from .experiment_dock import *
 from .pydra_interface import PydraInterface
+from .public import *
 
 
 class CentralWidget(QtWidgets.QWidget):
@@ -20,6 +21,62 @@ class CentralWidget(QtWidgets.QWidget):
         dock = Dock(name)
         dock.addWidget(widget)
         self._dock_area.addDock(dock)
+
+
+class ExperimentWidget(QtWidgets.QWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.record_button = RecordButton()
+        self.layout().addWidget(self.record_button)
+        self.status_widget = StatusWidget()
+        self.layout().addWidget(self.status_widget)
+        self.file_naming_widget = FileNamingWidget("", "")
+        self.layout().addWidget(self.file_naming_widget)
+        self.trial_control_widget = TrialControlWidget(1, 1)
+        self.layout().addWidget(self.trial_control_widget)
+        self.protocol_widget = TrialStructureWidget()
+        self.layout().addWidget(self.protocol_widget)
+
+
+class ControlDock(QtWidgets.QDockWidget):
+
+    widgetEvent = QtCore.pyqtSignal(str, str, dict)
+
+    def __init__(self, widget: ControlWidget, name: str, *args, **kwargs):
+        super().__init__(name, *args, **kwargs)
+        self.setWidget(widget)
+        self.name = name
+        self._set_widget_params()
+        self._add_connections()
+
+    def _set_widget_params(self):
+        self.setMinimumWidth(250)
+        self.setMinimumHeight(100)
+        self.setMaximumHeight(350)
+        size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred)
+        self.setSizePolicy(size_policy)
+
+    def _add_connections(self):
+        # Show/hide
+        self.displayAction = QtWidgets.QAction(self.name)
+        self.displayAction.setCheckable(True)
+        self.displayAction.setChecked(True)
+        self.displayAction.triggered.connect(self.toggle_visibility)
+        # Widget events
+        self.widget().widgetEvent.connect(self.widgetEvent)
+
+    @QtCore.pyqtSlot(bool)
+    def toggle_visibility(self, state):
+        if state:
+            self.show()
+        else:
+            self.close()
+
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self.displayAction.setChecked(False)
+        event.accept()
 
 
 class MainWindow(Stateful, QtWidgets.QMainWindow):
@@ -75,12 +132,9 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         # ===============
         # Connect signals
         self.pydra.newData.connect(self.update_gui)
-        # self.experiment_widget.protocol_changed.connect(self.pydra.set_protocol)
         # Propagate signals from control dock
         for name, dock_widget in self._control_docks.items():
             dock_widget.widgetEvent.connect(self.pydra.send_event)
-        # =====================
-        self.stateMachine.update_timer.timeout.connect(self.pydra.fetch_messages)
         # =======================
         # Start the state machine
         self.stateMachine.start()

@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, QtCore
 
 from ..layout import *
-from ..dynamic import Stateful
+from ..state_machine import Stateful
 
 
 class RecordButton(Stateful, QtWidgets.QPushButton):
@@ -13,6 +13,8 @@ class RecordButton(Stateful, QtWidgets.QPushButton):
         super().__init__("START EXPERIMENT")
         self.setIcon(self.style().standardIcon(getattr(QtWidgets.QStyle, 'SP_MediaPlay')))
         self.setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT)
+        self.start_experiment.connect(self.stateMachine.start_experiment)
+        self.interrupt.connect(self.stateMachine.interrupt)
 
     def enterIdle(self):
         try:
