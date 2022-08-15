@@ -202,3 +202,9 @@ class TrialStructureWidget(ChangesProtocol, Stateful, QtWidgets.QGroupBox):
     @QtCore.pyqtSlot()
     def update_protocol(self):
         self.protocol_changed.emit(self.protocol)
+
+    def enterIdle(self):
+        self.setEnabled(True)
+
+    def enterRunning(self):
+        self.setEnabled(False)

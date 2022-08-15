@@ -2,9 +2,9 @@ import setuptools
 
 setuptools.setup(
     name="pydra-experiment-control",
-    version="0.0.1",
+    version="0.1.0",
     author="Duncan Mearns",
-    author_email="mearns@neuro.mpg.de",
+    author_email="duncan.mearns@bi.mpg.de",
     description="Pydra provides a framework for building experiment controllers with python",
     install_requires=[
         "matplotlib",
@@ -15,5 +15,5 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(),
     include_package_data=True,
-    python_requires='>=3.7'
+    python_requires='>=3.8'
 )

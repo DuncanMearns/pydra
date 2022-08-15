@@ -185,3 +185,9 @@ class Protocol:
 
     def addFreerun(self):
         self.event_queue.append(Pause(-1))
+
+    def is_running(self):
+        try:
+            return self.thread.is_alive()
+        except AttributeError:
+            return False

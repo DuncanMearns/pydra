@@ -48,6 +48,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         self.directory_editor.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
         self.directory_changed.connect(self.directory_editor.setText)
         self.directory_changed.connect(self.update_size)
+        self.directory_changed.connect(self.stateMachine.set_directory)
         # Button
         self.directory_button = QtWidgets.QPushButton("change")
         self.directory_button.clicked.connect(self.change_directory)
@@ -68,6 +69,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         self.filename_editor.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
         self.filename_editor.textChanged.connect(self.update_size)
         self.filename_editor.editingFinished.connect(self.change_filename)
+        self.filename_changed.connect(self.stateMachine.set_filename)
         # Trial number
         self.trial_number_editor = SpinBoxLeadingZeros(n_trial_digits)
         self.trial_number_editor.setMinimum(1)
@@ -78,27 +80,28 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         self.trial_number_widget.layout().addWidget(QtWidgets.QLabel("_"))
         self.trial_number_widget.layout().addWidget(self.trial_number_editor)
         self.trial_number_widget.layout().addWidget(QtWidgets.QLabel(".ext"))
+        self.trial_number_changed.connect(self.stateMachine.set_trial_number)
         # Add to layout
         self.layout().addWidget(self.filename_label, 2, 0)
         self.layout().addWidget(self.filename_editor, 3, 0)
         self.layout().addWidget(self.trial_number_widget, 3, 1)
 
     @property
-    def filename(self):
+    def filename_text(self):
         return self.filename_editor.text() + "_" + self.trial_number_editor.text()
 
     @property
-    def directory(self):
+    def directory_text(self):
         return self.directory_editor.text()
 
     @property
-    def trial_number(self):
+    def trial_number_text(self):
         return self.trial_number_editor.value()
 
     @QtCore.pyqtSlot()
     def change_directory(self):
         """Opens a dialog to changes the current working directory."""
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select directory', self.directory)
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select directory', self.directory_text)
         directory = str(directory)
         if directory != '':
             self.check_validity()
@@ -107,7 +110,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
     @QtCore.pyqtSlot()
     def change_filename(self):
         self.check_validity()
-        self.filename_changed.emit(self.filename)
+        self.filename_changed.emit(self.filename_text)
 
     @QtCore.pyqtSlot(int)
     def change_trial_number(self, i):
@@ -135,7 +138,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         return [os.path.splitext(f)[0] for f in os.listdir(directory)]
 
     def check_validity(self):
-        if self.filename in self.existing_files:
+        if self.filename_text in self.existing_files:
             dialog = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning,
                                            "Warning",
                                            f"File already exists!\n\n{self.filename}",
@@ -147,3 +150,6 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
 
     def enterIdle(self):
         self.setEnabled(True)
+
+    def stopRecord(self):
+        self.trial_number_editor.setValue(self.trial_number + 1)

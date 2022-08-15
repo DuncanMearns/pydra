@@ -6,9 +6,6 @@ from ..helpers import TimeUnitWidget
 
 class TrialControlWidget(Stateful, QtWidgets.QGroupBox):
 
-    n_trials_changed = QtCore.pyqtSignal(int)
-    inter_trial_interval_changed = QtCore.pyqtSignal(int)
-
     def __init__(self, n_trials, inter_trial_time, n_trial_digits=3, inter_trial_unit="s"):
         super().__init__("Trials")
         # Layout
@@ -26,7 +23,7 @@ class TrialControlWidget(Stateful, QtWidgets.QGroupBox):
         self.n_trial_spinbox.setMinimum(1)
         self.n_trial_spinbox.setMaximum(self.n_trials_max)
         self.n_trial_spinbox.setValue(n_trials)
-        self.n_trial_spinbox.valueChanged.connect(self.n_trials_changed)
+        self.n_trial_spinbox.valueChanged.connect(self.stateMachine.set_n_trials)
         # Add to layout
         self.layout().addWidget(self.n_trial_label)
         self.layout().addWidget(self.n_trial_spinbox)
@@ -40,7 +37,7 @@ class TrialControlWidget(Stateful, QtWidgets.QGroupBox):
         self.inter_trial_widget = TimeUnitWidget()
         self.inter_trial_widget.addSeconds(minval=1, maxval=600)
         self.inter_trial_widget.addMinutes(minval=1, maxval=300)
-        self.inter_trial_widget.valueChanged.connect(self.inter_trial_interval_changed)
+        self.inter_trial_widget.valueChanged.connect(self.stateMachine.set_inter_trial_interval)
         # Add to layout
         self.layout().addWidget(self.inter_trial_label)
         self.layout().addWidget(self.inter_trial_widget)
@@ -49,10 +46,8 @@ class TrialControlWidget(Stateful, QtWidgets.QGroupBox):
     def n_trials_max(self):
         return int("1" + "0" * self.n_digits) - 1
 
-    @property
-    def n_trials(self):
-        return self.n_trial_spinbox.value()
+    def enterIdle(self):
+        self.setEnabled(True)
 
-    @property
-    def inter_trial_interval(self):
-        return self.inter_trial_widget.value
+    def enterRunning(self):
+        self.setEnabled(False)

@@ -1,115 +1,11 @@
-from .qprotocol import QProtocol, build_qprotocol, events
+from PyQt5 import QtWidgets, QtGui, QtCore
+from pyqtgraph.dockarea import DockArea, Dock
+
 from .dynamic import Stateful, DynamicUpdate
-from .cache import WorkerCache
 from .images import icons
 from .experiment_dock import ExperimentWidget
 from .control_dock import ControlDock
-# from .connections import NetworkConfiguration
-
-from PyQt5 import QtWidgets, QtGui, QtCore
-from pyqtgraph.dockarea import DockArea, Dock
-import os
-
-
-def connect_signal(method, signal):
-    def wrapper(*args, **kwargs):
-        result = method(*args, **kwargs)
-        signal.emit(result)
-        return result
-    return wrapper
-
-
-class PydraInterface(Stateful, QtCore.QObject):
-
-    newData = QtCore.pyqtSignal(dict)
-    recording_started = QtCore.pyqtSignal(int)
-
-    def __init__(self, pydra):
-        super().__init__()
-        # Pydra
-        self.pydra = pydra
-        # Wrap pydra methods
-        self.pydra.receive_data = connect_signal(self.pydra.receive_data, self.newData)
-        # Trial
-        self.directory = self.config.get("default_directory", os.getcwd())
-        self.filename = self.config.get("default_filename", "")
-        self.trial_index = 0
-        # Protocol
-        self.n_trials = 1
-        self.inter_trial_interval = 0  # ms
-        self.protocol_list = []
-        self.protocol = None
-        # Connections
-        self.recording_started.connect(self.dummy)
-
-    @QtCore.pyqtSlot(int)
-    def dummy(self, i):
-        print(f"Recording {i} start")
-
-    def __getattr__(self, item):
-        return getattr(self.pydra, item)
-
-    @QtCore.pyqtSlot()
-    def fetch_messages(self):
-        """Polls pydra for new data and dispatches requests."""
-        self.pydra.poll()
-        self.pydra.send_request("data")
-
-    @QtCore.pyqtSlot(str)
-    def set_filename(self, fname):
-        self.filename = fname
-
-    @QtCore.pyqtSlot(str)
-    def set_directory(self, directory):
-        self.directory = directory
-
-    @QtCore.pyqtSlot(int)
-    def set_trial_number(self, idx):
-        self.trial_index = idx
-
-    @QtCore.pyqtSlot(int)
-    def set_n_trials(self, n):
-        self.n_trials = n
-
-    @QtCore.pyqtSlot(int)
-    def set_inter_trial_interval(self, ms):
-        self.inter_trial_interval = ms
-
-    @QtCore.pyqtSlot(list)
-    def set_protocol(self, event_list):
-        self.protocol_list = event_list
-
-    @QtCore.pyqtSlot(str, str, dict)
-    def send_event(self, target, event_name, event_kw):
-        self.pydra.send_event(event_name, target=target, **event_kw)
-
-    def _make_protocol(self) -> QProtocol:
-        protocol_list = list(self.protocol_list)
-        directory = str(self.directory)
-        filename = str(self.filename)
-        trial_index = int(self.trial_index)
-        # Add start recording to protocol
-        protocol_list.insert(0, events.EVENT("start_recording",
-                                             dict(directory=directory, filename=filename, idx=trial_index)))
-        # Add stop recording to protocol
-        protocol_list.append(events.EVENT("stop_recording"))
-        # Create protocol
-        protocol = build_qprotocol(self.pydra, protocol_list)
-        return protocol
-
-    def startRecord(self):
-        self.protocol = self._make_protocol()
-        self.stateMachine.recording.addTransition(self.protocol.finished, self.stateMachine.running)
-        self.protocol.run()
-        self.recording_started.emit(self.trial_index)
-
-    @QtCore.pyqtSlot()
-    def protocol_finished(self):
-        print("HERE!")
-
-    def enterIdle(self):
-        """Broadcasts a start_recording event."""
-        self.pydra.send_event("stop_recording")
+from .pydra_interface import PydraInterface
 
 
 class CentralWidget(QtWidgets.QWidget):
@@ -138,41 +34,28 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
     def __init__(self, pydra, *args):
         super().__init__(*args)
         self.pydra = PydraInterface(pydra)
-        # ================
+        # ============
         # Window title
         self.setWindowTitle("Pydra - Experiment Control")
         self.setWindowIcon(QtGui.QIcon(icons["python_logo"]))
-        # ==============
+        # =======
         # Menubar
         self.setMenuBar(QtWidgets.QMenuBar())
         self.windowMenu = self.menuWidget().addMenu("Window")
-        # ======================
+        # ===============
         # Experiment dock
-        # self.worker_events = self.pydra.worker_events
         self.experiment_dock = QtWidgets.QDockWidget()
         self.experiment_widget = ExperimentWidget()
         self.experiment_dock.setWidget(self.experiment_widget)
         self.experiment_dock.setWindowTitle("Experiment control")
         self.experiment_dock.setFeatures(self.experiment_dock.DockWidgetMovable |
                                          self.experiment_dock.DockWidgetFloatable)
-        # self.experiment_dock.setMinimumWidth(250)
-        # self.experiment_dock.setMinimumHeight(100)
-        # size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred)
-        # self.experiment_dock.setSizePolicy(size_policy)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.experiment_dock)
-        # =====================
-        # Add recording toolbar
-        # self.recording_toolbar = RecordingToolbar(parent=self)
-        # self.addToolBar(self.recording_toolbar)
-        # self.stateMachine.running.entered.connect(self.run_protocol)
-        # self.runningState.exited.connect(self.pydra.end_protocol)
-        # ==================
-        # # Create data caches
-        # self.caches = {}
         # =====================
         # Create display widget
         self.display_container = CentralWidget()
         self.setCentralWidget(self.display_container)
+        # ================================
         # Add control widgets and plotters
         self.controllers = {}
         self._control_docks = {}
@@ -189,31 +72,15 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
                 # Create plotting widget
                 plotter = module["plotter"](name=name, params=params)
                 self.add_plotter(name, plotter)
-        # =================================
-        # Send any missed events to widgets
-        # for worker, log in self.pydra._event_log.items():
-        #     for (t, event_name, event_kw) in log:
-        #         self.controllers[worker].receiveLogged(event_name, event_kw)
         # ===============
         # Connect signals
         self.pydra.newData.connect(self.update_gui)
-        # Propagate signals from experiment dock
-        self.experiment_widget.directory_changed.connect(self.pydra.set_directory)
-        self.experiment_widget.filename_changed.connect(self.pydra.set_filename)
-        self.experiment_widget.trial_number_changed.connect(self.pydra.set_trial_number)
-        self.experiment_widget.n_trials_changed.connect(self.pydra.set_n_trials)
-        self.experiment_widget.inter_trial_interval_changed.connect(self.pydra.set_inter_trial_interval)
-        self.experiment_widget.protocol_changed.connect(self.pydra.set_protocol)
+        # self.experiment_widget.protocol_changed.connect(self.pydra.set_protocol)
         # Propagate signals from control dock
         for name, dock_widget in self._control_docks.items():
             dock_widget.widgetEvent.connect(self.pydra.send_event)
         # =====================
-        # Plotting update timer
-        self.update_interval = 30
-        self.update_timer = QtCore.QTimer()
-        self.update_timer.setInterval(self.update_interval)
-        self.update_timer.timeout.connect(self.pydra.fetch_messages)
-        self.update_timer.start()
+        self.stateMachine.update_timer.timeout.connect(self.pydra.fetch_messages)
         # =======================
         # Start the state machine
         self.stateMachine.start()
@@ -221,20 +88,6 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.pydra.exit()
         a0.accept()
-
-    # def run_protocol(self):
-    #     n_reps, interval = self.recording_toolbar.protocol_widget.value
-    #     name = self.protocol_window.name
-    #     if name:
-    #         protocol = self.protocol_window.protocol
-    #         self.pydra.build_protocol(name, n_reps, interval, protocol)
-    #     else:
-    #         self.pydra.freerunning_mode()
-    #     self.recording_toolbar.protocol_widget.update_protocol(name)
-    #     self.runningState.addTransition(self.pydra.protocol.completed, self.idleState)
-    #     self.pydra.protocol.started.connect(self.startRecord)
-    #     self.pydra.protocol.finished.connect(self.endRecord)
-    #     self.pydra.run_protocol()
 
     def add_controller(self, name, widget):
         self.controllers[name] = widget
@@ -259,12 +112,3 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
                     to_update.append(widget)
         for widget in to_update:
             widget.dynamicUpdate()
-
-    # def enterRunning(self):
-    #     self.pydra.start_recording()
-    # #     for worker, cache in self.caches.items():
-    # #         cache.clear()
-    # #     super().enterRunning()
-    #
-    # def enterIdle(self):
-    #     self.pydra.stop_recording()
