@@ -44,8 +44,10 @@ class TrialControlWidget(Stateful, QtWidgets.QGroupBox):
         # Emit signals
         # ------------
         self.n_trial_spinbox.setValue(n_trials)
+        self.n_trial_spinbox.valueChanged.emit(n_trials)  # ensure value is emitted
         self.inter_trial_widget.change_unit(inter_trial_unit)
         self.inter_trial_widget.setValue(inter_trial_time)
+        self.inter_trial_widget.recompute_value(inter_trial_time)  # ensure value is emitted
 
     @property
     def n_trials_max(self):
