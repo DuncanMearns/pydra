@@ -29,6 +29,7 @@ class PydraInterface(Stateful, QtCore.QObject):
         self.stateMachine.update_timer.timeout.connect(self.check_protocol_status)
         # Handle state transitions
         self.stateMachine.ready_to_start.entered.connect(self.enterReady)
+        self.stateMachine.interrupted.entered.connect(self.enterInterrupted)
 
     def __getattr__(self, item):
         return getattr(self.pydra, item)
@@ -68,12 +69,6 @@ class PydraInterface(Stateful, QtCore.QObject):
         self.stateMachine.start_recording.emit()
 
     @QtCore.pyqtSlot()
-    def interrupt(self):
-        self.protocol_.interrupt()
-        self.pydra.send_event("stop_recording")
-        self.stateMachine.experiment_finished.emit()
-
-    @QtCore.pyqtSlot()
     def check_protocol_status(self) -> bool:
         try:
             if self.protocol_.is_running():
@@ -89,6 +84,13 @@ class PydraInterface(Stateful, QtCore.QObject):
     def enterReady(self):
         """Ensures entry into the recording state when running state is entered."""
         self.trigger_recording_start()
+
+    def enterInterrupted(self):
+        """Interrupts the protocol"""
+        if self.check_protocol_status():
+            self.protocol_.interrupt()
+            self.pydra.send_event("stop_recording")
+        self.stateMachine.experiment_finished.emit()
 
     def startRecord(self):
         self.stateMachine.set_trial_index(self.trial_index + 1)

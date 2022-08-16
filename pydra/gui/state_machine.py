@@ -103,6 +103,8 @@ class StateMachine(QtCore.QObject, metaclass=StateMachineMeta):
         self.waiting = QtCore.QState(self.running)
         # Recording state - recording currently in progress
         self.recording = QtCore.QState(self.running)
+        # Interrupted state - an experiment has been interrupted
+        self.interrupted = QtCore.QState(self.running)
         # Add states to state maching
         self._stateMachine.addState(self.idle)
         self._stateMachine.addState(self.running)
@@ -112,6 +114,8 @@ class StateMachine(QtCore.QObject, metaclass=StateMachineMeta):
         self.ready_to_start.addTransition(self.start_recording, self.recording)
         self.waiting.addTransition(self.start_recording, self.recording)
         self.recording.addTransition(self.recording_finished, self.waiting)
+        self.recording.addTransition(self.interrupt, self.interrupted)
+        self.waiting.addTransition(self.interrupt, self.interrupted)
         # =============================
         # Dynamic experiment attributes
         # =============================
