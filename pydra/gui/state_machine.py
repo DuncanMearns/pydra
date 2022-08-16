@@ -115,12 +115,9 @@ class StateMachine(QtCore.QObject, metaclass=StateMachineMeta):
         # =============================
         # Dynamic experiment attributes
         # =============================
-        self.set_directory("")
-        self.set_filename("")
-        self.set_trial_number(1)
-        self.set_trial_index(0)
-        self.set_n_trials(1)
-        self.set_inter_trial_interval(0)  # ms
+        # Ensure all dynamic attributes are initialized
+        for attr, attr_type in StateMachine._dynamic_attributes.items():
+            getattr(self, "set_" + attr)(attr_type())
         # ================
         # GUI update timer
         # ================

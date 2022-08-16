@@ -140,7 +140,7 @@ class TrialStructureWidget(ChangesProtocol, Stateful, QtWidgets.QGroupBox):
 
     protocol_changed = QtCore.pyqtSignal(list)
 
-    def __init__(self, triggers=()):
+    def __init__(self, triggers=(), **kwargs):
         super().__init__("Trial structure")
         self.triggers = triggers
         # Layout

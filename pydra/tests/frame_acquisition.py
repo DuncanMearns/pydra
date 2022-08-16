@@ -111,3 +111,4 @@ VideoSaver.workers = ("acquisition",)
 
 config["modules"] = [ACQUISITION]
 config["savers"] = [VideoSaver]
+config["gui_params"]["directory"] = r"D:\pydra_tests"

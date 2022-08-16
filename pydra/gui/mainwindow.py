@@ -25,18 +25,18 @@ class CentralWidget(QtWidgets.QWidget):
 
 class ExperimentWidget(QtWidgets.QWidget):
 
-    def __init__(self):
+    def __init__(self, params: dict):
         super().__init__()
         self.setLayout(QtWidgets.QVBoxLayout())
         self.record_button = RecordButton()
         self.layout().addWidget(self.record_button)
         self.status_widget = StatusWidget()
         self.layout().addWidget(self.status_widget)
-        self.file_naming_widget = FileNamingWidget("", "")
+        self.file_naming_widget = FileNamingWidget(**params)
         self.layout().addWidget(self.file_naming_widget)
-        self.trial_control_widget = TrialControlWidget(1, 1)
+        self.trial_control_widget = TrialControlWidget(**params)
         self.layout().addWidget(self.trial_control_widget)
-        self.protocol_widget = TrialStructureWidget()
+        self.protocol_widget = TrialStructureWidget(**params)
         self.layout().addWidget(self.protocol_widget)
 
 
@@ -100,9 +100,10 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         self.setMenuBar(QtWidgets.QMenuBar())
         self.windowMenu = self.menuWidget().addMenu("Window")
         # ===============
+        params = pydra.config["gui_params"]
         # Experiment dock
         self.experiment_dock = QtWidgets.QDockWidget()
-        self.experiment_widget = ExperimentWidget()
+        self.experiment_widget = ExperimentWidget(params)
         self.experiment_dock.setWidget(self.experiment_widget)
         self.experiment_dock.setWindowTitle("Experiment control")
         self.experiment_dock.setFeatures(self.experiment_dock.DockWidgetMovable |

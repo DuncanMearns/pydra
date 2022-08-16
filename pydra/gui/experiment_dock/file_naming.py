@@ -31,7 +31,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
     filename_changed = QtCore.pyqtSignal(str)
     trial_number_changed = QtCore.pyqtSignal(int)
 
-    def __init__(self, directory, filename, n_trial_digits=3):
+    def __init__(self, directory, filename, n_trial_digits=3, **kwargs):
         super().__init__("File naming")
         # Layout
         self.setLayout(QtWidgets.QGridLayout())
@@ -85,6 +85,11 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         self.layout().addWidget(self.filename_label, 2, 0)
         self.layout().addWidget(self.filename_editor, 3, 0)
         self.layout().addWidget(self.trial_number_widget, 3, 1)
+        # Emit signals
+        self.check_validity()
+        self.directory_changed.emit(self.directory_text)
+        self.filename_changed.emit(self.filename_text)
+        self.trial_number_changed.emit(self.trial_number_text)
 
     @property
     def filename_text(self):

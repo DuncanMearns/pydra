@@ -6,7 +6,7 @@ from ..helpers import TimeUnitWidget
 
 class TrialControlWidget(Stateful, QtWidgets.QGroupBox):
 
-    def __init__(self, n_trials, inter_trial_time, n_trial_digits=3, inter_trial_unit="s"):
+    def __init__(self, n_trials, inter_trial_time, n_trial_digits=3, inter_trial_unit="s", **kwargs):
         super().__init__("Trials")
         # Layout
         self.setLayout(QtWidgets.QHBoxLayout())
@@ -22,7 +22,6 @@ class TrialControlWidget(Stateful, QtWidgets.QGroupBox):
         self.n_trial_spinbox = QtWidgets.QSpinBox()
         self.n_trial_spinbox.setMinimum(1)
         self.n_trial_spinbox.setMaximum(self.n_trials_max)
-        self.n_trial_spinbox.setValue(n_trials)
         self.n_trial_spinbox.valueChanged.connect(self.stateMachine.set_n_trials)
         # Add to layout
         self.layout().addWidget(self.n_trial_label)
@@ -41,6 +40,12 @@ class TrialControlWidget(Stateful, QtWidgets.QGroupBox):
         # Add to layout
         self.layout().addWidget(self.inter_trial_label)
         self.layout().addWidget(self.inter_trial_widget)
+        # ------------
+        # Emit signals
+        # ------------
+        self.n_trial_spinbox.setValue(n_trials)
+        self.inter_trial_widget.change_unit(inter_trial_unit)
+        self.inter_trial_widget.setValue(inter_trial_time)
 
     @property
     def n_trials_max(self):

@@ -95,10 +95,15 @@ config = {
 
     "savers": [],
 
-    "trigger": None
+    "trigger": None,
 
-    # Additional config parameters:
-    #   "default_directory"
-    #   "default_filename"
+    "gui_params": {
+        "directory": "",
+        "filename": "",
+        "n_trial_digits": 3,
+        "n_trials": 1,
+        "inter_trial_time": 1,
+        "inter_trial_unit": "s"
+    }
 
 }
