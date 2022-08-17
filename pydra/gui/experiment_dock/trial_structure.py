@@ -1,5 +1,8 @@
 """Module containing widgets for handling and building protocols."""
+import warnings
+
 from PyQt5 import QtWidgets, QtCore, QtGui
+from ast import literal_eval
 
 from ..state_machine import Stateful
 from ..helpers import SignalProxy, TimeUnitWidget
@@ -111,6 +114,7 @@ class EventPicker(ChangesProtocol, QtWidgets.QWidget):
         # Update options
         target = combo.currentText()
         self.advanced_options["target"] = target
+        self.advanced_options["kwargs"] = {}  # re-create advanced options dictionary
         for i in range(table.rowCount()):
             k = table.item(i, 0)
             v = table.item(i, 1)
@@ -125,8 +129,19 @@ class EventPicker(ChangesProtocol, QtWidgets.QWidget):
                 continue
             if not val:
                 continue
-            self.advanced_options["kwargs"][key] = val
+            self.advanced_options["kwargs"][key] = self.evaluate_string(val)
         self.changed()  # emits the protocol changed signal
+
+    @staticmethod
+    def evaluate_string(s: str):
+        try:
+            if any([char.isdigit() for char in s]):
+                return literal_eval(s)
+            if any([char in s for char in "{}()[],"]):
+                return literal_eval(s)
+        except ValueError:
+            warnings.warn(f"Could not parse value: {s}")
+        return s
 
     def to_event(self):
         event_name = self.combo_box.currentText()
@@ -140,9 +155,10 @@ class EventPicker(ChangesProtocol, QtWidgets.QWidget):
 class EventWidget(ChangesProtocol, EventContainer, QtWidgets.QFrame):
     """Widget for adding an event to a protocol"""
 
-    def __init__(self, event_names: tuple = ()):
+    def __init__(self, event_names: tuple = (), targets: tuple=()):
         super().__init__()
         self.event_names = event_names
+        self.targets = targets
         # Layout
         self.setLayout(QtWidgets.QHBoxLayout())
         self.set_formatting()
@@ -150,7 +166,7 @@ class EventWidget(ChangesProtocol, EventContainer, QtWidgets.QFrame):
         self.setFocusPolicy(QtCore.Qt.ClickFocus)
         self._event_handler.selectionChanged.connect(self.formatSelected)
         # Event widget
-        self.event_widgets = [self.wait_widget(), self.event_picker(self.event_names)]
+        self.event_widgets = [self.wait_widget(), self.event_picker(self.event_names, self.targets)]
         # Dropdown
         self.dropdown = self.dropdown_widget()
         self.dropdown.currentIndexChanged.connect(self.replaceEventWidget)
@@ -206,8 +222,8 @@ class EventWidget(ChangesProtocol, EventContainer, QtWidgets.QFrame):
         return w
 
     @staticmethod
-    def event_picker(event_names):
-        w = EventPicker(event_names)
+    def event_picker(event_names, targets):
+        w = EventPicker(event_names, targets=targets)
         return w
 
     def to_event(self):
@@ -216,9 +232,10 @@ class EventWidget(ChangesProtocol, EventContainer, QtWidgets.QFrame):
 
 class ProtocolBuilder(ChangesProtocol, EventContainer, QtWidgets.QWidget):
 
-    def __init__(self, event_names):
+    def __init__(self, event_names, targets=()):
         super().__init__()
         self.event_names = event_names
+        self.targets = targets
         self.event_widgets = []
         # Layout
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -240,7 +257,7 @@ class ProtocolBuilder(ChangesProtocol, EventContainer, QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def addEvent(self):
-        new_event = EventWidget(self.event_names)
+        new_event = EventWidget(self.event_names, self.targets)
         new_event.select()
         self.event_widgets.append(new_event)
         self.event_window.layout().addWidget(new_event)
@@ -264,7 +281,7 @@ class ProtocolBuilder(ChangesProtocol, EventContainer, QtWidgets.QWidget):
 
 class ProtocolTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
 
-    def __init__(self, event_names: tuple):
+    def __init__(self, event_names: tuple, targets=()):
         super().__init__()
         # Layout
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -304,8 +321,7 @@ class ProtocolTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
         # -------
         # BUILDER
         # -------
-        self.builder_widget = ProtocolBuilder(event_names)
-        # self.builder_widget.protocol_changed.connect(self.changed)
+        self.builder_widget = ProtocolBuilder(event_names, targets=targets)
         self.layout().addWidget(self.builder_widget)
         # -----------
         # SAVE / LOAD
@@ -388,10 +404,11 @@ class TrialStructureWidget(ChangesProtocol, Stateful, QtWidgets.QGroupBox):
 
     protocol_changed = QtCore.pyqtSignal(list)
 
-    def __init__(self, triggers=(), event_names=(), **kwargs):
+    def __init__(self, triggers=(), event_names=(), targets=(), **kwargs):
         super().__init__("Trial structure")
         self.triggers = triggers
         self.event_names = event_names
+        self.targets = targets
         # Layout
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
@@ -416,7 +433,7 @@ class TrialStructureWidget(ChangesProtocol, Stateful, QtWidgets.QGroupBox):
         # PROTOCOL
         # --------
         self.timed_widget = TimedTab()
-        self.protocol_widget = ProtocolTab(self.event_names)
+        self.protocol_widget = ProtocolTab(self.event_names, self.targets)
         self.tab_widget = QtWidgets.QTabWidget()
         self.tab_widget.addTab(self.timed_widget, "Timed")
         self.tab_widget.addTab(self.protocol_widget, "Protocol")

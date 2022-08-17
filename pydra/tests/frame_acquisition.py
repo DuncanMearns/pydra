@@ -27,6 +27,7 @@ class AcquisitionWorker(Acquisition):
     """This is an acquisition worker. It will simulate a camera."""
 
     name = "acquisition"  # remember, every worker must have a unique name
+    gui_events = ("set_value",)
 
     def __init__(self, value=0, *args, **kwargs):
         super().__init__(*args, **kwargs)  # always call super() constructor

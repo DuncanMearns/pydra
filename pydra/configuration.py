@@ -104,7 +104,8 @@ config = {
         "n_trials": 1,
         "inter_trial_time": 1,
         "inter_trial_unit": "s",
-        "event_names": ()  # parameter updated automatically
+        "event_names": (),  # for completeness, parameter updated automatically
+        "targets": ()  # for completeness, parameter updated automatically
     }
 
 }

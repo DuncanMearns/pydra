@@ -100,7 +100,11 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         self.setMenuBar(QtWidgets.QMenuBar())
         self.windowMenu = self.menuWidget().addMenu("Window")
         # ===============
-        params = pydra.config["gui_params"]
+        # Get gui params from config
+        params = self.pydra.config["gui_params"]
+        # Add event names to params
+        params["event_names"] = self.event_names
+        params["targets"] = self.workers
         # Experiment dock
         self.experiment_dock = QtWidgets.QDockWidget()
         self.experiment_widget = ExperimentWidget(params)
@@ -139,6 +143,21 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         # =======================
         # Start the state machine
         self.stateMachine.start()
+
+    @property
+    def event_names(self) -> tuple:
+        events = []
+        for module in self.pydra.config["modules"]:
+            gui_events = module["worker"].gui_events
+            events.extend(gui_events)
+        return tuple({event for event in events})
+
+    @property
+    def workers(self) -> tuple:
+        workers = []
+        for module in self.pydra.config["modules"]:
+            workers.append(module["worker"].name)
+        return tuple(workers)
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.pydra.exit()
