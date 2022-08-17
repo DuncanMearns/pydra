@@ -103,7 +103,8 @@ config = {
         "n_trial_digits": 3,
         "n_trials": 1,
         "inter_trial_time": 1,
-        "inter_trial_unit": "s"
+        "inter_trial_unit": "s",
+        "event_names": ()  # parameter updated automatically
     }
 
 }

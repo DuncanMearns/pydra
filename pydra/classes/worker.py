@@ -15,6 +15,7 @@ class Worker(Parallelized, PydraPublisher, PydraSubscriber):
 
     name = "worker"
     subscriptions = ()
+    gui_events = ()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
