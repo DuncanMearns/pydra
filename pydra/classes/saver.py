@@ -146,7 +146,7 @@ class HDF5Saver(Saver):
         self.h5_file = h5py.File(path, "w")
 
     def stop_recording(self, **kwargs):
-        # stuff here
+        self.h5_file.close()
         super().stop_recording(**kwargs)
 
     def recv_indexed(self, t, i, data, **kwargs):
