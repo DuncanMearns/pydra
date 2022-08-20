@@ -65,6 +65,16 @@ class UnitWidget(QtWidgets.QWidget):
     def setValue(self, val):
         self.spinbox.setValue(val)
 
+    @property
+    def current_unit(self):
+        """The current unit."""
+        return self.dropdown.currentText()
+
+    @property
+    def spinbox_value(self):
+        """The current value of the spinbox"""
+        return self.spinbox.value()
+
 
 class TimeUnitWidget(UnitWidget):
     """UnitWidget with value stored in milliseconds."""

@@ -1,8 +1,11 @@
 """Module containing widgets for handling and building protocols."""
 import warnings
-
 from PyQt5 import QtWidgets, QtCore, QtGui
 from ast import literal_eval
+from datetime import datetime
+import json
+import os
+import re
 
 from ..state_machine import Stateful
 from ..helpers import SignalProxy, TimeUnitWidget
@@ -129,7 +132,7 @@ class EventPicker(ChangesProtocol, QtWidgets.QWidget):
                 continue
             if not val:
                 continue
-            self.advanced_options["kwargs"][key] = self.evaluate_string(val)
+            self.advanced_options["kwargs"][key] = val
         self.changed()  # emits the protocol changed signal
 
     @staticmethod
@@ -145,7 +148,7 @@ class EventPicker(ChangesProtocol, QtWidgets.QWidget):
 
     def to_event(self):
         event_name = self.combo_box.currentText()
-        event_kw = self.advanced_options["kwargs"]
+        event_kw = dict([(k, self.evaluate_string(val)) for k, val in self.advanced_options["kwargs"].items()])
         target = self.advanced_options["target"]
         if target:
             event_kw["target"] = target
@@ -263,6 +266,7 @@ class ProtocolBuilder(ChangesProtocol, EventContainer, QtWidgets.QWidget):
         self.event_window.layout().addWidget(new_event)
         self.DEL.setEnabled(True)
         self.changed()  # emits the changed signal
+        return new_event
 
     @QtCore.pyqtSlot()
     def removeEvent(self):
@@ -328,8 +332,11 @@ class ProtocolTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
         # -----------
         self.layout().addWidget(self.divider())
         self.SAVE = QtWidgets.QPushButton("SAVE")
+        self.SAVE.clicked.connect(self.save_protocol)
         self.LOAD = QtWidgets.QPushButton("LOAD")
+        self.LOAD.clicked.connect(self.load_protocol)
         self.CLEAR = QtWidgets.QPushButton("CLEAR")
+        self.CLEAR.clicked.connect(self.clear_protocol)
         self.buttons_container = QtWidgets.QWidget()
         self.buttons_container.setLayout(QtWidgets.QHBoxLayout())
         self.buttons_container.layout().addWidget(self.SAVE)
@@ -361,6 +368,109 @@ class ProtocolTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
             protocol.append(events.PAUSE(t))
             protocol.extend(list(event_list))
         return protocol
+
+    @property
+    def last_directory(self):
+        if hasattr(self, "_last_directory"):
+            return self._last_directory
+        return self.directory
+
+    @last_directory.setter
+    def last_directory(self, directory):
+        self._last_directory = directory
+
+    @QtCore.pyqtSlot()
+    def save_protocol(self):
+        event_list = self.builder_widget.to_protocol()
+        event_list = [repr(event) for event in event_list]
+        t = self.interval_widget.spinbox_value
+        unit = self.interval_widget.current_unit
+        n_reps = self.n_reps
+        now = datetime.now()
+        path, _ = QtWidgets.QFileDialog.getSaveFileName(self, 'Save protocol', self.last_directory, "json files (*.json)")
+        path = str(path)
+        if path:
+            with open(path, "w") as p:
+                json.dump(
+                    {
+                        "event_list": event_list,
+                        "repetitions": (n_reps, t, unit),
+                        "created": now.strftime("%Y/%m/%d %H:%M:%S")
+                    }, p)
+            self.last_directory = os.path.dirname(path)
+
+    @QtCore.pyqtSlot()
+    def load_protocol(self):
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, 'Open protocol', self.last_directory, "json files (*.json)")
+        if path:
+            with open(path, "rb") as p:
+                protocol = json.load(p)
+            name = os.path.basename(path)
+            name = os.path.splitext(name)[0]
+            metadata = protocol["created"]
+            print(f"Opening protocol '{name}' from {metadata}")
+            n_reps, t, unit = protocol["repetitions"]
+            event_list = protocol["event_list"]
+            try:
+                event_list = [self.str_to_event(event) for event in event_list]
+                self.set_protocol(event_list, n_reps, t, unit)
+            except ValueError as v:
+                print(v)
+
+    @QtCore.pyqtSlot()
+    def clear_protocol(self):
+        for w in reversed(self.builder_widget.event_widgets):
+            w.select()
+            self.builder_widget.removeEvent()
+
+    @staticmethod
+    def str_to_event(s) -> tuple:
+        args = s[6:-1]  # get arguments between parentheses
+        if s.startswith("PAUSE"):
+            time = re.search("(?<=time=)(.*)", args).group(0)  # find time with regular expression
+            time = literal_eval(time)  # convert to float
+            return "wait", time
+        if s.startswith("EVENT"):
+            name = re.search("(?<=name=)'(.*?)'", args).group(1)  # find event name with regular expression
+            kw = re.search("(?<=kw=){(.*?)}", args).group(0)  # find kwargs with regular expression
+            kw = literal_eval(kw)  # convert to dict
+            kw = dict([(k, str(val)) for k, val in kw.items()])  # convert values to strings
+            return "event", name, kw
+        raise ValueError(f"{s} is not a valid event. Cannot open protocol.")
+
+    @staticmethod
+    def convert_time(t):
+        if isinstance(t, float):
+            return int(t * 1000), "ms"
+        if not t % 60:
+            return t, "s"
+        return t, "min"
+
+    def set_protocol(self, event_list: list, reps: int, time: int, time_unit: str):
+        self.clear_protocol()
+        self.reps_spinbox.setValue(reps)
+        self.interval_widget.setValue(time)
+        self.interval_widget.change_unit(time_unit)
+        for event in event_list:
+            widget = self.builder_widget.addEvent()  # add an event to the builder widget
+            event_type, *args = event
+            if event_type == "wait":
+                widget.dropdown.setCurrentIndex(0)  # set current widget to WaitWidget
+                time, = args
+                t, unit = self.convert_time(time)
+                widget.current_widget.setValue(t)
+                widget.current_widget.change_unit(unit)
+            if event_type == "event":
+                widget.dropdown.setCurrentIndex(1)  # set current widget to EventPicker
+                name, kw = args
+                widget.current_widget.combo_box.setCurrentText(name)
+                try:
+                    target = kw.pop("target")
+                except KeyError:
+                    target = ""
+                widget.current_widget.advanced_options["target"] = target
+                widget.current_widget.advanced_options["kwargs"] = kw
+        self.changed()
 
 
 class TimedTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
