@@ -41,6 +41,7 @@ class EventContainer:
 
 class ChangesProtocol:
     """Mixin for classes that can modify the protocol by allowing them to emit a 'changed' signal."""
+
     _protocol_change_proxy = SignalProxy()
 
     @QtCore.pyqtSlot()
@@ -61,6 +62,7 @@ class FocusWrapper:
 
 
 class WaitWidget(ChangesProtocol, TimeUnitWidget):
+    """Widget that allows a pause to be introduced into a protovol."""
 
     def __init__(self):
         super().__init__()
@@ -74,6 +76,7 @@ class WaitWidget(ChangesProtocol, TimeUnitWidget):
 
 
 class EventPicker(ChangesProtocol, QtWidgets.QWidget):
+    """Widget the allows Pydra events to be defined in a protocol."""
 
     def __init__(self, event_names, targets=()):
         super().__init__()
@@ -156,7 +159,7 @@ class EventPicker(ChangesProtocol, QtWidgets.QWidget):
 
 
 class EventWidget(ChangesProtocol, EventContainer, QtWidgets.QFrame):
-    """Widget for adding an event to a protocol"""
+    """A widget for that is added to and shown in the ProtocolBuilder."""
 
     def __init__(self, event_names: tuple = (), targets: tuple=()):
         super().__init__()
@@ -234,6 +237,7 @@ class EventWidget(ChangesProtocol, EventContainer, QtWidgets.QFrame):
 
 
 class ProtocolBuilder(ChangesProtocol, EventContainer, QtWidgets.QWidget):
+    """The widget for showing, adding, and removing events from a protocol."""
 
     def __init__(self, event_names, targets=()):
         super().__init__()
@@ -284,6 +288,7 @@ class ProtocolBuilder(ChangesProtocol, EventContainer, QtWidgets.QWidget):
 
 
 class ProtocolTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
+    """Tab for creating, saving, and loading protocols."""
 
     def __init__(self, event_names: tuple, targets=()):
         super().__init__()
@@ -474,6 +479,7 @@ class ProtocolTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
 
 
 class TimedTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
+    """Tab for having a simple timed or free-running recording without a protocol."""
 
     def __init__(self):
         super().__init__()
@@ -511,8 +517,19 @@ class TimedTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
 
 
 class TrialStructureWidget(ChangesProtocol, Stateful, QtWidgets.QGroupBox):
+    """Top-level widget that is displayed in the experiment control dock.
 
-    protocol_changed = QtCore.pyqtSignal(list)
+    Parameters
+    ----------
+    triggers : tuple
+        Not currently implemented, but could be used to trigger the start and end of a recording.
+    event_names : tuple of str
+        Names of gui_events from Pydra workers.
+    targets : tuple of str
+        Names of workers in Pydra network.
+    """
+
+    protocol_changed = QtCore.pyqtSignal(list)  # top-level signal emitted whenever another widget changes the protocol
 
     def __init__(self, triggers=(), event_names=(), targets=(), **kwargs):
         super().__init__("Trial structure")

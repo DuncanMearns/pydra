@@ -10,6 +10,8 @@ from .public import *
 
 
 class CentralWidget(QtWidgets.QWidget):
+    """Simple widget class that acts as the central widget in the main window. Contains space for docking user-defined
+    Plotter widgets."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -24,12 +26,14 @@ class CentralWidget(QtWidgets.QWidget):
 
 
 class ExperimentWidget(QtWidgets.QWidget):
+    """The widget that goes into the experiment control dock. Contains widgets/button/fields for starting and stopping
+    an experiment, file naming, trial structure, defining protocols etc."""
 
     def __init__(self, params: dict):
         super().__init__()
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.record_button = RecordButton()
-        self.layout().addWidget(self.record_button)
+        self.experiment_button = ExperimentButton()
+        self.layout().addWidget(self.experiment_button)
         self.status_widget = StatusWidget()
         self.layout().addWidget(self.status_widget)
         self.file_naming_widget = FileNamingWidget(**params)
@@ -41,6 +45,7 @@ class ExperimentWidget(QtWidgets.QWidget):
 
 
 class ControlDock(QtWidgets.QDockWidget):
+    """Allows user-defined ControlWidgets to be dockable."""
 
     widgetEvent = QtCore.pyqtSignal(str, str, dict)
 
@@ -86,6 +91,19 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
     ----------
     pydra :
         The Pydra instance.
+
+    Attributes
+    ----------
+    pydra : PydraInterface
+        The PydraInterface instance. Allows GUI to interface more easily with Pydra using signals and slots.
+    experiment_widget : ExperimentWidget
+        The instance of the dockable widget containing experiment/trial structure/protocol settings etc.
+    display_container : CentralWidget
+        The central widget of the GUI. Contains user-defined plotters.
+    controllers : dict
+        A dictionary of user-defined ControlWidget widgets.
+    plotters : dict
+        A dictionary of user-defined Plotter widgets.
     """
 
     def __init__(self, pydra, *args):
@@ -125,7 +143,6 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         for module in self.pydra.modules:
             name = module["worker"].name
             params = module.get("params", {})
-            # self.caches[name] = WorkerCache(params.get("cachesize", 50000))
             if "controller" in module.keys():
                 # Create control widget
                 widget = module["controller"](name=name, params=params)
@@ -145,25 +162,36 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         self.stateMachine.start()
 
     @property
+    def workers(self) -> tuple:
+        """Property for accessing all workers in Pydra config."""
+        workers = []
+        for module in self.pydra.config["modules"]:
+            workers.append(module["worker"].name)
+        return tuple(workers)
+
+    @property
     def event_names(self) -> tuple:
+        """Property for accessing all defined gui_events from Pydra workers."""
         events = []
         for module in self.pydra.config["modules"]:
             gui_events = module["worker"].gui_events
             events.extend(gui_events)
         return tuple({event for event in events})
 
-    @property
-    def workers(self) -> tuple:
-        workers = []
-        for module in self.pydra.config["modules"]:
-            workers.append(module["worker"].name)
-        return tuple(workers)
-
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.pydra.exit()
         a0.accept()
 
     def add_controller(self, name, widget):
+        """Add a ControlWidget to the window.
+
+        Parameters
+        ----------
+        name : str
+            Associated worker name.
+        widget : Plotter
+            A user-defined ControlWidget.
+        """
         self.controllers[name] = widget
         # Create dock widget and add to main window
         dock_widget = ControlDock(widget, name)
@@ -172,12 +200,21 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         self._control_docks[name] = dock_widget
 
     def add_plotter(self, name, widget):
+        """Add a plotter to the window.
+
+        Parameters
+        ----------
+        name : str
+            Associated worker name.
+        widget : Plotter
+            A user-defined Plotter widget.
+        """
         self.plotters[name] = widget
         self.display_container.add(name, widget)
 
     @QtCore.pyqtSlot(dict)
     def update_gui(self, data):
-        """Updates widgets with data received from pydra."""
+        """Updates widgets with data received from Pydra."""
         to_update = []
         for worker, new_data in data.items():
             for widget in [self.plotters.get(worker, None), self.controllers.get(worker, None)]:

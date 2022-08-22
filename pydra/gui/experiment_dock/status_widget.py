@@ -1,10 +1,11 @@
 from PyQt5 import QtWidgets, QtCore
-import time
 
 from ..state_machine import Stateful
 
 
 class StatusWidget(Stateful, QtWidgets.QWidget):
+    """Widget that displays the current status of the experiment (e.g. GUI state, time experiment has been running,
+    number of trials completed etc.)."""
 
     def __init__(self):
         super().__init__()
@@ -31,7 +32,7 @@ class StatusWidget(Stateful, QtWidgets.QWidget):
         self.layout().addWidget(self.trial_status_label, 3, 0)
         self.layout().addWidget(self.trial_time_label, 3, 1)
         # Connections
-        self.stateMachine.update_timer.timeout.connect(self.update_time)
+        self.stateMachine.gui_update.connect(self.update_time)
         self.stateMachine.n_trials_changed.connect(self.update_trial_number_label)
         self.stateMachine.trial_index_changed.connect(self.update_trial_number_label)
 

@@ -3,6 +3,7 @@ from ..utils.cache import TempCache
 
 
 class GUICache(TempCache):
+    """Temporary cache that stores a copy of worker data that can be displayed in the GUI."""
 
     def __init__(self, cachesize, arr_cachesize):
         super().__init__(cachesize, arr_cachesize)
@@ -29,6 +30,8 @@ class GUICache(TempCache):
 
 
 class DynamicUpdate:
+    """Mixin class that allows widgets in the GUI to receive and handle data from Pydra. The GUI has a built-in update
+    rate, which calls dynamicUpdate in all widgets that inherit from this class."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -37,4 +40,5 @@ class DynamicUpdate:
         self.cache = GUICache(cachesize, arr_cachesize)
 
     def dynamicUpdate(self):
+        """Called each time the GUI is updated. Override in subclasses."""
         return

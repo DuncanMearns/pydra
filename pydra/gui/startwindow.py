@@ -3,6 +3,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 
 
 class StartWindow(QtWidgets.QSplashScreen):
+    """Splash screen that allows a saved Pydra configuration to be loaded."""
 
     quit_signal = QtCore.pyqtSignal()
     file_selected = QtCore.pyqtSignal(str)

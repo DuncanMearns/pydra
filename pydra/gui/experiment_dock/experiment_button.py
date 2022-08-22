@@ -4,10 +4,11 @@ from ..layout import *
 from ..state_machine import Stateful
 
 
-class RecordButton(Stateful, QtWidgets.QPushButton):
+class ExperimentButton(Stateful, QtWidgets.QPushButton):
+    """Button in experiment control dock that starts and stops an experiment."""
 
-    start_experiment = QtCore.pyqtSignal()
-    interrupt = QtCore.pyqtSignal()
+    start_experiment = QtCore.pyqtSignal()  # emitted if button pressed in idle state
+    interrupt = QtCore.pyqtSignal()  # emitted if button pressed in running state
 
     def __init__(self):
         super().__init__("START EXPERIMENT")

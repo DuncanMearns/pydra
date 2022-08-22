@@ -5,6 +5,7 @@ from ..protocol import Protocol, events, build_protocol
 
 
 def connect_signal(method, signal):
+    """Decorator for Pydra methods that connects them to a Qt signal."""
     def wrapper(*args, **kwargs):
         result = method(*args, **kwargs)
         signal.emit(result)
@@ -13,6 +14,15 @@ def connect_signal(method, signal):
 
 
 class PydraInterface(Stateful, QtCore.QObject):
+    """Class that allows GUI to interface with Pydra. Enables Pydra protocols to be run and controlled from the GUI, and
+    allows incoming data from Pydra to be broadcast to other GUI components. Has access to shared experiment state and
+    associated attributes via Stateful.
+
+    Parameters
+    ----------
+    pydra :
+        The Pydra instance.
+    """
 
     newData = QtCore.pyqtSignal(dict)
 
@@ -25,8 +35,8 @@ class PydraInterface(Stateful, QtCore.QObject):
         # Protocol
         self.protocol_ = None
         # Check for pydra and protocol updates
-        self.stateMachine.update_timer.timeout.connect(self.fetch_messages)
-        self.stateMachine.update_timer.timeout.connect(self.check_protocol_status)
+        self.stateMachine.gui_update.connect(self.fetch_messages)
+        self.stateMachine.gui_update.connect(self.check_protocol_status)
         # Handle state transitions
         self.stateMachine.ready_to_start.entered.connect(self.enterReady)
         self.stateMachine.interrupted.entered.connect(self.enterInterrupted)
@@ -42,9 +52,11 @@ class PydraInterface(Stateful, QtCore.QObject):
 
     @QtCore.pyqtSlot(str, str, dict)
     def send_event(self, target, event_name, event_kw):
+        """Slot for broadcasting event messages to the Pydra network."""
         self.pydra.send_event(event_name, target=target, **event_kw)
 
     def _make_protocol(self) -> Protocol:
+        """Returns a complete Protocol containing the current protocol event list."""
         protocol_list = list(self.protocol)
         directory = str(self.directory)
         filename = str(self.filename)
@@ -70,6 +82,8 @@ class PydraInterface(Stateful, QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def check_protocol_status(self) -> bool:
+        """Checks whether a protocol is currently running. Emits a recording_finished signal from the state machine if
+        a protocol is no longer running."""
         try:
             if self.protocol_.is_running():
                 return True
@@ -79,6 +93,7 @@ class PydraInterface(Stateful, QtCore.QObject):
         return False
 
     def enterRunning(self):
+        """Set the trial index to zero."""
         self.stateMachine.set_trial_index(0)
 
     def enterReady(self):
@@ -86,18 +101,20 @@ class PydraInterface(Stateful, QtCore.QObject):
         self.trigger_recording_start()
 
     def enterInterrupted(self):
-        """Interrupts the protocol"""
+        """Interrupts the protocol when GUI enters the interrupted state and emit an experiment_finished signal."""
         if self.check_protocol_status():
             self.protocol_.interrupt()
             self.pydra.send_event("stop_recording")
         self.stateMachine.experiment_finished.emit()
 
     def startRecord(self):
+        """Increment the trial index, then create and run a protocol when GUI enters the recording state."""
         self.stateMachine.set_trial_index(self.trial_index + 1)
         self.protocol_ = self._make_protocol()
         self.protocol_.run()
 
     def startWait(self):
+        """Starts a wait timer if there are still more trials to run, otherwise emits an experiment_finished signal."""
         if self.trial_index < self.n_trials:
             self.wait_timer = QtCore.QTimer()
             self.wait_timer.setSingleShot(True)

@@ -1,8 +1,12 @@
+"""Module for handling shared state within the Pydra GUI."""
 import time
 from PyQt5 import QtCore
 
+__all__ = ("Stateful",)
+
 
 def shared_state_setter(attr, _type):
+    """Returns a setter for a dynamic attribute."""
     def attr_setter(instance, value):
         setattr(instance, attr, value)
         getattr(instance, attr + "_changed").emit(value)
@@ -10,6 +14,7 @@ def shared_state_setter(attr, _type):
 
 
 def shared_state_getter(attr):
+    """Returns a getter for a dynamic attribute."""
     def attr_getter(instance):
         return getattr(instance.stateMachine, attr)
     return attr_getter
@@ -40,6 +45,7 @@ class StateMachineMeta(type(QtCore.QObject)):
 
 
 class Timer(QtCore.QObject):
+    """Implements a simple timer."""
 
     def __init__(self):
         super().__init__()
@@ -49,19 +55,23 @@ class Timer(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def start(self):
+        """Start the timer."""
         self._t0 = time.perf_counter()
         self._running = True
 
     @QtCore.pyqtSlot()
     def stop(self):
+        """Stop the timer."""
         self._running = False
 
     @property
     def t0(self) -> float:
+        """Stores the time the timer was started."""
         return self._t0
 
     @property
     def time(self) -> float:
+        """Stores how long the timer has been running (or how long it was running if it has stopped)."""
         if self._running:
             self._last = time.perf_counter() - self.t0
         return self._last
@@ -69,9 +79,33 @@ class Timer(QtCore.QObject):
 
 class StateMachine(QtCore.QObject, metaclass=StateMachineMeta):
     """Singleton class that handles shared state within the GUI. Contains a QStateMachine object and attributes that can
-    be accessed through classes that inherit from Stateful."""
+    be accessed through subclasses of Stateful.
 
-    _instance = None
+    Attributes
+    ----------
+    idle : QtCore.QState
+        Idle state. No experiment is currently running, GUI is completely responsive.
+    running : QtCore.QState
+        Running state. An experiment is currently running, limited GUI functionality.
+    waiting : QtCore.QState
+        Waiting state.  Sub-state of running. An experiment protocol is running, but not currently recording.
+    recording : QtCore.QState
+        Recording state. Sub-state of running. A recording is in progress.
+    ready_to_start : QtCore.QState
+        Temporary initial sub-state of running, entered just before the first recording of an experiment starts.
+    interrupted : QtCore.QState
+        Temporary sub-state of running, entered when an experiment is manually interrupted by user.
+    update_timer : QtCore.QTimer
+        QTimer that controls GUI update. Timeout connected to the gui_update signal.
+    experiment_timer : Timer
+        Records how long an experiment has been running.
+    trial_timer : Timer
+        Records how long a trial has been running.
+    wait_timer : Timer
+        Records how long an inter-trial period has been running.
+    """
+
+    _instance = None  # singleton instance, only initialized once when the StateMachine class if first instantiated.
 
     # Experiment signals
     start_experiment = QtCore.pyqtSignal()  # emitted when experiment is started
@@ -79,6 +113,9 @@ class StateMachine(QtCore.QObject, metaclass=StateMachineMeta):
     recording_finished = QtCore.pyqtSignal()  # emitted when recording finishes
     experiment_finished = QtCore.pyqtSignal()  # emitted when experiment finishes
     interrupt = QtCore.pyqtSignal()  # emitted when an experiment is interrupted
+
+    # Timer signals
+    gui_update = QtCore.pyqtSignal()
 
     def __new__(cls, *args, **kwargs):
         if cls._instance:
@@ -128,6 +165,7 @@ class StateMachine(QtCore.QObject, metaclass=StateMachineMeta):
         self.update_interval = 30
         self.update_timer = QtCore.QTimer()
         self.update_timer.setInterval(self.update_interval)
+        self.update_timer.timeout.connect(self.gui_update)
         # =============
         # Global timers
         # =============
@@ -145,12 +183,13 @@ class StateMachine(QtCore.QObject, metaclass=StateMachineMeta):
         self.waiting.exited.connect(self.wait_timer.stop)
 
     def start(self):
-        """Starts the QtStateMachine. Should only be called once."""
+        """Starts the StateMachine. Should only be called once."""
         self._stateMachine.setInitialState(self.idle)
         self._stateMachine.start()
         self.update_timer.start()
 
-    def check_state(self, state):
+    def check_state(self, state: QtCore.QState) -> bool:
+        """Check if the state machine is currently in the given state."""
         if state in self._stateMachine.configuration():
             return True
         return False
@@ -162,6 +201,7 @@ class Stateful:
     _state_machine = StateMachine()
 
     def __new__(cls, *args, **kwargs):
+        """Allow access to _dynamic_attributes of StateMachine."""
         instance = super().__new__(cls, *args, **kwargs)
         for attr, val in StateMachine._dynamic_attributes.items():
             setattr(cls, attr, property(shared_state_getter(attr)))
@@ -176,40 +216,51 @@ class Stateful:
         self.stateMachine.waiting.entered.connect(self.startWait)
 
     @property
-    def stateMachine(self):
+    def stateMachine(self) -> StateMachine:
+        """Property to access the instance of the state machine."""
         return self._state_machine
 
     @property
     def timers(self) -> dict:
+        """Property to access state machine timers. Has keys 'experiment', 'trial' and 'wait'."""
         return {
             "experiment": self.stateMachine.experiment_timer,
             "trial": self.stateMachine.trial_timer,
             "wait": self.stateMachine.wait_timer
         }
 
-    def is_idle(self):
+    def is_idle(self) -> bool:
+        """Returns whether the state machine is currently in the idle state."""
         return self.stateMachine.check_state(self.stateMachine.idle)
 
-    def is_running(self):
+    def is_running(self) -> bool:
+        """Returns whether the state machine is currently in the running state."""
         return self.stateMachine.check_state(self.stateMachine.running)
 
-    def is_recording(self):
+    def is_recording(self) -> bool:
+        """Returns whether the state machine is currently in the recording state."""
         return self.stateMachine.check_state(self.stateMachine.recording)
 
-    def is_waiting(self):
+    def is_waiting(self) -> bool:
+        """Returns whether the state machine is currently in the waiting state."""
         return self.stateMachine.check_state(self.stateMachine.waiting)
 
     def enterIdle(self):
+        """Called whenever the state machine enters the idle state. Override in subclasses."""
         pass
 
     def enterRunning(self):
+        """Called whenever the state machine enters the running state. Override in subclasses."""
         pass
 
     def startRecord(self):
+        """Called whenever the state machine enters the recording state. Override in subclasses."""
         pass
 
     def stopRecord(self):
+        """Called whenever the state machine exits the recording state. Override in subclasses."""
         pass
 
     def startWait(self):
+        """Called whenever the state machine enters the waiting state. Override in subclasses."""
         pass

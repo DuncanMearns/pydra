@@ -5,6 +5,7 @@ from ..helpers import TimeUnitWidget
 
 
 class TrialControlWidget(Stateful, QtWidgets.QGroupBox):
+    """Widget for specifying number of trials (i.e. recordings) in an experiment, and the inter-trial interval."""
 
     def __init__(self, n_trials, inter_trial_time, n_trial_digits=3, inter_trial_unit="s", **kwargs):
         super().__init__("Trials")

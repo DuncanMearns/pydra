@@ -6,6 +6,7 @@ from ..state_machine import Stateful
 
 
 class SpinBoxLeadingZeros(QtWidgets.QSpinBox):
+    """A spinbox that shows a specified number of digits with leading zeros."""
 
     def __init__(self, n):
         super().__init__()
@@ -24,6 +25,7 @@ class SpinBoxLeadingZeros(QtWidgets.QSpinBox):
 
 
 class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
+    """Widget to specify the current working directory and file name."""
 
     minWidth = 150
 
@@ -48,7 +50,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         self.directory_editor.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
         self.directory_changed.connect(self.directory_editor.setText)
         self.directory_changed.connect(self.update_size)
-        self.directory_changed.connect(self.stateMachine.set_directory)
+        self.directory_changed.connect(self.stateMachine.set_directory)  # set the directory in the shared state
         # Button
         self.directory_button = QtWidgets.QPushButton("change")
         self.directory_button.clicked.connect(self.change_directory)
@@ -69,7 +71,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         self.filename_editor.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
         self.filename_editor.textChanged.connect(self.update_size)
         self.filename_editor.editingFinished.connect(self.change_filename)
-        self.filename_changed.connect(self.stateMachine.set_filename)
+        self.filename_changed.connect(self.stateMachine.set_filename)  # set the filename in the shared state
         # Trial number
         self.trial_number_editor = SpinBoxLeadingZeros(n_trial_digits)
         self.trial_number_editor.setMinimum(1)
@@ -80,7 +82,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         self.trial_number_widget.layout().addWidget(QtWidgets.QLabel("_"))
         self.trial_number_widget.layout().addWidget(self.trial_number_editor)
         self.trial_number_widget.layout().addWidget(QtWidgets.QLabel(".ext"))
-        self.trial_number_changed.connect(self.stateMachine.set_trial_number)
+        self.trial_number_changed.connect(self.stateMachine.set_trial_number)  # set the trial no. in the shared state
         # Add to layout
         self.layout().addWidget(self.filename_label, 2, 0)
         self.layout().addWidget(self.filename_editor, 3, 0)
