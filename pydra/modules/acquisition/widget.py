@@ -163,6 +163,7 @@ class FramePlotter(Plotter):
 
     def dynamicUpdate(self):
         try:
-            self.updateImage("frame", self.cache.frame)
+            if self.cache.frame.size:
+                self.updateImage("frame", self.cache.frame)
         except AttributeError:
             return

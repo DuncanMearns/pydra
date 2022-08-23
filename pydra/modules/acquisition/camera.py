@@ -1,8 +1,6 @@
 from pydra import Acquisition, EVENT
 import time
 import numpy as np
-from threading import Thread
-import queue
 from .widget import CameraWidget, FramePlotter
 
 
@@ -95,28 +93,6 @@ class Camera:
         return new_params
 
 
-def camera_thread(camera_type, receive_q, send_q, camera_args, camera_params):
-    camera = camera_type(*camera_args, **camera_params)  # instantiate camera object
-    camera.setup()  # run any necessary setup code
-    send_q.put_nowait(camera.params)  # send current camera params to worker
-    while True:  # event loop
-        try:
-            (tag, name, args, kwargs) = receive_q.get(block=True, timeout=0.001)  # get messages from worker
-            if tag == "exit":  # shutdown camera and return from thread if exit signal received
-                camera.shutdown()
-                return
-            if tag == "event":  # handle events from worker
-                try:
-                    ret = camera.__getattribute__(name)(*args, **kwargs)  # call camera event
-                    send_q.put_nowait(ret)  # send output back to worker
-                except AttributeError:
-                    continue
-        except queue.Empty:  # if no messages from worker
-            pass
-        frame = camera.read()
-        send_q.put_nowait(frame)
-
-
 class CameraAcquisition(Acquisition):
     """Acquisition class for cameras."""
 
@@ -125,18 +101,14 @@ class CameraAcquisition(Acquisition):
         self.camera_type = camera_type
         self.camera_args = camera_args or ()
         self.camera_params = camera_params or {}
+        self.camera = None
         self.event_callbacks["start_recording"] = self.reset_frame_number
         self.frame_number = 0
 
     def setup(self):
-        self.q_to_thread = queue.Queue()
-        self.q_from_thread = queue.Queue()
-        self.acq_thread = Thread(target=camera_thread, args=(self.camera_type,
-                                                             self.q_to_thread,
-                                                             self.q_from_thread,
-                                                             self.camera_args,
-                                                             self.camera_params))
-        self.acq_thread.start()
+        self.camera = self.camera_type(*self.camera_args, **self.camera_params)  # instantiate camera object
+        self.camera.setup()
+        self.send_timestamped(time.time(), self.camera.params)
 
     def acquire(self):
         """Implements the acquire method for an acquisition object.
@@ -144,36 +116,26 @@ class CameraAcquisition(Acquisition):
         Retrieves a frame with the read method, computes the timestamp, publishes the frame data over 0MQ and then
         increments the frame number.
         """
-        try:
-            data = self.q_from_thread.get_nowait()
-        except queue.Empty:
-            return
+        # Grab a frame
+        frame = self.camera.read()
         # Get current time
         t = time.time()
-        if isinstance(data, np.ndarray):
+        if isinstance(frame, np.ndarray) and frame.size:
             # Broadcast frame data through the network
-            self.send_frame(t, self.frame_number, data)
+            self.send_frame(t, self.frame_number, frame)
             # Increment the frame index
             self.frame_number += 1
-            return
-        if isinstance(data, dict):
-            self.send_timestamped(t, data)
-            return
 
     def cleanup(self):
-        self.q_to_thread.put(("exit", "", (), {}))
-        while True:
-            try:
-                self.q_from_thread.get_nowait()
-            except queue.Empty:
-                break
-        self.acq_thread.join()
+        self.camera.shutdown()
 
     def set_params(self, params, **kwargs):
+        t = time.time()
         if ("target" in kwargs) and (kwargs["target"] != self.name):
             pass
         else:
-            self.q_to_thread.put(("event", "set_params", (), params))
+            data = self.camera.__getattribute__("set_params")(*(), **params)  # call camera event
+            self.send_timestamped(t, data)
 
     def reset_frame_number(self, **kwargs):
         self.frame_number = 0

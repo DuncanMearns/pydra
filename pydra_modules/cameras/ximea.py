@@ -34,7 +34,7 @@ class XimeaCamera(Camera):
 
     def read(self):
         try:
-            self.camera.get_image(self.frame)
+            self.camera.get_image(self.frame, timeout=1)
             frame = self.frame.get_image_data_numpy()
         except xiapi.Xi_error:
             frame = self.empty()

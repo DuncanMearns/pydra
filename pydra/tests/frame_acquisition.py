@@ -5,22 +5,6 @@ from pydra.modules.acquisition.widget import FramePlotter
 from PyQt5 import QtWidgets
 import numpy as np
 import time
-from threading import Thread
-import queue
-
-
-def acquisition_thread(frame_q, finish_q, framerate):
-    t = 1. / framerate
-    while True:
-        try:
-            ret = finish_q.get(block=True, timeout=t)
-            if ret:
-                return
-        except queue.Empty:
-            frame = np.random.random((250, 250))
-            frame *= 255
-            frame = frame.astype("uint8")
-            frame_q.put_nowait(frame)
 
 
 class AcquisitionWorker(Acquisition):
@@ -39,37 +23,20 @@ class AcquisitionWorker(Acquisition):
         self.value = value
         print(f"{self.name}.value was set to: {self.value}")
 
-    def setup(self):
-        self.frame_q = queue.Queue()
-        self.finish_q = queue.Queue()
-        self.acq_thread = Thread(target=acquisition_thread, args=(self.frame_q, self.finish_q, 100))
-        self.acq_thread.start()
-
     def start_recording(self, **kwargs):
         self.i = 0
 
     def acquire(self):
         """Method called each pass of the event loop. Generate a frame of random numbers."""
         # Get frame
-        try:
-            frame = self.frame_q.get_nowait()
-        except queue.Empty:
-            return
-        # Get current time
+        frame = np.random.random((250, 250))
+        frame *= 255
+        frame = frame.astype("uint8")
         t = time.time()
         # Broadcast frame data through the network
         self.send_frame(t, self.i, frame)
         # Increment the frame index
         self.i += 1
-
-    def cleanup(self):
-        self.finish_q.put(1)
-        while True:
-            try:
-                self.frame_q.get_nowait()
-            except queue.Empty:
-                break
-        self.acq_thread.join()
 
 
 class AcquisitionWidget(ControlWidget):

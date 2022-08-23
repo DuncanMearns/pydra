@@ -220,6 +220,10 @@ class VideoSaver(HDF5Saver):
         if self.recording:
             self.save_frame(t, i, frame)
 
+    def recv_timestamped(self, t, data, **kwargs):
+        self.frame_rate = data.get("frame_rate", self.frame_rate)
+        super().recv_timestamped(t, data, **kwargs)
+
     def save_frame(self, t, i, frame):
         self.writer.write(frame)
         self.t_cache.append((t, i))
@@ -227,7 +231,7 @@ class VideoSaver(HDF5Saver):
     def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
         super().start_recording(directory, filename, idx, **kwargs)
         path = self.new_file(directory, filename, "avi")
-        print("video saver starts recording", path, self.real_frame_rate)
+        print("video saver starts recording", path, self.frame_rate, self.real_frame_rate)
         fourcc = cv2.VideoWriter_fourcc(*self.fourcc)
         self.writer = cv2.VideoWriter(path, fourcc, self.frame_rate, self.frame_size, self.is_color)
         self.t_cache = []

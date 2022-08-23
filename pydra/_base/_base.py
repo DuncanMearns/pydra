@@ -45,9 +45,9 @@ class PydraListener(PydraObject):
             "exit": self.exit
         }
 
-    def poll(self):
+    def poll(self, timeout=0):
         """Checks for poller for new messages from all subscriptions and passes them to appropriate handlers."""
-        for msg, source, timestamp, flags, args in self.zmq_poller.poll():
+        for msg, source, timestamp, flags, args in self.zmq_poller.poll(timeout):
             if msg in self.msg_callbacks:
                 self.msg_callbacks[msg](*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
                 continue
@@ -260,12 +260,15 @@ class PydraSubscriber(PydraListener):
     @EVENT.callback
     def handle_event(self, event_name, event_kw, **kwargs):
         """Handles EVENT messages received from other objects."""
-        try:
-            f = self.event_callbacks.get(event_name, self.__getattribute__(event_name))
-            event_kw.update(**kwargs)
-            f(**event_kw)
-        except AttributeError:
-            return
+        if event_name in self.event_callbacks:
+            f = self.event_callbacks[event_name]
+        else:
+            try:
+                f = self.__getattribute__(event_name)
+            except AttributeError:
+                return
+        event_kw.update(**kwargs)
+        f(**event_kw)
 
     def handle_data(self, *data, **kwargs):
         """Handles data messages (TIMESTAMPED, INDEXED, or FRAME) received from other objects."""

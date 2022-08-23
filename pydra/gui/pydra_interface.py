@@ -47,7 +47,7 @@ class PydraInterface(Stateful, QtCore.QObject):
     @QtCore.pyqtSlot()
     def fetch_messages(self):
         """Polls pydra for new data and dispatches requests."""
-        self.pydra.poll()
+        self.pydra.poll(1)
         self.pydra.send_request("data")
 
     @QtCore.pyqtSlot(str, str, dict)

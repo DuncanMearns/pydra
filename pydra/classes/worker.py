@@ -19,7 +19,6 @@ class Worker(Parallelized, PydraPublisher, PydraSubscriber):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.events["_events_info"] = self._events_info  # private event to log implemented events
 
     def _process(self):
         """Handles all messages received over network from ZeroMQ."""

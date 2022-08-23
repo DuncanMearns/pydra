@@ -132,14 +132,14 @@ class ZMQPoller:
         """Returns the set of zmq sockets being subscribed to."""
         return {subscriber.socket for subscriber in self._sockets.values()}
 
-    def poll(self):
+    def poll(self, timeout=0):
         """Checks poller for new messages from all subscriptions.
 
         Yields
         ------
         flag, source, timestamp, other, args
         """
-        events = dict(self.poller.poll(1))
+        events = dict(self.poller.poll(timeout))
         for sock in events:
             if sock in self.sockets:
                 flag, source, timestamp, other, args = PydraMessage.recv(sock)

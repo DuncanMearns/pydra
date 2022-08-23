@@ -48,6 +48,7 @@ class SetupStateMachine:
             self.start_worker()
             return
         self.pydra.send_event("_test_connection")
+        time.sleep(0.01)
 
     def start_worker(self):
         exists, name = self.pydra.load_module(self.module_idx)
@@ -138,7 +139,7 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
 
     def setup(self):
         while not self._state_machine.finished:
-            self.poll()
+            self.poll(1)
             self._state_machine.update()
 
     def start_backend(self, connections: dict = None):
