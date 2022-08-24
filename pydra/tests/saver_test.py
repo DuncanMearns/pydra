@@ -1,17 +1,17 @@
 from pydra import Pydra
-from pydra.tests.frame_acquisition import config
 import time
+import os
 
 
 def test_frame_saver():
+    from pydra.tests.configs.frame_acquisition import config
     pydra = Pydra.run(config=config)
     time.sleep(1.)
     pydra.send_event("set_value", value=10)
     time.sleep(1.)
-    pydra.filename = "test_video"
-    pydra.start_recording()
+    pydra.send_event("start_recording", directory=os.getcwd(), filename="saver_test")
     time.sleep(5.)
-    pydra.stop_recording()
+    pydra.send_event("stop_recording")
     time.sleep(1.)
     pydra.exit()
 

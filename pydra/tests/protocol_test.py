@@ -1,10 +1,10 @@
-from pydra.tests.hello_world import modules
 from pydra import Pydra
 from pydra.protocol import Protocol
 import time
 
 
 def main():
+    from pydra.tests.configs.hello_world import modules
     pydra = Pydra.run(modules=modules)
     # Build protocol
     protocol = Protocol()

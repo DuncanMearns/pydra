@@ -107,7 +107,7 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
     config = {}
 
     @staticmethod
-    def run(modules=(), savers=(), config: dict = None, public=None, private=None):
+    def run(*, modules=(), savers=(), config: dict = None, public=None, private=None):
         """Return an instantiated Pydra object with the current configuration."""
         Pydra.configure(modules, savers, config, public, private)
         pydra = Pydra()
