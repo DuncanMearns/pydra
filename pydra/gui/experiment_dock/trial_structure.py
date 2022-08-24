@@ -445,11 +445,11 @@ class ProtocolTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
 
     @staticmethod
     def convert_time(t):
-        if isinstance(t, float):
+        if not t.is_integer():  # if not integer, must by ms
             return int(t * 1000), "ms"
-        if not t % 60:
-            return t, "s"
-        return t, "min"
+        if t % 60:  # if not divisible by 60 must be seconds
+            return int(t), "s"
+        return int(t), "min"
 
     def set_protocol(self, event_list: list, reps: int, time: int, time_unit: str):
         self.clear_protocol()
@@ -463,8 +463,8 @@ class ProtocolTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
                 widget.dropdown.setCurrentIndex(0)  # set current widget to WaitWidget
                 time, = args
                 t, unit = self.convert_time(time)
+                widget.current_widget.setUnit(unit)
                 widget.current_widget.setValue(t)
-                widget.current_widget.change_unit(unit)
             if event_type == "event":
                 widget.dropdown.setCurrentIndex(1)  # set current widget to EventPicker
                 name, kw = args

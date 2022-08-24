@@ -65,6 +65,10 @@ class UnitWidget(QtWidgets.QWidget):
     def setValue(self, val):
         self.spinbox.setValue(val)
 
+    def setUnit(self, unit):
+        if unit in self.units:
+            self.dropdown.setCurrentText(unit)
+
     @property
     def current_unit(self):
         """The current unit."""
