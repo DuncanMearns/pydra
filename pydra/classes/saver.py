@@ -9,6 +9,7 @@ import os
 import cv2
 from collections import deque
 import h5py
+import pandas as pd
 
 
 recording_state = state_descriptor.new_type("recording_state")
@@ -124,17 +125,103 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
         self.idle()
 
 
-class HDF5Saver(Saver):
+class CachedSaver(Saver):
 
-    name = "hdf5_saver"
+    name = "cached_saver"
 
     def __init__(self, cache=50000, arr_cache=500, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.h5_file = None
         self.cachesize = cache
         self.arr_cachesize = arr_cache
         self.caches = dict([(worker, DataCache()) for worker in self.workers])
         self.temp = dict([(worker, TempCache(self.cachesize, self.arr_cachesize)) for worker in self.workers])
+
+    def recv_indexed(self, t, i, data, **kwargs):
+        self.recv_data(t, i, data, **kwargs)
+
+    def recv_array(self, t, i, a, **kwargs):
+        self.recv_data(t, i, arr=a, **kwargs)
+
+    def recv_timestamped(self, t, data, **kwargs):
+        self.recv_data(t, data=data, **kwargs)
+
+    def recv_data(self, t, i=None, data=None, arr=None, **kwargs):
+        worker = kwargs["source"]
+        self.temp[worker].append(t, i, data, arr)
+        if self.recording:
+            self.save_data(worker, t, i, data, arr)
+
+    def save_data(self, worker, t, i, data, arr):
+        self.caches[worker].append(t, i, data, arr)
+
+    def stop_recording(self, **kwargs):
+        for cache in self.caches.values():
+            cache.clear()
+        super().stop_recording(**kwargs)
+
+    def flush(self) -> dict:
+        flushed = super().flush()
+        data = {}
+        for worker, cache in self.temp.items():
+            if worker in flushed.keys():
+                raise ValueError("Saver is overwriting data in cache when flushed.")
+            data[worker] = {
+                "data": cache.data,
+                "array": cache.arr,
+                "events": cache.events
+            }
+            cache.clear()
+        flushed.update(data)
+        return flushed
+
+
+class CSVSaver(CachedSaver):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.path = "no_file.csv"
+
+    def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
+        super().start_recording(directory=directory, filename=filename, idx=idx, **kwargs)
+        self.path = self.new_file(directory, filename, "csv")
+
+    def stop_recording(self, **kwargs):
+        i = 0
+        all_t = []
+        all_params = ["time"]
+        all_data = {}
+        for worker, cache in self.caches.items():
+            for t, data in cache.events:
+                all_t.append(t)
+                for param, val in data.items():
+                    param_name = ".".join([worker, param])
+                    if param_name not in all_params:
+                        all_params.append(param_name)
+                    if param_name in all_data:
+                        all_data[param_name].append((i, val))
+                    else:
+                        all_data[param_name] = [(i, val)]
+                i += 1
+        dfs = []
+        if all_data:
+            for param, data in all_data.items():
+                idxs, vals = zip(*data)
+                df = pd.DataFrame(data=vals, index=idxs, columns=[param])
+                dfs.append(df)
+            df = pd.concat(dfs, axis=1, ignore_index=False, verify_integrity=False)
+            df["time"] = all_t
+            df = df[all_params]
+            df.to_csv(self.path, index=False)
+        super().stop_recording(**kwargs)
+
+
+class HDF5Saver(CachedSaver):
+
+    name = "hdf5_saver"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.h5_file = None
 
     @property
     def h5_file(self) -> h5py.File:
@@ -161,39 +248,6 @@ class HDF5Saver(Saver):
         for cache in self.caches.values():
             cache.clear()
         super().stop_recording(**kwargs)
-
-    def recv_indexed(self, t, i, data, **kwargs):
-        self.recv_data(t, i, data, **kwargs)
-
-    def recv_array(self, t, i, a, **kwargs):
-        self.recv_data(t, i, arr=a, **kwargs)
-
-    def recv_timestamped(self, t, data, **kwargs):
-        self.recv_data(t, data=data, **kwargs)
-
-    def recv_data(self, t, i=None, data=None, arr=None, **kwargs):
-        worker = kwargs["source"]
-        self.temp[worker].append(t, i, data, arr)
-        if self.recording:
-            self.save_data(worker, t, i, data, arr)
-
-    def save_data(self, worker, t, i, data, arr):
-        self.caches[worker].append(t, i, data, arr)
-
-    def flush(self) -> dict:
-        flushed = super().flush()
-        data = {}
-        for worker, cache in self.temp.items():
-            if worker in flushed.keys():
-                raise ValueError("Saver is overwriting data in cache when flushed.")
-            data[worker] = {
-                "data": cache.data,
-                "array": cache.arr,
-                "events": cache.events
-            }
-            cache.clear()
-        flushed.update(data)
-        return flushed
 
 
 class VideoSaver(HDF5Saver):
