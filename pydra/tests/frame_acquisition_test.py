@@ -1,4 +1,4 @@
-from pydra.app import PydraApp
+from pydra import PydraApp
 
 
 def main():

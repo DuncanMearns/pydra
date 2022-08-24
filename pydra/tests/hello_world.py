@@ -32,7 +32,6 @@ def hello_world():
 
 
 def no_config():
-    Pydra.configure()
     pydra = Pydra.run()
     time.sleep(1.)
     pydra.exit()

@@ -2,6 +2,9 @@ from .._base import *
 from ._runner import Parallelized
 
 
+__all__ = ("Worker", "Acquisition")
+
+
 class Worker(Parallelized, PydraPublisher, PydraSubscriber):
     """Base worker class.
 

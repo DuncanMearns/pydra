@@ -1,2 +1,3 @@
-from .camera import CameraAcquisition
-from .widget import CameraWidget, FramePlotter
+from .camera import *
+from .video import *
+from .widget import *

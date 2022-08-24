@@ -1,5 +1,4 @@
-from pydra.app import PydraApp
-from pydra.configuration import config
+from pydra import PydraApp, config
 
 
 if __name__ == "__main__":

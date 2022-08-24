@@ -3,7 +3,10 @@ from .widget import CameraWidget, FramePlotter
 import cv2
 
 
-class VideoWorker(CameraAcquisition):
+__all__ = ("VideoAcquisition", "VIDEO")
+
+
+class VideoAcquisition(CameraAcquisition):
 
     name = "video"
 
@@ -42,7 +45,7 @@ class VideoWorker(CameraAcquisition):
 
 
 VIDEO = {
-    "worker": VideoWorker,
+    "worker": VideoAcquisition,
     "params": {},
     "controller": CameraWidget,
     "plotter": FramePlotter

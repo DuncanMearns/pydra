@@ -1,7 +1,10 @@
-from pydra import Acquisition, EVENT
+from pydra import Acquisition
 import time
 import numpy as np
 from .widget import CameraWidget, FramePlotter
+
+
+__all__ = ("Camera", "CameraAcquisition", "CAMERA", "setter")
 
 
 class setter:

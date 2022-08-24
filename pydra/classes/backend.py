@@ -3,6 +3,9 @@ from ..messaging import *
 from ._runner import Parallelized
 
 
+__all__ = ("PydraBackend",)
+
+
 class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, PydraSubscriber):
     """Singleton backend class that acts as interface between main pydra class and savers.
 

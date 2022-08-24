@@ -3,7 +3,7 @@ import warnings
 
 from PyQt5 import QtWidgets, QtCore
 import importlib.util
-from pydra import Pydra
+from pydra.pydra import Pydra
 from pydra.gui import StartWindow, MainWindow
 import sys
 import os

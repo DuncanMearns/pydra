@@ -3,6 +3,9 @@ from pydra.gui import ControlWidget, Plotter
 from pydra.gui.helpers import SpinboxWidget, DoubleSpinboxWidget
 
 
+__all__ = ["CameraWidget", "FramePlotter"]
+
+
 class ParameterGroupBox(QtWidgets.QGroupBox):
 
     param_changed = QtCore.pyqtSignal(dict)

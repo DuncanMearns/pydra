@@ -4,7 +4,7 @@ import time
 
 
 def main():
-    from pydra.tests.configs.hello_world import modules
+    from pydra.tests.hello_world import modules
     pydra = Pydra.run(modules=modules)
     # Build protocol
     protocol = Protocol()
