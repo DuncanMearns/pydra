@@ -1,3 +1,5 @@
+import warnings
+
 from PyQt5 import QtWidgets, QtCore
 import importlib.util
 from pydra import Pydra
@@ -43,6 +45,12 @@ class PydraApp(QtWidgets.QApplication):
         self.start_window.setEnabled(False)
         self.start_window.showMessage(f"Starting pydra with config from {self.config_file}")
         pydra = Pydra.run(config=self.config)
+        # Check config
+        if not len(pydra.config_modules):
+            warnings.warn("No modules are specified in the config.")
+        if not len(pydra.config_savers):
+            warnings.warn("No savers are specified in the config - data will not be saved!")
+        # Show main window
         self.main_window = MainWindow(pydra)
         self.main_window.show()
         self.start_window.finish(self.main_window)
