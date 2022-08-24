@@ -18,7 +18,7 @@ class DataCache:
         return []
 
     def append_data(self, t, i, data):
-        for k, val in data:
+        for k, val in data.items():
             if k not in self._data:
                 self._data[k] = self.empty_cache
             self._data[k].append((i, t, val))

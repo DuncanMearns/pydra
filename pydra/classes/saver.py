@@ -22,6 +22,8 @@ class SaverConstructor:
     ----------
     cls_type : PydraType
         The class to be constructed. Should be a subclass of Saver.
+    workers : tuple
+        A copy of the workers class attribute
     args : tuple
         A copy of the args class attribute.
     kwargs : dict
@@ -30,15 +32,18 @@ class SaverConstructor:
         A copy of the  _connections private class attribute. Should be properly initialized with connections to backend.
     """
 
-    def __init__(self, cls_type, args, kwargs, connections):
+    def __init__(self, cls_type, workers, args, kwargs, connections):
         self.cls_type = cls_type
+        self.workers = workers
         self.args = args
         self.kwargs = kwargs
         self.connections = connections
 
     def __call__(self, *args, **kwargs):
         """Returns a new Saver class that can be instantiated."""
-        return type(self.cls_type.name, (self.cls_type,), {"args": self.args, "kwargs": self.kwargs,
+        return type(self.cls_type.name, (self.cls_type,), {"workers": self.workers,
+                                                           "args": self.args,
+                                                           "kwargs": self.kwargs,
                                                            "_connections": self.connections})
 
 
@@ -76,7 +81,7 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
     @classmethod
     def to_constructor(cls):
         """Returns a constructor object for current saver class, preserving changes to class attributes."""
-        return SaverConstructor(cls, cls.args, cls.kwargs, cls._connections)
+        return SaverConstructor(cls, cls.workers, cls.args, cls.kwargs, cls._connections)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -144,9 +149,17 @@ class HDF5Saver(Saver):
         super().start_recording(directory=directory, filename=filename, idx=idx, **kwargs)
         path = self.new_file(directory, filename, "hdf5")
         self.h5_file = h5py.File(path, "w")
+        for worker in self.workers:
+            self.h5_file.create_group(worker)
 
     def stop_recording(self, **kwargs):
+        for worker, cache in self.caches.items():
+            group = self.h5_file[worker]
+            for name, data in cache.data.items():
+                group.create_dataset(name, data=data)
         self.h5_file.close()
+        for cache in self.caches.values():
+            cache.clear()
         super().stop_recording(**kwargs)
 
     def recv_indexed(self, t, i, data, **kwargs):
@@ -226,7 +239,7 @@ class VideoSaver(HDF5Saver):
 
     def save_frame(self, t, i, frame):
         self.writer.write(frame)
-        self.t_cache.append((t, i))
+        self.t_cache.append((i, t))
 
     def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
         super().start_recording(directory, filename, idx, **kwargs)
@@ -234,11 +247,17 @@ class VideoSaver(HDF5Saver):
         print("video saver starts recording", path, self.frame_rate, self.real_frame_rate)
         fourcc = cv2.VideoWriter_fourcc(*self.fourcc)
         self.writer = cv2.VideoWriter(path, fourcc, self.frame_rate, self.frame_size, self.is_color)
-        self.t_cache = []
 
     def stop_recording(self, **kwargs):
         self.writer.release()
-        self.h5_file.create_dataset(self.name, data=np.array(self.t_cache))
+        try:
+            group = self.h5_file[self.source]
+            dset = "video_metadata"
+        except KeyError:
+            group = self.h5_file
+            dset = self.source
+        group.create_dataset(dset, data=np.array(self.t_cache))
+        self.t_cache = []
         super().stop_recording(**kwargs)
 
     def flush(self) -> dict:

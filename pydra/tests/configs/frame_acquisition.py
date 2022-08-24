@@ -17,11 +17,15 @@ class AcquisitionWorker(Acquisition):
         super().__init__(*args, **kwargs)  # always call super() constructor
         self.value = value  # this worker has a value attribute
         self.i = 0  # this will store the frame index
+        self.j = 0  # this stores number of times value has been set
 
     def set_value(self, value=0, **kwargs):
         """Method called by a set_value event from pydra"""
         self.value = value
+        self.j += 1
         print(f"{self.name}.value was set to: {self.value}")
+        t = time.time()
+        self.send_indexed(t, self.j, {"value": self.value})
 
     def start_recording(self, **kwargs):
         self.i = 0
@@ -80,6 +84,7 @@ VideoSaver.workers = ("acquisition",)
 config["modules"] = [ACQUISITION]
 config["savers"] = [VideoSaver]
 config["gui_params"]["directory"] = r"D:\pydra_tests"
+config["gui_params"]["filename"] = r"test_acquisition"
 
 
 if __name__ == "__main__":
