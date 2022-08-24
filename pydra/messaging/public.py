@@ -23,7 +23,8 @@ class DataMessage(PydraMessage):
         b"t": (float, dict),
         b"i": (float, int, dict),
         b"a": (float, int, np.ndarray),
-        b"f": (float, int, np.ndarray)
+        b"f": (float, int, np.ndarray),
+        b"o": (object,)
     }
 
     def __init__(self, data_flag):
@@ -37,7 +38,7 @@ class DataMessage(PydraMessage):
         return [self.flag, source, t, self.data_flags]
 
 
-DATA = DataMessage
+DATA = DataMessage(b"o")
 TIMESTAMPED = DataMessage(b"t")
 INDEXED = DataMessage(b"i")
 ARRAY = DataMessage(b"a")

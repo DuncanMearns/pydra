@@ -225,6 +225,10 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
     def send_event(self, event_name, **kwargs):
         super().send_event(event_name, **kwargs)
 
+    @blocking
+    def send_request(self, what: str):
+        super().send_request(what)
+
     @staticmethod
     def configure(modules=(),
                   savers=(),
@@ -315,3 +319,71 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
         # Set the config attribute
         Pydra.config = config
         return Pydra
+
+    @property
+    def config_connections(self):
+        return self.config.get("connections", {})
+
+    @property
+    def config_modules(self):
+        return self.config.get("modules", [])
+
+    @property
+    def config_savers(self):
+        return self.config.get("savers", [])
+
+    def __str__(self):
+        connections = self.config_connections
+        modules = self.config_modules
+        savers = self.config_savers
+        out = "\n" \
+              "===========\n" \
+              "CONNECTIONS\n" \
+              "===========\n\n"
+        for obj, d in connections.items():
+            msg = f"*{obj}*\n"
+            msg = msg + "\tports:\n"
+            if 'publisher' in d:
+                pub = d['publisher']
+                sub = d['sub']
+                msg = msg + f"\t\tpub-sub: {pub}, {sub}\n"
+            if 'sender' in d:
+                send = d['sender']
+                recv = d['recv']
+                msg = msg + f"\t\tsend-recv: {send}, {recv}\n"
+            if 'subscriptions' in d and len(d['subscriptions']):
+                msg = msg + "\tsubscribes to:\n"
+                for (name, port, msg_types) in d['subscriptions']:
+                    msg = msg + f"\t\t{name} " + f"{msg_types}\n"
+            if 'receivers' in d and len(d['receivers']):
+                msg = msg + "\treceives from:\n"
+                msg = msg + "\t\t" + ", ".join([name for (name, port) in d['receivers']]) + "\n"
+            out = out + msg + "\n"
+        if len(modules):
+            out = out + "=======\n" \
+                        "MODULES\n" \
+                        "=======\n\n"
+            for mod in modules:
+                worker = mod["worker"]
+                msg = f"*{worker.name}*\n"
+                if 'controller' in mod:
+                    msg = msg + "\tcontroller: " + mod['controller'].__name__ + "\n"
+                if 'plotter' in mod:
+                    msg = msg + "\tplotter: " + mod['plotter'].__name__ + "\n"
+                if 'params' in mod and len(mod['params']):
+                    msg = msg + "\tparams: {\n"
+                    for param, val in mod['params'].items():
+                        msg = msg + f"\t\t{param}: {val}"
+                    msg = msg + "\t}\n"
+                if len(worker.gui_events):
+                    msg = msg + "\tgui events: " + ", ".join([event for event in worker.gui_events]) + "\n"
+                out = out + msg + "\n"
+        if len(savers):
+            out = out + "======\n" \
+                        "SAVERS\n" \
+                        "======\n\n"
+            for saver in savers:
+                msg = f"*{saver.name}*\n"
+                msg = msg + f"\tsaves: " + ", ".join([worker for worker in saver.workers])
+                out = out + msg + "\n"
+        return out

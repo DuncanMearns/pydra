@@ -50,6 +50,9 @@ class Pause(ProtocolEvent):
     def reset(self):
         self.started = False
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(t={self.t})"
+
 
 class Trigger(Pause):
     """Trigger event. Checks whether trigger has been received via check method until timeout time has elapsed."""
@@ -84,6 +87,9 @@ class Event(ProtocolEvent):
     def update(self):
         self.pydra.send_event(self.event, **self.event_kw)
         self.finished()
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(pydra, {self.event}, {self.event_kw})"
 
 
 class ProtocolThread(Thread):

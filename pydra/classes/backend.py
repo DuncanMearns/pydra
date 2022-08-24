@@ -29,9 +29,6 @@ class PydraBackend(Parallelized, PydraReceiver, PydraPublisher, PydraSender, Pyd
 
     def __init__(self, savers=(), *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Recording events
-        self.event_callbacks["start_recording"] = self.start_recording
-        self.event_callbacks["stop_recording"] = self.stop_recording
         # Savers
         self.savers = savers
         self._threads = []
