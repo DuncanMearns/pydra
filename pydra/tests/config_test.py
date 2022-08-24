@@ -1,4 +1,6 @@
-from pydra import config
-from pydra.tests.hello_world import modules
+from pydra.app import PydraApp
+from pydra.configuration import config
 
-config["modules"] = modules
+
+if __name__ == "__main__":
+    PydraApp.run(config)

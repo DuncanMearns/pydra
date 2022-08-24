@@ -80,3 +80,9 @@ VideoSaver.workers = ("acquisition",)
 config["modules"] = [ACQUISITION]
 config["savers"] = [VideoSaver]
 config["gui_params"]["directory"] = r"D:\pydra_tests"
+
+
+if __name__ == "__main__":
+    from pydra import Pydra
+    Pydra.configure(config=config)
+    print(Pydra())
