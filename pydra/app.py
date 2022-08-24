@@ -1,3 +1,4 @@
+import traceback
 import warnings
 
 from PyQt5 import QtWidgets, QtCore
@@ -51,7 +52,12 @@ class PydraApp(QtWidgets.QApplication):
         if not len(pydra.config_savers):
             warnings.warn("No savers are specified in the config - data will not be saved!")
         # Show main window
-        self.main_window = MainWindow(pydra)
+        try:
+            self.main_window = MainWindow(pydra)
+        except Exception:
+            print(traceback.format_exc())
+            pydra.exit()
+            sys.exit(-1)
         self.main_window.show()
         self.start_window.finish(self.main_window)
 

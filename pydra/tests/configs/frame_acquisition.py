@@ -84,7 +84,7 @@ VideoSaver.workers = ("acquisition",)
 config["modules"] = [ACQUISITION]
 config["savers"] = [VideoSaver]
 config["gui_params"]["directory"] = r"D:\pydra_tests"
-config["gui_params"]["filename"] = r"test_acquisition"
+config["gui_params"]["filename"] = r"acquisition_test"
 
 
 if __name__ == "__main__":

@@ -88,10 +88,10 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         self.layout().addWidget(self.filename_editor, 3, 0)
         self.layout().addWidget(self.trial_number_widget, 3, 1)
         # Emit signals
-        self.check_validity()
         self.directory_changed.emit(self.directory_text)
         self.filename_changed.emit(self.filename_text)
         self.trial_number_changed.emit(self.trial_number_text)
+        self.check_validity()
 
     @property
     def filename_text(self):
@@ -110,13 +110,12 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         """Opens a dialog to changes the current working directory."""
         directory = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select directory', self.directory_text)
         directory = str(directory)
-        if directory != '':
-            self.check_validity()
-            self.directory_changed.emit(directory)
+        self.check_validity(directory=directory)
+        self.directory_changed.emit(directory)
 
     @QtCore.pyqtSlot()
     def change_filename(self):
-        self.check_validity()
+        self.check_validity(filename=self.filename_text)
         self.filename_changed.emit(self.filename_text)
 
     @QtCore.pyqtSlot(int)
@@ -136,19 +135,22 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         self.directory_editor.setMinimumSize(QtCore.QSize(w, LINEEDIT_HEIGHT))
         self.filename_editor.setMinimumSize(QtCore.QSize(w, LINEEDIT_HEIGHT))
 
-    @property
-    def existing_files(self):
-        if os.path.exists(self.directory):
-            directory = self.directory
-        else:
-            directory = os.getcwd()
-        return [os.path.splitext(f)[0] for f in os.listdir(directory)]
-
-    def check_validity(self):
-        if self.filename_text in self.existing_files:
+    def check_validity(self, directory=None, filename=None):
+        directory = directory or self.directory
+        filename = filename or self.filename
+        if not os.path.exists(directory):
             dialog = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning,
                                            "Warning",
-                                           f"File already exists!\n\n{self.filename}",
+                                           f"Directory does not exist!\n\n{directory}",
+                                           parent=self)
+            dialog.accepted.connect(self.change_directory)
+            dialog.show()
+            return
+        existing_files = [os.path.splitext(f)[0] for f in os.listdir(directory)]
+        if filename in existing_files:
+            dialog = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning,
+                                           "Warning",
+                                           f"Directory: {directory}\nFile already exists!\n\n{filename}",
                                            parent=self)
             dialog.show()
 
