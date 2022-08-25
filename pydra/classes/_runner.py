@@ -56,7 +56,7 @@ class Parallelized:
     @classmethod
     def start(cls, *args, **kwargs):
         """Launches the object in a separate process. Parameters are the same as the constructor."""
-        process = PydraProcess(cls, args, kwargs)
+        process = PydraProcess(cls, args, kwargs, name=f"Process-{cls.name}")
         process.start()
         return process
 

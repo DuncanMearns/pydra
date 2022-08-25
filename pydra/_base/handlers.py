@@ -135,12 +135,15 @@ class ZMQPoller:
     def poll(self, timeout=0):
         """Checks poller for new messages from all subscriptions.
 
-        Yields
+        Returns
         ------
         flag, source, timestamp, other, args
         """
         events = dict(self.poller.poll(timeout))
+        msgs = []
         for sock in events:
             if sock in self.sockets:
-                flag, source, timestamp, other, args = PydraMessage.recv(sock)
-                yield flag, source, timestamp, other, args
+                while sock.poll(0):  # get all message from socket
+                    msg = PydraMessage.recv(sock)
+                    msgs.append(msg)
+        return msgs
