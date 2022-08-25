@@ -8,7 +8,7 @@ def connect_signal(method, signal):
     """Decorator for Pydra methods that connects them to a Qt signal."""
     def wrapper(*args, **kwargs):
         result = method(*args, **kwargs)
-        signal.emit(result)
+        signal.emit(*result)
         return result
     return wrapper
 
@@ -24,31 +24,53 @@ class PydraInterface(Stateful, QtCore.QObject):
         The Pydra instance.
     """
 
-    newData = QtCore.pyqtSignal(dict)
+    _new_data = QtCore.pyqtSignal(dict, dict)
+    update_gui = QtCore.pyqtSignal(dict)
 
     def __init__(self, pydra):
         super().__init__()
         # Set the pydra instance
         self.pydra = pydra
-        # Wrap pydra methods
-        self.pydra.receive_data = connect_signal(self.pydra.receive_data, self.newData)
         # Protocol
         self.protocol_ = None
-        # Check for pydra and protocol updates
-        self.stateMachine.gui_update.connect(self.fetch_messages)
+        # Connect signals
+        self.pydra.receive_data = connect_signal(self.pydra.receive_data, self._new_data)
+        self._new_data.connect(self.data_from_backend)
+        self._received_from = []
+        # Fast gui update
+        self.stateMachine.gui_update.connect(self.poll_messages)
         self.stateMachine.gui_update.connect(self.check_protocol_status)
         # Handle state transitions
         self.stateMachine.ready_to_start.entered.connect(self.enterReady)
         self.stateMachine.interrupted.entered.connect(self.enterInterrupted)
+        # Request data
+        self.request_data()
 
     def __getattr__(self, item):
         return getattr(self.pydra, item)
 
+    @property
+    def savers(self):
+        return [saver.name for saver in self.pydra.savers]
+
     @QtCore.pyqtSlot()
-    def fetch_messages(self):
-        """Polls pydra for new data and dispatches requests."""
-        self.pydra.poll(1)
+    def request_data(self):
+        """Requests new data from pydra."""
         self.pydra.send_request("data")
+
+    @QtCore.pyqtSlot()
+    def poll_messages(self):
+        """Polls pydra for new data."""
+        self.pydra.poll()
+
+    @QtCore.pyqtSlot(dict, dict)
+    def data_from_backend(self, data, msg_tags):
+        source = msg_tags["source"]
+        self._received_from.append(source)
+        if all([saver in self._received_from for saver in self.savers]):  # all savers have updated
+            self._received_from = []
+            self.request_data()
+        self.update_gui.emit(data)
 
     @QtCore.pyqtSlot(str, str, dict)
     def send_event(self, target, event_name, event_kw):

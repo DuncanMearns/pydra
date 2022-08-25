@@ -153,13 +153,14 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
                 self.add_plotter(name, plotter)
         # ===============
         # Connect signals
-        self.pydra.newData.connect(self.update_gui)
+        self.pydra.update_gui.connect(self.update_gui)
         # Propagate signals from control dock
         for name, dock_widget in self._control_docks.items():
             dock_widget.widgetEvent.connect(self.pydra.send_event)
         # =======================
         # Start the state machine
         self.stateMachine.start()
+        self.last_t = 0
 
     @property
     def workers(self) -> tuple:
@@ -221,5 +222,5 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
                 if isinstance(widget, DynamicUpdate):
                     widget.cache.update(new_data)
                     to_update.append(widget)
-        for widget in to_update:
+        for widget in set(to_update):
             widget.dynamicUpdate()

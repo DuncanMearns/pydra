@@ -195,7 +195,7 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
 
     @BACKEND.DATA.callback
     def receive_data(self, data, **kwargs):
-        return data
+        return data, kwargs
 
     @EXIT
     def _exit(self):

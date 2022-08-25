@@ -102,3 +102,15 @@ class XimeaCamera(Camera):
 XIMEA = dict(CAMERA)
 XIMEA["worker"].name = "ximea"
 XIMEA["params"]["camera_type"] = XimeaCamera
+
+
+def test_ximea():
+    from pydra import PydraApp, config, VideoSaver
+    VideoSaver.workers = ("ximea",)
+    config["modules"] = [XIMEA]
+    config["savers"] = [VideoSaver]
+    PydraApp.run(config)
+
+
+if __name__ == "__main__":
+    test_ximea()
