@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List
 from .utils.parameterized import Parameterized
+from .modules import PydraModule
 from .messaging import *
 
 
@@ -114,7 +115,13 @@ class Configuration(Parameterized, connections={}, modules=[], savers=[], trigge
                  _private_ports=_ports):
         super().__init__()
         if modules:
-            self.modules = list(modules)
+            modules_ = []
+            for module in modules:
+                if isinstance(module, dict):
+                    modules_.append(PydraModule(**module))
+                    continue
+                modules_.append(module)
+            self.modules = modules_
         if savers:
             self.savers = list(savers)
         if triggers:
@@ -225,13 +232,13 @@ class Configuration(Parameterized, connections={}, modules=[], savers=[], trigge
             for mod in self.modules:
                 worker = mod["worker"]
                 msg = f"*{worker.name}*\n"
-                if 'controller' in mod:
-                    msg = msg + "\tcontroller: " + mod['controller'].__name__ + "\n"
-                if 'plotter' in mod:
+                if mod.widget:
+                    msg = msg + "\twidget: " + mod['widget'].__name__ + "\n"
+                if mod.plotter:
                     msg = msg + "\tplotter: " + mod['plotter'].__name__ + "\n"
-                if 'params' in mod and len(mod['params']):
+                if mod.params:
                     msg = msg + "\tparams: {\n"
-                    for param, val in mod['params'].items():
+                    for param, val in mod.params.items():
                         msg = msg + f"\t\t{param}: {val}"
                     msg = msg + "\t}\n"
                 if len(worker.gui_events):

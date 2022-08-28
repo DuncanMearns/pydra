@@ -1,4 +1,4 @@
-from pydra import Pydra, Worker
+from pydra import Pydra, PydraModule, Worker
 import time
 
 
@@ -14,13 +14,7 @@ class HelloWorld(Worker):
         print("HELLO WORLD!")
 
 
-HELLOWORLD = {
-    "worker": HelloWorld,
-    "params": {}
-}
-
-
-modules = [HELLOWORLD]
+modules = [PydraModule(HelloWorld)]
 
 
 def hello_world():

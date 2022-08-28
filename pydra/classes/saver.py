@@ -87,6 +87,14 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
         """Returns a constructor object for current saver class, preserving changes to class attributes."""
         return SaverConstructor(cls, cls.workers, cls.args, cls.kwargs, cls._connections)
 
+    @classmethod
+    def add_worker(cls, worker):
+        if isinstance(worker, type(cls)):  # check if worker is a PydraType
+            worker = worker.name
+        workers = list(cls.workers)
+        workers.append(worker)
+        cls.workers = tuple(workers)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.idle()

@@ -160,9 +160,9 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
             module = self.modules[idx]
         except IndexError:
             return False, None
-        worker = module["worker"]
-        params = module.get("params", {})
-        threaded = module.get("threaded", False)
+        worker = module.worker
+        params = module.params
+        threaded = module.threaded
         self.start_worker(worker, params, as_thread=threaded)
         return True, worker.name
 

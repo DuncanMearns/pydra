@@ -1,4 +1,4 @@
-from pydra import Acquisition, VideoSaver, Configuration
+from pydra import Acquisition, VideoSaver, Configuration, PydraModule
 from pydra.gui import ControlWidget
 from pydra.modules.acquisition import FramePlotter
 from PyQt5 import QtWidgets
@@ -69,15 +69,7 @@ class AcquisitionWidget(ControlWidget):
 
 
 # Create the acquisition module
-ACQUISITION = {
-    "worker": AcquisitionWorker,
-    "params": {},  # params are passed to the constructor of the worker
-    "controller": AcquisitionWidget,
-    "plotter": FramePlotter
-}
-
-
-VideoSaver.workers = ("acquisition",)
+ACQUISITION = PydraModule(AcquisitionWorker, saver=VideoSaver, widget=AcquisitionWidget, plotter=FramePlotter)
 
 
 config = Configuration(modules=[ACQUISITION], savers=[VideoSaver], gui_params={"directory": r"D:\pydra_tests",

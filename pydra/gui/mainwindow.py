@@ -141,15 +141,15 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         self._control_docks = {}
         self.plotters = {}
         for module in self.pydra.modules:
-            name = module["worker"].name
-            params = module.get("params", {})
-            if "controller" in module.keys():
+            name = module.name
+            params = module.params
+            if module.widget:
                 # Create control widget
-                widget = module["controller"](name=name, params=params)
+                widget = module.widget(name=name, params=params)
                 self.add_controller(name, widget)
-            if "plotter" in module.keys():
+            if module.plotter:
                 # Create plotting widget
-                plotter = module["plotter"](name=name, params=params)
+                plotter = module.plotter(name=name, params=params)
                 self.add_plotter(name, plotter)
         # ===============
         # Connect signals
