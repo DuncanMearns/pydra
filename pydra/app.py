@@ -4,6 +4,7 @@ import warnings
 from PyQt5 import QtWidgets, QtCore
 import importlib.util
 from pydra.pydra import Pydra
+from pydra.configuration import Configuration
 from pydra.gui import StartWindow, MainWindow
 import sys
 import os
@@ -22,7 +23,7 @@ class PydraApp(QtWidgets.QApplication):
         app.start()
         return sys.exit(app.exec())
 
-    def __init__(self, argv, config: dict = None):
+    def __init__(self, argv, config: Configuration = None):
         super().__init__(argv)
         self.aboutToQuit.connect(self.closeAllWindows, QtCore.Qt.QueuedConnection)  # ensure always quits
         self.hasConfig.connect(self.main, QtCore.Qt.QueuedConnection)  # run main when config is specified
@@ -47,9 +48,9 @@ class PydraApp(QtWidgets.QApplication):
         self.start_window.showMessage(f"Starting pydra with config from {self.config_file}")
         pydra = Pydra.run(config=self.config)
         # Check config
-        if not len(pydra.config_modules):
+        if not len(pydra.modules):
             warnings.warn("No modules are specified in the config.")
-        if not len(pydra.config_savers):
+        if not len(pydra.savers):
             warnings.warn("No savers are specified in the config - data will not be saved!")
         # Show main window
         try:
@@ -69,8 +70,9 @@ class PydraApp(QtWidgets.QApplication):
             return {}
 
     @config.setter
-    def config(self, d: dict):
-        if not isinstance(d, dict):
+    def config(self, d: Configuration):
+        if not isinstance(d, Configuration):
+            warnings.warn("config is not a valid Configuration")
             return
         self._config = d
         self.hasConfig.emit()

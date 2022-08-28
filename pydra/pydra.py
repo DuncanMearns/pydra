@@ -1,9 +1,9 @@
 from ._base import *
 from .messaging import *
+from .configuration import Configuration
 from .classes import PydraBackend, Worker
 from .utils.state import state_descriptor
 
-import pydra.configuration as configuration
 import zmq
 import logging
 from datetime import datetime
@@ -104,20 +104,27 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
     """
 
     name = "pydra"
-    config = {}
+    config = Configuration()
 
     @staticmethod
-    def run(*, modules=(), savers=(), config: dict = None, public=None, private=None):
+    def run(config: Configuration = None, *,
+            modules=(), savers=(), triggers=(), connections: dict = None, public=None, private=None):
         """Return an instantiated Pydra object with the current configuration."""
-        Pydra.configure(modules, savers, config, public, private)
+        if not config:
+            config = Configuration(modules=modules, savers=savers, triggers=triggers,
+                                   _connections=connections, _public_ports=public, _private_ports=private)
+        if not isinstance(config, Configuration):
+            raise TypeError("config must be a valid Configuration")
+        Pydra.config = config
         pydra = Pydra()
         pydra.setup()
         return pydra
 
-    def __init__(self, connections: dict = None, modules: list = (), savers: list = ()):
+    def __init__(self, connections: dict = None, modules: list = (), savers: list = (), triggers: list = ()):
         self.connections = connections or self.config["connections"]["pydra"]
-        self.savers = savers
         self.modules = modules or self.config["modules"]
+        self.savers = savers
+        self.triggers = triggers or self.config["triggers"]
         super().__init__(**self.connections)
         self._backend = None
         self._workers = []
@@ -228,162 +235,3 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
     @blocking
     def send_request(self, what: str):
         super().send_request(what)
-
-    @staticmethod
-    def configure(modules=(),
-                  savers=(),
-                  config: dict = None,
-                  public: configuration.PortManager = None,
-                  private: configuration.PortManager = None):
-        """Generates a configuration dictionary (stored in config class attribute).
-
-        Parameters
-        ----------
-            modules : tuple
-                List of modules to include in configuration.
-            savers : tuple
-                List of savers to include in configuration.
-            config : dict (optional)
-                A pre-configured dictionary.
-            public : configuration.PortManager (optional)
-                Ports to use for frontend zmq connections.
-            private : configuration.PortManager (optional)
-                Ports to use for backend zmq connections.
-        """
-
-        config = config or configuration.config
-        public = public or configuration.ports
-        private = private or configuration._ports
-
-        # Get backend ports
-        pub, sub = private.next()
-        send, recv = private.next()
-        bpub, bsub = private.next()
-
-        # Initialize backend configuration
-        pydra_config = configuration.PydraConfig("pydra", pub, sub)
-        backend_config = configuration.BackendConfig("backend", send, recv, bpub, bsub)
-        backend_config.add_subscription(pydra_config, (EXIT, EVENT, REQUEST))
-        pydra_config.add_receiver(backend_config)
-
-        # Set/get modules
-        if modules:
-            config["modules"] = list(modules)
-        else:
-            modules = config["modules"]
-
-        # Initialize worker configuration
-        worker_configs = {}
-        for module in modules:
-            name = module["worker"].name
-            pub, sub = public.next()
-            worker_config = configuration.WorkerConfig(name, pub, sub)
-            # Add worker to configs
-            worker_configs[name] = worker_config
-
-        # Handle worker subscriptions
-        for module in modules:
-            name = module["worker"].name
-            worker_config = worker_configs[name]
-            # Add subscription to pydra
-            worker_config.add_subscription(pydra_config, (EXIT, EVENT))
-            # Add to pydra subscriptions
-            pydra_config.add_subscription(worker_config, (CONNECTION, ERROR))
-            # Add subscriptions to other workers
-            for other in module["worker"].subscriptions:
-                other_config = worker_configs[other.name]
-                worker_config.add_subscription(other_config, (EVENT, DATA, STRING, TRIGGER))
-
-        # Set/get savers
-        if savers:
-            config["savers"] = list(savers)
-        else:
-            savers = config["savers"]
-
-        # Configure savers
-        saver_configs = {}
-        for saver in savers:
-            send, recv = private.next()
-            saver_config = configuration.SaverConfig(saver.name, send, recv)
-            saver_config.add_subscription(backend_config, (EXIT, EVENT, REQUEST))
-            for worker_name in saver.workers:
-                saver_config.add_subscription(worker_configs[worker_name], (EVENT, DATA, STRING, TRIGGER))
-            backend_config.add_receiver(saver_config)
-            saver_configs[saver.name] = saver_config
-
-        all_configs = [pydra_config, backend_config]
-        all_configs.extend(worker_configs.values())
-        all_configs.extend(saver_configs.values())
-        config["connections"] = dict([(cfg.name, cfg.connections) for cfg in all_configs])
-
-        # Set the config attribute
-        Pydra.config = config
-        return Pydra
-
-    @property
-    def config_connections(self):
-        return self.config.get("connections", {})
-
-    @property
-    def config_modules(self):
-        return self.config.get("modules", [])
-
-    @property
-    def config_savers(self):
-        return self.config.get("savers", [])
-
-    def __str__(self):
-        connections = self.config_connections
-        modules = self.config_modules
-        savers = self.config_savers
-        out = "\n" \
-              "===========\n" \
-              "CONNECTIONS\n" \
-              "===========\n\n"
-        for obj, d in connections.items():
-            msg = f"*{obj}*\n"
-            msg = msg + "\tports:\n"
-            if 'publisher' in d:
-                pub = d['publisher']
-                sub = d['sub']
-                msg = msg + f"\t\tpub-sub: {pub}, {sub}\n"
-            if 'sender' in d:
-                send = d['sender']
-                recv = d['recv']
-                msg = msg + f"\t\tsend-recv: {send}, {recv}\n"
-            if 'subscriptions' in d and len(d['subscriptions']):
-                msg = msg + "\tsubscribes to:\n"
-                for (name, port, msg_types) in d['subscriptions']:
-                    msg = msg + f"\t\t{name} " + f"{msg_types}\n"
-            if 'receivers' in d and len(d['receivers']):
-                msg = msg + "\treceives from:\n"
-                msg = msg + "\t\t" + ", ".join([name for (name, port) in d['receivers']]) + "\n"
-            out = out + msg + "\n"
-        if len(modules):
-            out = out + "=======\n" \
-                        "MODULES\n" \
-                        "=======\n\n"
-            for mod in modules:
-                worker = mod["worker"]
-                msg = f"*{worker.name}*\n"
-                if 'controller' in mod:
-                    msg = msg + "\tcontroller: " + mod['controller'].__name__ + "\n"
-                if 'plotter' in mod:
-                    msg = msg + "\tplotter: " + mod['plotter'].__name__ + "\n"
-                if 'params' in mod and len(mod['params']):
-                    msg = msg + "\tparams: {\n"
-                    for param, val in mod['params'].items():
-                        msg = msg + f"\t\t{param}: {val}"
-                    msg = msg + "\t}\n"
-                if len(worker.gui_events):
-                    msg = msg + "\tgui events: " + ", ".join([event for event in worker.gui_events]) + "\n"
-                out = out + msg + "\n"
-        if len(savers):
-            out = out + "======\n" \
-                        "SAVERS\n" \
-                        "======\n\n"
-            for saver in savers:
-                msg = f"*{saver.name}*\n"
-                msg = msg + f"\tsaves: " + ", ".join([worker for worker in saver.workers])
-                out = out + msg + "\n"
-        return out

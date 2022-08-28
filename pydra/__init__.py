@@ -1,5 +1,5 @@
 from .pydra import Pydra
 from .app import PydraApp
-from .configuration import config
+from .configuration import Configuration
 from .classes import *
 from .messaging import *

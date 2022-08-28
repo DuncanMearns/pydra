@@ -31,12 +31,5 @@ def hello_world():
     pydra.exit()
 
 
-def no_config():
-    pydra = Pydra.run()
-    time.sleep(1.)
-    pydra.exit()
-
-
 if __name__ == "__main__":
     hello_world()
-    # no_config()
