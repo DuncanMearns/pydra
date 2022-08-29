@@ -40,6 +40,8 @@ class ExperimentWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.file_naming_widget)
         self.trial_control_widget = TrialControlWidget(**params)
         self.layout().addWidget(self.trial_control_widget)
+        self.triggers_widget = TriggersWidget(**params)
+        self.layout().addWidget(self.triggers_widget)
         self.protocol_widget = TrialStructureWidget(**params)
         self.layout().addWidget(self.protocol_widget)
 
@@ -123,6 +125,8 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         # Add event names to params
         params["event_names"] = self.event_names
         params["targets"] = self.workers
+        # Add triggers to params
+        params["triggers"] = self.pydra.triggers.threads
         # Experiment dock
         self.experiment_dock = QtWidgets.QDockWidget()
         self.experiment_widget = ExperimentWidget(params)

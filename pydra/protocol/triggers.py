@@ -3,6 +3,9 @@ import threading
 from abc import ABC, abstractmethod
 
 
+__all__ = ["TriggerThread", "Trigger", "ZMQTrigger"]
+
+
 class _TriggerBase(ABC):
     """Abstract base class for Trigger. Only for type checking."""
 
@@ -90,6 +93,9 @@ class TriggerThread(threading.Thread):
 
     def terminate(self):
         self.exit_flag.set()
+
+    def reset(self):
+        self.reset_flag.set()
 
     def run(self) -> None:
         with self.trigger as trigger:  # open trigger in context manager

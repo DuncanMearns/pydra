@@ -1,13 +1,27 @@
-from pydra import Pydra
+from pydra import Pydra, PydraApp
 from pydra.protocol.triggers import ZMQTrigger
 
 
-def test_zmq_trigger(port):
-    trigger = ZMQTrigger(port)
+def test_zmq_trigger():
+    from pydra.configuration import ports
+    pub, sub = ports.next()
+    print("PUB:", pub, "SUB:", sub)
+    trigger = ZMQTrigger(sub)
     pydra = Pydra.run(triggers={"zmq": trigger})
     pydra.triggers["zmq"].event_flag.wait()
     pydra.exit()
 
 
+def test_gui():
+    from pydra.tests.configs.frame_acquisition import config
+    from pydra.protocol import ZMQTrigger
+    from pydra.configuration import ports
+    pub, sub = ports.next()
+    print("PUB:", pub, "SUB:", sub)
+    config["triggers"] = {"zmq": ZMQTrigger(sub)}
+    PydraApp.run(config)
+
+
 if __name__ == "__main__":
-    test_zmq_trigger(r"tcp://localhost:5555")
+    # test_zmq_trigger()
+    test_gui()

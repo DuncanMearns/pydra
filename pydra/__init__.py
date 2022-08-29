@@ -4,3 +4,4 @@ from .configuration import Configuration
 from .modules import PydraModule
 from .classes import *
 from .messaging import *
+from .protocol import Protocol, Trigger
