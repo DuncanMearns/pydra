@@ -103,7 +103,7 @@ def gui_defaults():
     }
 
 
-class Configuration(Parameterized, connections={}, modules=[], savers=[], triggers=[], gui_params=gui_defaults()):
+class Configuration(Parameterized, connections={}, modules=[], savers=[], triggers={}, gui_params=gui_defaults()):
 
     def __init__(self, *,
                  modules=None,
@@ -125,7 +125,7 @@ class Configuration(Parameterized, connections={}, modules=[], savers=[], trigge
         if savers:
             self.savers = list(savers)
         if triggers:
-            self.triggers = list(triggers)
+            self.triggers = dict(triggers)
         if gui_params:
             self.gui_params.update(gui_params)
         if _connections:

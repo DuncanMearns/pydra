@@ -2,6 +2,7 @@ from ._base import *
 from .messaging import *
 from .configuration import Configuration
 from .classes import PydraBackend, Worker
+from .protocol import TriggerThread
 from .utils.state import state_descriptor
 
 import zmq
@@ -63,6 +64,28 @@ class SetupStateMachine:
 
     def get_connected(self):
         return self.pydra._connection_times.get(self.module_name, (False, 0))
+
+
+class TriggerCollection:
+
+    def __init__(self, triggers: dict):
+        self.triggers = triggers
+        self.threads = {}
+
+    def start(self):
+        for name, trigger in self.triggers.items():
+            thread = TriggerThread(trigger)
+            thread.start()
+            self.threads[name] = thread
+
+    def close(self):
+        for name, thread in self.threads.items():
+            thread.terminate()
+            thread.join()
+            print(f"Trigger {name} joined.")
+
+    def __getitem__(self, item):
+        return self.threads[item]
 
 
 def blocking(method):
@@ -131,6 +154,7 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
         self._connection_times = {}
         self._state_machine = SetupStateMachine(self)
         self.event_lock = Lock()
+        self.triggers.start()
 
     @property
     def savers(self):
@@ -143,6 +167,14 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
             self._savers = list(self.config["savers"])
             for saver in self._savers:
                 saver._connections = self.config["connections"][saver.name]
+
+    @property
+    def triggers(self):
+        return self._triggers
+
+    @triggers.setter
+    def triggers(self, d: dict):
+        self._triggers = TriggerCollection(d)
 
     def setup(self):
         while not self._state_machine.finished:
@@ -221,7 +253,8 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
             self._backend.join()
             print("Backend joined.")
         except AttributeError:
-            pass
+            raise ValueError("Backend does not exist?")
+        self.triggers.close()
 
     @staticmethod
     def destroy():

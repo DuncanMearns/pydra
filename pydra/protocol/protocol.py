@@ -1,8 +1,7 @@
 from ..utils.state import state_descriptor
 
 import warnings
-from threading import Thread
-import queue
+import threading
 import time
 
 
@@ -26,10 +25,10 @@ class ProtocolEvent:
         pass
 
 
-class Pause(ProtocolEvent):
+class PauseEvent(ProtocolEvent):
     """Pause event. Waits until t seconds have passed. Waits forever if t is negative."""
 
-    def __init__(self, t):
+    def __init__(self, t: float):
         super().__init__()
         self.t = t
         self.started = False
@@ -54,15 +53,20 @@ class Pause(ProtocolEvent):
         return f"{self.__class__.__name__}(t={self.t})"
 
 
-class Trigger(Pause):
+class TriggerEvent(PauseEvent):
     """Trigger event. Checks whether trigger has been received via check method until timeout time has elapsed."""
 
-    def __init__(self, timeout=-1):
+    def __init__(self, trigger_flag: threading.Event, reset_flag, one_shot: bool = False, timeout: float = -1):
         super().__init__(timeout)
-        self.triggered = False
+        self.trigger_flag = trigger_flag
+        self.reset_flag = reset_flag
+        self.one_shot = one_shot
 
     def check(self):
-        self.finished()
+        if self.trigger_flag.is_set():
+            self.finished()
+            if not self.one_shot:
+                self.reset()
 
     def update(self):
         super().update()
@@ -72,13 +76,14 @@ class Trigger(Pause):
         self.check()
 
     def reset(self):
-        self.triggered = False
+        self.reset_flag.set()
+        super().reset()
 
 
-class Event(ProtocolEvent):
+class PydraEvent(ProtocolEvent):
     """Sends an event through pydra."""
 
-    def __init__(self, pydra, event, event_kw=None):
+    def __init__(self, pydra, event: str, event_kw: dict = None):
         super().__init__()
         self.pydra = pydra
         self.event = event
@@ -92,39 +97,48 @@ class Event(ProtocolEvent):
         return f"{self.__class__.__name__}(pydra, {self.event}, {self.event_kw})"
 
 
-class ProtocolThread(Thread):
-    """Thread class for running through a list of ProtocolEvent objects."""
+class ProtocolThread(threading.Thread):
+    """Thread class for running through a list of ProtocolEvent objects.
 
-    def __init__(self, msg_q, events=()):
+    Parameters
+    ----------
+    events : iterable of ProtocolEvent
+        Sequence of ProtocolEvent objects in the protocol.
+    """
+
+    def __init__(self, events=()):
         super().__init__()
-        self.msg_q = msg_q
         self.events = events
+        # Flags
+        self.exit_flag = threading.Event()
+        self.next_flag = threading.Event()
         # Internal attributes
-        self.flag = False
-        self.current_event = None
-        self.callback = {
-            0: self.abort,
-            1: self.next
-        }
+        self.current_event = None  # current ProtocolEvent object
 
     @property
     def events(self):
+        """Property containing a list of events in the protocol."""
         return self._event_queue
 
     @events.setter
     def events(self, event_queue):
+        """Setter for list of protocol events."""
         if self.is_alive():
             warnings.warn("Cannot modify a running protocol.")
         else:
             self._event_queue = list(event_queue)  # make a copy of the event queue
 
     def abort(self):
+        """Aborts the current protocol."""
         self.exit()
 
     def exit(self):
-        self.flag = True
+        """Sets the exit flag to true."""
+        self.exit_flag.set()
 
     def next(self):
+        """If there are still events in the protocol, pops the next one from the list and sets it as the current event,
+        otherwise ends the protocol."""
         if len(self.events):
             self.current_event = self.events.pop(0)
             self.current_event.reset()
@@ -132,28 +146,24 @@ class ProtocolThread(Thread):
             self.exit()
 
     def run(self) -> None:
+        """Run method for the ProtocolThread."""
         self.next()  # initialize the current event
-        while not self.flag:
-            try:
-                # check for messages in queue
-                # msg = self.msg_q.get_nowait()
-                msg = self.msg_q.get(timeout=0.001)
-                # call method corresponding to code
-                self.callback.get(msg, lambda: 0)()
-            except queue.Empty:
-                self.current_event.update()  # update current event
-                if self.current_event.finished:  # move onto next event if current finished
-                    self.next()
-                    continue
-                if self.current_event.failed:  # event failed, abort protocol
-                    self.abort()
+        while not self.exit_flag.is_set():
+            if self.next_flag.is_set():  # check if next flag is set
+                self.next()
+                self.next_flag.clear()
+            self.current_event.update()  # update current event
+            if self.current_event.finished:  # move onto next event if current finished
+                self.next()
+                continue
+            if self.current_event.failed:  # event failed, abort protocol
+                self.abort()
 
 
 class Protocol:
     """Class for building and running protocols."""
 
     def __init__(self):
-        self.msg_q = queue.Queue()
         self.event_queue = []
         self.thread = None
 
@@ -162,18 +172,15 @@ class Protocol:
         if self.thread and self.thread.is_alive():
             warnings.warn("Cannot re-enter protocol thread.")
             return
-        # Clear message queue
-        while not self.msg_q.empty():
-            self.msg_q.get_nowait()
         # Start protocol
-        self.thread = ProtocolThread(self.msg_q, self.event_queue)
+        self.thread = ProtocolThread(self.event_queue)
         self.thread.start()
 
     def next(self):
-        self.msg_q.put(1)
+        self.thread.next_flag.set()
 
     def interrupt(self):
-        self.msg_q.put(0)
+        self.thread.exit()
         self.thread.join()
 
     def wait(self):
@@ -183,14 +190,21 @@ class Protocol:
         self.interrupt()
         self.run()
 
-    def addPause(self, t):
-        self.event_queue.append(Pause(t))
+    def addPause(self, t: float):
+        """Add a pause of t seconds to the protocol."""
+        self.event_queue.append(PauseEvent(t))
 
-    def addEvent(self, pydra, name, kw=None):
-        self.event_queue.append(Event(pydra, name, kw))
+    def addEvent(self, pydra, name: str, kw: dict = None):
+        """Add a pydra event to the protocol."""
+        self.event_queue.append(PydraEvent(pydra, name, kw))
 
     def addFreerun(self):
-        self.event_queue.append(Pause(-1))
+        """Add an infinite pause to the protocol."""
+        self.event_queue.append(PauseEvent(-1))
+
+    def addTrigger(self, trigger_flag: threading.Event, reset_flag: threading.Event, one_shot: bool=False, t: float=-1):
+        """Add a trigger to the protocol with a timeout of t second."""
+        self.event_queue.append(TriggerEvent(trigger_flag, reset_flag, one_shot, t))
 
     def is_running(self):
         try:

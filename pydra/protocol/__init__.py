@@ -1,5 +1,6 @@
 import typing
 from .protocol import Protocol
+from .triggers import Trigger, TriggerThread
 from . import events
 
 
