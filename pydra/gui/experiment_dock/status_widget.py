@@ -3,12 +3,12 @@ from PyQt5 import QtWidgets, QtCore
 from ..state_machine import Stateful
 
 
-class StatusWidget(Stateful, QtWidgets.QWidget):
+class StatusWidget(Stateful, QtWidgets.QGroupBox):
     """Widget that displays the current status of the experiment (e.g. GUI state, time experiment has been running,
     number of trials completed etc.)."""
 
     def __init__(self):
-        super().__init__()
+        super().__init__("Experiment status")
         # Layout
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setAlignment(QtCore.Qt.AlignLeft)

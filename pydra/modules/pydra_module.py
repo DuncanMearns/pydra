@@ -30,3 +30,7 @@ class PydraModule(Parameterized, worker=Worker, params={}, threaded=False):
     @property
     def name(self):
         return self.worker.name
+
+    @property
+    def gui_events(self):
+        return self.worker.gui_events

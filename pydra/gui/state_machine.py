@@ -1,6 +1,7 @@
 """Module for handling shared state within the Pydra GUI."""
 import time
 from PyQt5 import QtCore
+from .default_params import default_params
 
 __all__ = ("Stateful",)
 
@@ -24,13 +25,17 @@ class StateMachineMeta(type(QtCore.QObject)):
     """Qt metaclass for StateMachine. Contains _dynamic_attributes that can be set using the set_name slot, and emit
     a name_changed signal whenever changed. These attributes can be accessed by any class inheriting from Stateful."""
 
-    _dynamic_attributes = {"directory": str,
-                           "filename": str,
-                           "trial_number": int,
-                           "n_trials": int,
-                           "inter_trial_interval": int,
-                           "trial_index": int,
-                           "protocol": list}
+    _dynamic_attributes = dict([(param, type(val)) for param, val in default_params.items()])
+
+    # _dynamic_attributes = {"directory": str,
+    #                        "filename": str,
+    #                        "trial_number": int,
+    #                        "n_trials": int,
+    #                        "inter_trial_interval": int,
+    #                        "trial_index": int,
+    #                        "protocol": list,
+    #                        "recording_triggers": tuple,
+    #                        "n_trial_digits": int}
 
     def __new__(cls, name, bases, dct):
         """Dynamically create signals and slots for dynamic attributes."""
@@ -153,12 +158,6 @@ class StateMachine(QtCore.QObject, metaclass=StateMachineMeta):
         self.recording.addTransition(self.recording_finished, self.waiting)
         self.recording.addTransition(self.interrupt, self.interrupted)
         self.waiting.addTransition(self.interrupt, self.interrupted)
-        # =============================
-        # Dynamic experiment attributes
-        # =============================
-        # Ensure all dynamic attributes are initialized
-        for attr, attr_type in StateMachine._dynamic_attributes.items():
-            getattr(self, "set_" + attr)(attr_type())
         # ================
         # GUI update timer
         # ================
@@ -193,6 +192,11 @@ class StateMachine(QtCore.QObject, metaclass=StateMachineMeta):
         if state in self._stateMachine.configuration():
             return True
         return False
+
+    def set_defaults(self, gui_params: dict):
+        # Ensure all dynamic attributes are initialized
+        for attr, val in gui_params.items():
+            getattr(self, "set_" + attr)(val)
 
 
 class Stateful:

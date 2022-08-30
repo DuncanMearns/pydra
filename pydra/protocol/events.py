@@ -30,10 +30,11 @@ class PAUSE(PROTOCOL_EVENT):
 
 @dataclass
 class TRIGGER(PROTOCOL_EVENT):
-    trig: object
+    trig: str
 
     def add(self, pydra, protocol: Protocol):
-        pass
+        trigger_thread = pydra.triggers[self.trig]
+        protocol.addTrigger(trigger_thread.event_flag, trigger_thread.reset_flag)
 
 
 class FREERUN(PROTOCOL_EVENT):

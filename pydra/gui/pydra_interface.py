@@ -31,6 +31,8 @@ class PydraInterface(Stateful, QtCore.QObject):
         super().__init__()
         # Set the pydra instance
         self.pydra = pydra
+        # Set shared state attributes
+        self._initialize_state_attributes()
         # Protocol
         self.protocol_ = None
         # Connect signals
@@ -50,8 +52,33 @@ class PydraInterface(Stateful, QtCore.QObject):
         return getattr(self.pydra, item)
 
     @property
-    def savers(self):
+    def savers(self) -> list:
         return [saver.name for saver in self.pydra.savers]
+
+    @property
+    def workers(self) -> list:
+        """Property for accessing all workers in Pydra config."""
+        return [module.name for module in self.pydra.modules]
+
+    @property
+    def gui_events(self) -> list:
+        """Property for accessing all defined gui_events from Pydra workers."""
+        gui_events = []
+        for module in self.pydra.modules:
+            gui_events.extend(module.gui_events)
+        return gui_events
+
+    @property
+    def trigger_threads(self):
+        """Property for accessing Pydra triggers."""
+        return self.pydra.triggers.threads
+
+    def _initialize_state_attributes(self):
+        # Ensure all state attributes are initialized with the params provided
+        self.stateMachine.set_defaults(self.config["gui_params"])
+        self.stateMachine.set_event_names(self.gui_events)
+        self.stateMachine.set_targets(self.workers)
+        self.stateMachine.set_triggers(self.trigger_threads)
 
     @QtCore.pyqtSlot()
     def request_data(self):
@@ -88,8 +115,14 @@ class PydraInterface(Stateful, QtCore.QObject):
                                              dict(directory=directory, filename=filename, idx=trial_number)))
         # Add stop recording to protocol
         protocol_list.append(events.EVENT("stop_recording"))
+        # Add triggers to protocol
+        start_trigger, stop_trigger = self.recording_triggers
+        if start_trigger:
+            protocol_list.insert(0, events.TRIGGER(start_trigger))
+        if stop_trigger:
+            protocol_list.insert(-1, events.TRIGGER(stop_trigger))
         # Create protocol
-        protocol = build_protocol(self.pydra, protocol_list)
+        protocol = Protocol.build(self.pydra, protocol_list)
         return protocol
 
     @QtCore.pyqtSlot()
@@ -141,6 +174,6 @@ class PydraInterface(Stateful, QtCore.QObject):
             self.wait_timer = QtCore.QTimer()
             self.wait_timer.setSingleShot(True)
             self.wait_timer.timeout.connect(self.trigger_recording_start)
-            self.wait_timer.start(self.inter_trial_interval)
+            self.wait_timer.start(self.inter_trial_ms)
             return
         self.stateMachine.experiment_finished.emit()

@@ -61,8 +61,14 @@ class FocusWrapper:
         self.focus_event(*args, **kwargs)
 
 
-class WaitWidget(ChangesProtocol, TimeUnitWidget):
-    """Widget that allows a pause to be introduced into a protovol."""
+class _BaseEventSetter(ChangesProtocol):
+
+    def to_event(self) -> events.PROTOCOL_EVENT:
+        pass
+
+
+class PauseSetter(_BaseEventSetter, TimeUnitWidget):
+    """Widget that allows a pause to be introduced into a protocol."""
 
     def __init__(self):
         super().__init__()
@@ -75,7 +81,7 @@ class WaitWidget(ChangesProtocol, TimeUnitWidget):
         return events.PAUSE(self.value / 1000.)
 
 
-class EventPicker(ChangesProtocol, QtWidgets.QWidget):
+class EventSetter(_BaseEventSetter, QtWidgets.QWidget):
     """Widget the allows Pydra events to be defined in a protocol."""
 
     def __init__(self, event_names, targets=()):
@@ -158,13 +164,28 @@ class EventPicker(ChangesProtocol, QtWidgets.QWidget):
         return events.EVENT(event_name, event_kw)
 
 
+class TriggerSetter(_BaseEventSetter, QtWidgets.QWidget):
+    """Widget that allows triggers to be added to a protocol."""
+
+    def __init__(self, triggers):
+        super().__init__()
+        self.triggers = triggers
+        # Layout
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.combo_box = QtWidgets.QComboBox()
+        self.combo_box.addItems(self.triggers)
+        self.layout().addWidget(self.combo_box)
+
+    def to_event(self) -> events.PROTOCOL_EVENT:
+        if trigger := self.combo_box.currentText():
+            return events.TRIGGER(trigger)
+
+
 class EventWidget(ChangesProtocol, EventContainer, QtWidgets.QFrame):
     """A widget for that is added to and shown in the ProtocolBuilder."""
 
-    def __init__(self, event_names: tuple = (), targets: tuple=()):
+    def __init__(self, event_names, targets, triggers):
         super().__init__()
-        self.event_names = event_names
-        self.targets = targets
         # Layout
         self.setLayout(QtWidgets.QHBoxLayout())
         self.set_formatting()
@@ -172,15 +193,17 @@ class EventWidget(ChangesProtocol, EventContainer, QtWidgets.QFrame):
         self.setFocusPolicy(QtCore.Qt.ClickFocus)
         self._event_handler.selectionChanged.connect(self.formatSelected)
         # Event widget
-        self.event_widgets = [self.wait_widget(), self.event_picker(self.event_names, self.targets)]
+        self.setter_widgets = [PauseSetter(),
+                               EventSetter(event_names, targets),
+                               TriggerSetter(triggers)]
         # Dropdown
         self.dropdown = self.dropdown_widget()
-        self.dropdown.currentIndexChanged.connect(self.replaceEventWidget)
+        self.dropdown.currentIndexChanged.connect(self.replaceSetterWidget)
         # Add to layout
         self.layout().addWidget(self.dropdown)
-        self.layout().addWidget(self.event_widgets[0])
+        self.layout().addWidget(self.setter_widgets[0])
         # Overwrite focus
-        for w in [self.dropdown] + self.event_widgets:
+        for w in [self.dropdown] + self.setter_widgets:
             w.focusInEvent = FocusWrapper(self, w.focusInEvent)
             for child in w.findChildren(QtWidgets.QWidget):
                 child.focusInEvent = FocusWrapper(self, child.focusInEvent)
@@ -210,8 +233,8 @@ class EventWidget(ChangesProtocol, EventContainer, QtWidgets.QFrame):
         return self.layout().itemAt(1).widget()
 
     @QtCore.pyqtSlot(int)
-    def replaceEventWidget(self, idx):
-        new = self.event_widgets[idx]
+    def replaceSetterWidget(self, idx):
+        new = self.setter_widgets[idx]
         old = self.layout().replaceWidget(self.current_widget, new)
         old.widget().setParent(None)
         self.changed()  # emits the changed signal
@@ -219,17 +242,7 @@ class EventWidget(ChangesProtocol, EventContainer, QtWidgets.QFrame):
     @staticmethod
     def dropdown_widget():
         w = QtWidgets.QComboBox()
-        w.addItems(["wait", "event"])
-        return w
-
-    @staticmethod
-    def wait_widget():
-        w = WaitWidget()
-        return w
-
-    @staticmethod
-    def event_picker(event_names, targets):
-        w = EventPicker(event_names, targets=targets)
+        w.addItems(["pause", "event", "trigger"])
         return w
 
     def to_event(self):
@@ -239,10 +252,11 @@ class EventWidget(ChangesProtocol, EventContainer, QtWidgets.QFrame):
 class ProtocolBuilder(ChangesProtocol, EventContainer, QtWidgets.QWidget):
     """The widget for showing, adding, and removing events from a protocol."""
 
-    def __init__(self, event_names, targets=()):
+    def __init__(self, event_names, targets=(), trigger_names=()):
         super().__init__()
         self.event_names = event_names
         self.targets = targets
+        self.trigger_names = trigger_names
         self.event_widgets = []
         # Layout
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -264,7 +278,7 @@ class ProtocolBuilder(ChangesProtocol, EventContainer, QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def addEvent(self):
-        new_event = EventWidget(self.event_names, self.targets)
+        new_event = EventWidget(self.event_names, self.targets, self.trigger_names)
         new_event.select()
         self.event_widgets.append(new_event)
         self.event_window.layout().addWidget(new_event)
@@ -274,8 +288,7 @@ class ProtocolBuilder(ChangesProtocol, EventContainer, QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def removeEvent(self):
-        w = self.selected()
-        if w:
+        if w := self.selected():
             self.event_widgets.remove(w)
             w.setParent(None)
             self.unselect()
@@ -284,13 +297,13 @@ class ProtocolBuilder(ChangesProtocol, EventContainer, QtWidgets.QWidget):
         self.changed()  # emits the changed signal
 
     def to_protocol(self):
-        return [w.to_event() for w in self.event_widgets]
+        return [event for w in self.event_widgets if (event := w.to_event())]
 
 
 class ProtocolTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
     """Tab for creating, saving, and loading protocols."""
 
-    def __init__(self, event_names: tuple, targets=()):
+    def __init__(self):
         super().__init__()
         # Layout
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -330,7 +343,9 @@ class ProtocolTab(ChangesProtocol, Stateful, QtWidgets.QWidget):
         # -------
         # BUILDER
         # -------
-        self.builder_widget = ProtocolBuilder(event_names, targets=targets)
+        self.builder_widget = ProtocolBuilder(self.event_names,
+                                              self.targets,
+                                              self.triggers)
         self.layout().addWidget(self.builder_widget)
         # -----------
         # SAVE / LOAD
@@ -529,13 +544,10 @@ class TrialStructureWidget(ChangesProtocol, Stateful, QtWidgets.QGroupBox):
         Names of workers in Pydra network.
     """
 
-    protocol_changed = QtCore.pyqtSignal(list)  # top-level signal emitted whenever another widget changes the protocol
+    # protocol_changed = QtCore.pyqtSignal(list)  # top-level signal emitted whenever another widget changes the protocol
 
-    def __init__(self, triggers=(), event_names=(), targets=(), **kwargs):
+    def __init__(self):
         super().__init__("Trial structure")
-        self.triggers = triggers
-        self.event_names = event_names
-        self.targets = targets
         # Layout
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
@@ -552,6 +564,9 @@ class TrialStructureWidget(ChangesProtocol, Stateful, QtWidgets.QGroupBox):
         self.start_trigger_dropdown = QtWidgets.QComboBox()
         self.start_trigger_dropdown.addItems(self.triggers)
         self.start_trigger_dropdown.setEnabled(False)
+        self.start_trigger_check.stateChanged.connect(self.start_trigger_dropdown.setEnabled)
+        self.start_trigger_check.stateChanged.connect(self.triggers_changed)
+        self.start_trigger_dropdown.currentIndexChanged.connect(self.triggers_changed)
         # Add to layout
         self.layout().addWidget(self.start_label, 0, 0)
         self.layout().addWidget(self.start_trigger_check, 0, 1)
@@ -560,7 +575,7 @@ class TrialStructureWidget(ChangesProtocol, Stateful, QtWidgets.QGroupBox):
         # PROTOCOL
         # --------
         self.timed_widget = TimedTab()
-        self.protocol_widget = ProtocolTab(self.event_names, self.targets)
+        self.protocol_widget = ProtocolTab()
         self.tab_widget = QtWidgets.QTabWidget()
         self.tab_widget.addTab(self.timed_widget, "Timed")
         self.tab_widget.addTab(self.protocol_widget, "Protocol")
@@ -579,6 +594,9 @@ class TrialStructureWidget(ChangesProtocol, Stateful, QtWidgets.QGroupBox):
         self.stop_trigger_dropdown = QtWidgets.QComboBox()
         self.stop_trigger_dropdown.addItems(self.triggers)
         self.stop_trigger_dropdown.setEnabled(False)
+        self.stop_trigger_check.stateChanged.connect(self.stop_trigger_dropdown.setEnabled)
+        self.stop_trigger_check.stateChanged.connect(self.triggers_changed)
+        self.stop_trigger_dropdown.currentIndexChanged.connect(self.triggers_changed)
         # Add to layout
         self.layout().addWidget(self.stop_label, 2, 0)
         self.layout().addWidget(self.stop_trigger_check, 2, 1)
@@ -586,16 +604,34 @@ class TrialStructureWidget(ChangesProtocol, Stateful, QtWidgets.QGroupBox):
         # --------------------------
         # Catch all protocol changes
         # --------------------------
-        self.protocol_changed.connect(self.stateMachine.set_protocol)
         self._protocol_change_proxy.connect(self.update_protocol)
+        # Initialize state properties
+        self.triggers_changed()
+        self.update_protocol()
+
+    @property
+    def start_trigger(self):
+        if self.start_trigger_check.isChecked():
+            return self.start_trigger_dropdown.currentText()
+        return None
+
+    @property
+    def stop_trigger(self):
+        if self.stop_trigger_check.isChecked():
+            return self.stop_trigger_dropdown.currentText()
+        return None
 
     @property
     def protocol_list(self) -> list:
         return self.tab_widget.currentWidget().to_protocol()
 
     @QtCore.pyqtSlot()
+    def triggers_changed(self):
+        self.stateMachine.set_recording_triggers((self.start_trigger, self.stop_trigger))
+
+    @QtCore.pyqtSlot()
     def update_protocol(self):
-        self.protocol_changed.emit(self.protocol_list)
+        self.stateMachine.set_protocol(self.protocol_list)
 
     def enterIdle(self):
         self.setEnabled(True)

@@ -61,18 +61,11 @@ class TriggerInterface(Stateful, QtWidgets.QWidget):
         return "background-color:cyan"
 
 
-class TriggersWidget(QtWidgets.QGroupBox):
-    """Widget containing state of triggers in experiment.
+class TriggersWidget(Stateful, QtWidgets.QGroupBox):
+    """Widget containing state of triggers in experiment."""
 
-    Parameters
-    ----------
-    triggers : dict
-        Dictionary of trigger threads from pydra.
-    """
-
-    def __init__(self, triggers: dict, **kwargs):
+    def __init__(self):
         super().__init__("Triggers")
-        self.triggers = triggers
         self.setLayout(QtWidgets.QVBoxLayout())
         self._widgets = []
         for name, thread in self.triggers.items():

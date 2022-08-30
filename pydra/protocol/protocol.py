@@ -3,6 +3,7 @@ from ..utils.state import state_descriptor
 import warnings
 import threading
 import time
+import typing
 
 
 exit_code = state_descriptor.new_type("exit_code")
@@ -211,3 +212,8 @@ class Protocol:
             return self.thread.is_alive()
         except AttributeError:
             return False
+
+    @staticmethod
+    def build(*args):
+        """Implemented in package __init__."""
+        pass

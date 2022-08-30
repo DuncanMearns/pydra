@@ -29,21 +29,21 @@ class ExperimentWidget(QtWidgets.QWidget):
     """The widget that goes into the experiment control dock. Contains widgets/button/fields for starting and stopping
     an experiment, file naming, trial structure, defining protocols etc."""
 
-    def __init__(self, params: dict):
+    def __init__(self):
         super().__init__()
         self.setLayout(QtWidgets.QVBoxLayout())
         self.experiment_button = ExperimentButton()
         self.layout().addWidget(self.experiment_button)
         self.status_widget = StatusWidget()
         self.layout().addWidget(self.status_widget)
-        self.file_naming_widget = FileNamingWidget(**params)
+        self.file_naming_widget = FileNamingWidget()
         self.layout().addWidget(self.file_naming_widget)
-        self.trial_control_widget = TrialControlWidget(**params)
+        self.trial_control_widget = TrialControlWidget()
         self.layout().addWidget(self.trial_control_widget)
-        self.triggers_widget = TriggersWidget(**params)
-        self.layout().addWidget(self.triggers_widget)
-        self.protocol_widget = TrialStructureWidget(**params)
+        self.protocol_widget = TrialStructureWidget()
         self.layout().addWidget(self.protocol_widget)
+        self.triggers_widget = TriggersWidget()
+        self.layout().addWidget(self.triggers_widget)
 
 
 class ControlDock(QtWidgets.QDockWidget):
@@ -120,16 +120,16 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         self.setMenuBar(QtWidgets.QMenuBar())
         self.windowMenu = self.menuWidget().addMenu("Window")
         # ===============
-        # Get gui params from config
-        params = self.pydra.config["gui_params"]
-        # Add event names to params
-        params["event_names"] = self.event_names
-        params["targets"] = self.workers
-        # Add triggers to params
-        params["triggers"] = self.pydra.triggers.threads
+        # # Get gui params from config
+        # params = self.pydra.config["gui_params"]
+        # # Add event names to params
+        # params["event_names"] = self.event_names
+        # params["targets"] = self.workers
+        # # Add triggers to params
+        # params["triggers"] = self.pydra.triggers.threads
         # Experiment dock
         self.experiment_dock = QtWidgets.QDockWidget()
-        self.experiment_widget = ExperimentWidget(params)
+        self.experiment_widget = ExperimentWidget()
         self.experiment_dock.setWidget(self.experiment_widget)
         self.experiment_dock.setWindowTitle("Experiment control")
         self.experiment_dock.setFeatures(self.experiment_dock.DockWidgetMovable |
@@ -165,23 +165,6 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         # Start the state machine
         self.stateMachine.start()
         self.last_t = 0
-
-    @property
-    def workers(self) -> tuple:
-        """Property for accessing all workers in Pydra config."""
-        workers = []
-        for module in self.pydra.config["modules"]:
-            workers.append(module["worker"].name)
-        return tuple(workers)
-
-    @property
-    def event_names(self) -> tuple:
-        """Property for accessing all defined gui_events from Pydra workers."""
-        events = []
-        for module in self.pydra.config["modules"]:
-            gui_events = module["worker"].gui_events
-            events.extend(gui_events)
-        return tuple({event for event in events})
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.pydra.exit()

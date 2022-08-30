@@ -1,8 +1,10 @@
 from dataclasses import dataclass, field
 from typing import List
+import os
 from .utils.parameterized import Parameterized
 from .modules import PydraModule
 from .messaging import *
+from .gui.default_params import default_params
 
 
 class Port:
@@ -90,20 +92,7 @@ WorkerConfig = dataclass(type("WorkerConfig", (SubscriberConfig, PublisherConfig
 SaverConfig = dataclass(type("SaverConfig", (SubscriberConfig, SenderConfig), {}))
 
 
-def gui_defaults():
-    return {
-        "directory": "",
-        "filename": "",
-        "n_trial_digits": 3,
-        "n_trials": 1,
-        "inter_trial_time": 1,
-        "inter_trial_unit": "s",
-        "event_names": (),  # for completeness, parameter updated automatically
-        "targets": ()  # for completeness, parameter updated automatically
-    }
-
-
-class Configuration(Parameterized, connections={}, modules=[], savers=[], triggers={}, gui_params=gui_defaults()):
+class Configuration(Parameterized, connections={}, modules=[], savers=[], triggers={}, gui_params=default_params):
 
     def __init__(self, *,
                  modules=None,

@@ -33,7 +33,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
     filename_changed = QtCore.pyqtSignal(str)
     trial_number_changed = QtCore.pyqtSignal(int)
 
-    def __init__(self, directory, filename, n_trial_digits=3, **kwargs):
+    def __init__(self):
         super().__init__("File naming")
         # Layout
         self.setLayout(QtWidgets.QGridLayout())
@@ -44,7 +44,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         # Label
         self.directory_label = QtWidgets.QLabel("Working directory")
         # Editor
-        self.directory_editor = QtWidgets.QLineEdit(directory)
+        self.directory_editor = QtWidgets.QLineEdit(self.directory)
         self.directory_editor.setReadOnly(True)
         self.directory_editor.setMinimumSize(self.minWidth, LINEEDIT_HEIGHT)
         self.directory_editor.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
@@ -65,7 +65,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         self.filename_label = QtWidgets.QLabel("File basename")
         # Editor
         self.filename_editor = QtWidgets.QLineEdit()
-        self.filename_editor.setText(filename)
+        self.filename_editor.setText(self.filename)
         self.filename_editor.setPlaceholderText('Enter file name')
         self.filename_editor.setMinimumSize(self.minWidth, LINEEDIT_HEIGHT)
         self.filename_editor.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
@@ -73,7 +73,7 @@ class FileNamingWidget(Stateful, QtWidgets.QGroupBox):
         self.filename_editor.editingFinished.connect(self.change_filename)
         self.filename_changed.connect(self.stateMachine.set_filename)  # set the filename in the shared state
         # Trial number
-        self.trial_number_editor = SpinBoxLeadingZeros(n_trial_digits)
+        self.trial_number_editor = SpinBoxLeadingZeros(self.n_trial_digits)
         self.trial_number_editor.setMinimum(1)
         self.trial_number_editor.valueChanged.connect(self.change_trial_number)
         self.trial_number_widget = QtWidgets.QWidget()
