@@ -1,7 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
-import os
-from .utils.parameterized import Parameterized
+import typing
 from .modules import PydraModule
 from .messaging import *
 from .gui.default_params import default_params
@@ -72,7 +70,7 @@ class PublisherConfig(ZMQConfig):
 
 @dataclass
 class ReceiverConfig(ZMQConfig):
-    receivers: List = field(default_factory=lambda: [])
+    receivers: typing.List = field(default_factory=lambda: [])
 
     def add_receiver(self, sender: SenderConfig):
         self.receivers.append((sender.name, sender.recv))
@@ -80,7 +78,7 @@ class ReceiverConfig(ZMQConfig):
 
 @dataclass
 class SubscriberConfig:
-    subscriptions: List = field(default_factory=lambda: [])
+    subscriptions: typing.List = field(default_factory=lambda: [])
 
     def add_subscription(self, publisher: PublisherConfig, messages: tuple):
         self.subscriptions.append((publisher.name, publisher.sub, messages))
@@ -92,36 +90,79 @@ WorkerConfig = dataclass(type("WorkerConfig", (SubscriberConfig, PublisherConfig
 SaverConfig = dataclass(type("SaverConfig", (SubscriberConfig, SenderConfig), {}))
 
 
-class Configuration(Parameterized, connections={}, modules=[], savers=[], triggers={}, gui_params=default_params):
+class Configuration:
 
     def __init__(self, *,
                  modules=None,
-                 savers=None,
                  triggers=None,
                  gui_params=None,
                  _connections=None,
                  _public_ports=ports,
                  _private_ports=_ports):
-        super().__init__()
-        if modules:
-            modules_ = []
-            for module in modules:
-                if isinstance(module, dict):
-                    modules_.append(PydraModule(**module))
-                    continue
-                modules_.append(module)
-            self.modules = modules_
-        if savers:
-            self.savers = list(savers)
-        if triggers:
-            self.triggers = dict(triggers)
-        if gui_params:
-            self.gui_params.update(gui_params)
+        self.modules = modules
+        self.triggers = triggers
+        self.gui_params = gui_params
         if _connections:
             self.connections = _connections
         else:
             # AUTOMATIC CONFIGURATION
             self.add_connections(_public_ports, _private_ports)
+
+    def __getitem__(self, item):
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError(f"Configuration has no {item} key.")
+
+    @property
+    def modules(self) -> list:
+        return list(self._modules)
+
+    @modules.setter
+    def modules(self, module_list: typing.Iterable):
+        self._modules = []
+        if module_list:
+            for module in module_list:
+                if isinstance(module, dict):
+                    module = PydraModule(**module)
+                self._modules.append(module)
+        self._modules = tuple(self._modules)
+        self._savers = tuple(set(module.saver for module in self._modules))
+
+    @property
+    def savers(self) -> list:
+        """Read-only property."""
+        return list(self._savers)
+
+    @property
+    def triggers(self) -> dict:
+        return self._triggers
+
+    @triggers.setter
+    def triggers(self, trigger_dict: typing.Mapping):
+        self._triggers = {}
+        if trigger_dict:
+            self._triggers.update(trigger_dict)
+
+    @property
+    def gui_params(self) -> dict:
+        return self._gui_params
+
+    @gui_params.setter
+    def gui_params(self, params: typing.Mapping):
+        self._gui_params = default_params
+        if params:
+            self._gui_params.update(params)
+
+    @property
+    def connections(self) -> dict:
+        return self._connections
+
+    @connections.setter
+    def connections(self, _connections: typing.Mapping):
+        self._connections = {}
+        if _connections:
+            self._connections.update(_connections)
 
     def add_connections(self, public: PortManager = None, private: PortManager = None):
         """Generates a configuration dictionary (stored in config class attribute).

@@ -3,7 +3,7 @@ from ..messaging import *
 import traceback
 
 
-__all__ = ("PydraType", "PydraObject", "PydraSender", "PydraReceiver", "PydraPublisher", "PydraSubscriber")
+__all__ = ("PydraObject", "PydraSender", "PydraReceiver", "PydraPublisher", "PydraSubscriber")
 
 
 class PydraType(type):

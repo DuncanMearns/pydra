@@ -1,31 +1,55 @@
-from .._base.pydra_object import PydraType
-from ..classes import Worker
-from ..gui.public import UserWidgetType
-from ..utils.parameterized import Parameterized
+from ..classes import Worker, Saver
+from ..gui.public import *
+import typing
 
 
-class PydraModule(Parameterized, worker=Worker, params={}, threaded=False):
+class PydraModule:
 
     def __init__(self,
-                 worker: PydraType,
-                 params: dict = None,
-                 saver: PydraType = None,
-                 widget: UserWidgetType = None,
-                 plotter: UserWidgetType = None,
+                 worker: typing.Type[Worker],
+                 params: typing.Mapping = None,
+                 saver: typing.Type[Saver] = None,
+                 widget: typing.Type[ControlWidget] = None,
+                 plotter: typing.Type[Plotter] = None,
+                 threaded: bool = False,
                  **kwargs):
-        super().__init__()
-        # Set mandatory attributes
         self.worker = worker
-        if params:
-            self.params = params
-        # Set optional attributes
+        self.params = params
         self.saver = saver
-        if self.saver:
-            self.saver.add_worker(self.name)
         self.widget = widget
         self.plotter = plotter
+        self.threaded = threaded
         for k, val in kwargs.keys():
             setattr(self, k, val)
+
+    def __getitem__(self, item):
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError(f"PydraModule has no {item} key.")
+
+    @property
+    def params(self) -> dict:
+        return self._params
+
+    @params.setter
+    def params(self, _params: typing.Mapping):
+        self._params = {}
+        if _params:
+            self._params.update(_params)
+
+    @property
+    def saver(self) -> typing.Union[typing.Type[Saver], None]:
+        try:
+            return self._saver
+        except AttributeError:
+            return None
+
+    @saver.setter
+    def saver(self, _saver):
+        if _saver:
+            self._saver = _saver
+            self._saver.add_worker(self.worker)
 
     @property
     def name(self):

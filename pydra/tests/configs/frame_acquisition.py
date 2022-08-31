@@ -72,8 +72,8 @@ class AcquisitionWidget(ControlWidget):
 ACQUISITION = PydraModule(AcquisitionWorker, saver=VideoSaver, widget=AcquisitionWidget, plotter=FramePlotter)
 
 
-config = Configuration(modules=[ACQUISITION], savers=[VideoSaver], gui_params={"directory": r"D:\pydra_tests",
-                                                                               "filename": r"acquisition_test"})
+config = Configuration(modules=[ACQUISITION], gui_params={"directory": r"D:\pydra_tests",
+                                                          "filename": r"acquisition_test"})
 
 
 if __name__ == "__main__":

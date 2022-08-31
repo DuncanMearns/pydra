@@ -8,15 +8,11 @@ import numpy as np
 pg.setConfigOption("imageAxisOrder", "row-major")
 
 
-__all__ = ("ControlWidget", "Plotter", "UserWidgetType")
+__all__ = ("ControlWidget", "Plotter")
 
 
-class UserWidgetType(type(QtWidgets.QWidget)):
-    """Dummy metaclass for type checking."""
-    pass
 
-
-class ControlWidget(DynamicUpdate, Stateful, QtWidgets.QWidget, metaclass=UserWidgetType):
+class ControlWidget(DynamicUpdate, Stateful, QtWidgets.QWidget):
     """Base class for user-defined control widgets for interfacing with Pydra workers. Has access to experiment state
     and associated attributes, and may be dynamically updated with data from the Pydra network via the dynamicUpdate
     method.
@@ -51,7 +47,7 @@ class ControlWidget(DynamicUpdate, Stateful, QtWidgets.QWidget, metaclass=UserWi
         self.widgetEvent.emit(self.name, event_name, kwargs)
 
 
-class Plotter(DynamicUpdate, Stateful, pg.GraphicsLayoutWidget, metaclass=UserWidgetType):
+class Plotter(DynamicUpdate, Stateful, pg.GraphicsLayoutWidget):
     """Base class for user-defined plotter widgets that show incoming data from Pydra. Has access to experiment state
     and associated attributes, and may be dynamically updated with data from the Pydra network via the dynamicUpdate
     method.

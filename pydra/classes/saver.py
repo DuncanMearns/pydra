@@ -1,3 +1,5 @@
+import typing
+
 from .._base import *
 from ..messaging import *
 from ..utils.cache import DataCache, TempCache
@@ -88,12 +90,12 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
         return SaverConstructor(cls, cls.workers, cls.args, cls.kwargs, cls._connections)
 
     @classmethod
-    def add_worker(cls, worker):
-        if isinstance(worker, type(cls)):  # check if worker is a PydraType
+    def add_worker(cls, worker: typing.Union[type(PydraObject), str]):
+        if issubclass(worker, PydraObject):
             worker = worker.name
         workers = list(cls.workers)
         workers.append(worker)
-        cls.workers = tuple(workers)
+        cls.workers = tuple(set(workers))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
