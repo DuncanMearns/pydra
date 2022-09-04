@@ -93,3 +93,21 @@ class Parallelized:
     def exit(self, *args, **kwargs):
         """Sets the exit_flag when EXIT signal is received, causing process to terminate."""
         self.close()
+
+
+class WorkerFactory:
+
+    def __init__(self, name, cls, subscriptions):
+        self.name = name
+        self.cls = cls
+        self.subscriptions = subscriptions
+
+    def __call__(self, *args, **kwargs):
+        cls_type = type(self.name, (self.cls,), {"name": self.name, "subscriptions": self.subscriptions})
+        return cls_type(*args, **kwargs)
+
+    def start(self, *args, **kwargs):
+        """Launches the object in a separate process. Parameters are the same as the constructor."""
+        process = PydraProcess(self, args, kwargs, name=f"Process-{self.name}")
+        process.start()
+        return process

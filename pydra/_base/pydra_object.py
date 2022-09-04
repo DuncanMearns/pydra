@@ -3,16 +3,16 @@ from ..messaging import *
 import traceback
 
 
-__all__ = ("PydraObject", "PydraSender", "PydraReceiver", "PydraPublisher", "PydraSubscriber")
+__all__ = ("PydraType", "PydraObject", "PydraSender", "PydraReceiver", "PydraPublisher", "PydraSubscriber")
 
 
 class PydraType(type):
     """Metaclass for Pydra objects ensures they have a name attribute."""
 
-    def __new__(mcs, name, args, kw, **kwargs):
-        if "name" not in kw:
-            kw["name"] = name
-        return super().__new__(mcs, name, args, kw, **kwargs)
+    def __new__(mcs, name, bases, namespace, **kwargs):
+        if "name" not in namespace:
+            namespace["name"] = name
+        return super().__new__(mcs, name, bases, namespace, **kwargs)
 
 
 class PydraObject(metaclass=PydraType):

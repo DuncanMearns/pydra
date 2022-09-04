@@ -58,3 +58,7 @@ class PydraModule:
     @property
     def gui_events(self):
         return self.worker.gui_events
+
+    def __call__(self, *args, **kwargs):
+        """Call method can be overridden in subclasses to create new modules."""
+        return self

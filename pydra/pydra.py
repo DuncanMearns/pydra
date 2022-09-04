@@ -134,7 +134,7 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
             modules=(), savers=(), triggers=(), connections: dict = None, public=None, private=None):
         """Return an instantiated Pydra object with the current configuration."""
         if not config:
-            config = Configuration(modules=modules, savers=savers, triggers=triggers,
+            config = Configuration(modules=modules, triggers=triggers,
                                    _connections=connections, _public_ports=public, _private_ports=private)
         if not isinstance(config, Configuration):
             raise TypeError("config must be a valid Configuration")

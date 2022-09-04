@@ -127,7 +127,7 @@ class Configuration:
                     module = PydraModule(**module)
                 self._modules.append(module)
         self._modules = tuple(self._modules)
-        self._savers = tuple(set(module.saver for module in self._modules))
+        self._savers = tuple(set(saver for module in self._modules if (saver := module.saver)))
 
     @property
     def savers(self) -> list:
