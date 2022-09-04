@@ -1,4 +1,4 @@
-from pydra.classes._runner import WorkerFactory
+from pydra.classes import WorkerFactory
 from ..pydra_module import PydraModule
 from .camera import *
 from .video import *

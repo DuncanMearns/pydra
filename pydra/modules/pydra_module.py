@@ -7,14 +7,16 @@ class PydraModule:
 
     def __init__(self,
                  worker: typing.Type[Worker],
-                 params: typing.Mapping = None,
+                 worker_args: tuple = (),
+                 worker_kwargs: typing.Mapping = None,
                  saver: typing.Type[Saver] = None,
                  widget: typing.Type[ControlWidget] = None,
                  plotter: typing.Type[Plotter] = None,
                  threaded: bool = False,
                  **kwargs):
         self.worker = worker
-        self.params = params
+        self.worker_args = worker_args
+        self.worker_kwargs = worker_kwargs or {}
         self.saver = saver
         self.widget = widget
         self.plotter = plotter
@@ -29,14 +31,16 @@ class PydraModule:
             raise KeyError(f"PydraModule has no {item} key.")
 
     @property
-    def params(self) -> dict:
-        return self._params
+    def name(self) -> str:
+        return self.worker.name
 
-    @params.setter
-    def params(self, _params: typing.Mapping):
-        self._params = {}
-        if _params:
-            self._params.update(_params)
+    @property
+    def worker(self) -> typing.Type[Worker]:
+        return self._worker
+
+    @worker.setter
+    def worker(self, worker_cls: typing.Type[Worker]):
+        self._worker = worker_cls
 
     @property
     def saver(self) -> typing.Union[typing.Type[Saver], None]:
@@ -49,16 +53,8 @@ class PydraModule:
     def saver(self, _saver):
         if _saver:
             self._saver = _saver
-            self._saver.add_worker(self.worker)
-
-    @property
-    def name(self):
-        return self.worker.name
+            self._saver.new_subscription(self.worker)
 
     @property
     def gui_events(self):
         return self.worker.gui_events
-
-    def __call__(self, *args, **kwargs):
-        """Call method can be overridden in subclasses to create new modules."""
-        return self

@@ -1,141 +1,14 @@
-import typing
-
-from .._base import *
-from ..messaging import *
+from .worker import Saver
 from ..utils.cache import DataCache, TempCache
-from ..utils.state import state_descriptor
-from ._runner import Parallelized
 
 import numpy as np
-import os
 import cv2
 from collections import deque
 import h5py
 import pandas as pd
 
 
-__all__ = ("Saver", "CachedSaver", "CSVSaver", "HDF5Saver", "VideoSaver")
-
-
-recording_state = state_descriptor.new_type("recording_state")
-
-
-class SaverConstructor:
-    """Container class for type, args, kwargs, and connections for Saver classes. Allows dynamically modified Saver
-    types to be passed to new processes for instantiation.
-
-    Parameters
-    ----------
-    cls_type : PydraType
-        The class to be constructed. Should be a subclass of Saver.
-    workers : tuple
-        A copy of the workers class attribute
-    args : tuple
-        A copy of the args class attribute.
-    kwargs : dict
-        A copy of the kwargs class attribute.
-    connections : dict
-        A copy of the  _connections private class attribute. Should be properly initialized with connections to backend.
-    """
-
-    def __init__(self, cls_type, workers, args, kwargs, connections):
-        self.cls_type = cls_type
-        self.workers = workers
-        self.args = args
-        self.kwargs = kwargs
-        self.connections = connections
-
-    def __call__(self, *args, **kwargs):
-        """Returns a new Saver class that can be instantiated."""
-        return type(self.cls_type.name, (self.cls_type,), {"workers": self.workers,
-                                                           "args": self.args,
-                                                           "kwargs": self.kwargs,
-                                                           "_connections": self.connections})
-
-
-class Saver(Parallelized, PydraSender, PydraSubscriber):
-    """Base saver class.
-
-    Attributes
-    ----------
-    workers : tuple
-        Tuple of worker names (str) that saver listens to.
-    args : tuple
-        Passed to *args when saver instantiated.
-    kwargs : dict
-        Passed to **kwargs when saver instantiated.
-    _connections : dict
-        Private attribute containing zmq connections. Must be set before instantiation.
-    """
-
-    workers = ()
-    args = ()
-    kwargs = {}
-    _connections = {}
-
-    # States
-    idle = recording_state(0)
-    recording = recording_state(1)
-
-    @classmethod
-    def start(cls, *args, **kwargs):
-        """Overrides Parallelized start method. Spawns an instantiated Saver object in a new thread."""
-        kw = cls.kwargs.copy()
-        kw.update(cls._connections)
-        return super().start_thread(*cls.args, **kw)
-
-    @classmethod
-    def to_constructor(cls):
-        """Returns a constructor object for current saver class, preserving changes to class attributes."""
-        return SaverConstructor(cls, cls.workers, cls.args, cls.kwargs, cls._connections)
-
-    @classmethod
-    def add_worker(cls, worker: typing.Union[type(PydraObject), str]):
-        if issubclass(worker, PydraObject):
-            worker = worker.name
-        workers = list(cls.workers)
-        workers.append(worker)
-        cls.workers = tuple(set(workers))
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.idle()
-
-    def setup(self):
-        """Sends a connected signal."""
-        self.connected()
-
-    @BACKEND.CONNECTION
-    def connected(self):
-        return True,
-
-    @BACKEND.CONNECTION
-    def not_connected(self):
-        return False,
-
-    def _process(self):
-        self.poll()
-
-    @staticmethod
-    def new_file(directory, filename, ext=""):
-        if ext:
-            filename = ".".join((filename, ext))
-        f = os.path.join(directory, filename)
-        return f
-
-    def flush(self) -> dict:
-        return {}
-
-    @BACKEND.DATA
-    def reply_data(self):
-        flushed = self.flush()
-        return flushed,
-
-    def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
-        self.recording()
-
-    def stop_recording(self, **kwargs):
-        self.idle()
+__all__ = ("CachedSaver", "CSVSaver", "HDF5Saver", "VideoSaver")
 
 
 class CachedSaver(Saver):
@@ -146,8 +19,8 @@ class CachedSaver(Saver):
         super().__init__(*args, **kwargs)
         self.cachesize = cache
         self.arr_cachesize = arr_cache
-        self.caches = dict([(worker, DataCache()) for worker in self.workers])
-        self.temp = dict([(worker, TempCache(self.cachesize, self.arr_cachesize)) for worker in self.workers])
+        self.caches = dict([(worker, DataCache()) for worker in self.subscriptions])
+        self.temp = dict([(worker, TempCache(self.cachesize, self.arr_cachesize)) for worker in self.subscriptions])
 
     def recv_indexed(self, t, i, data, **kwargs):
         self.recv_data(t, i, data, **kwargs)
@@ -249,7 +122,7 @@ class HDF5Saver(CachedSaver):
         super().start_recording(directory=directory, filename=filename, idx=idx, **kwargs)
         path = self.new_file(directory, filename, "hdf5")
         self.h5_file = h5py.File(path, "w")
-        for worker in self.workers:
+        for worker in self.subscriptions:
             self.h5_file.create_group(worker)
 
     def stop_recording(self, **kwargs):

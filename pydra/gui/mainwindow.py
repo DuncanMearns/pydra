@@ -146,7 +146,7 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         self.plotters = {}
         for module in self.pydra.modules:
             name = module.name
-            params = module.params
+            params = module.worker_kwargs
             if module.widget:
                 # Create control widget
                 widget = module.widget(name=name, params=params)

@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 import typing
+from collections import namedtuple
 from .modules import PydraModule
+from .classes import Worker, Saver
 from .messaging import *
 from .gui.default_params import default_params
 
@@ -90,17 +92,22 @@ WorkerConfig = dataclass(type("WorkerConfig", (SubscriberConfig, PublisherConfig
 SaverConfig = dataclass(type("SaverConfig", (SubscriberConfig, SenderConfig), {}))
 
 
+worker_tuple = namedtuple("worker_tuple", ("name", "worker_cls", "args", "kwargs"))
+
+
 class Configuration:
 
     def __init__(self, *,
                  modules=None,
                  triggers=None,
+                 saver_params=None,
                  gui_params=None,
                  _connections=None,
                  _public_ports=ports,
                  _private_ports=_ports):
         self.modules = modules
         self.triggers = triggers
+        self.saver_params = saver_params or {}
         self.gui_params = gui_params
         if _connections:
             self.connections = _connections
@@ -119,7 +126,7 @@ class Configuration:
         return list(self._modules)
 
     @modules.setter
-    def modules(self, module_list: typing.Iterable):
+    def modules(self, module_list: typing.Iterable[typing.Union[PydraModule, dict]]):
         self._modules = []
         if module_list:
             for module in module_list:
@@ -127,12 +134,25 @@ class Configuration:
                     module = PydraModule(**module)
                 self._modules.append(module)
         self._modules = tuple(self._modules)
-        self._savers = tuple(set(saver for module in self._modules if (saver := module.saver)))
 
     @property
-    def savers(self) -> list:
+    def workers(self) -> typing.List[worker_tuple]:
         """Read-only property."""
-        return list(self._savers)
+        return [worker_tuple(module.name,
+                             module.worker,
+                             module.worker_args,
+                             module.worker_kwargs) for module in self.modules]
+
+    @property
+    def savers(self) -> typing.List[worker_tuple]:
+        """Read-only property."""
+        saver_set = set(saver for module in self._modules if (saver := module.saver))
+        saver_tuples = []
+        for saver in saver_set:
+            name = saver.name
+            params = self.saver_params.get(name, {})
+            saver_tuples.append(worker_tuple(name, saver, (), params))
+        return saver_tuples
 
     @property
     def triggers(self) -> dict:
@@ -169,10 +189,6 @@ class Configuration:
 
         Parameters
         ----------
-            modules : tuple
-                List of modules to include in configuration.
-            savers : tuple
-                List of savers to include in configuration.
             public : configuration.PortManager (optional)
                 Ports to use for frontend zmq connections.
             private : configuration.PortManager (optional)
@@ -184,49 +200,54 @@ class Configuration:
 
         # Get backend ports
         pub, sub = private.next()
-        send, recv = private.next()
-        bpub, bsub = private.next()
+        # send, recv = private.next()
+        # bpub, bsub = private.next()
 
         # Initialize backend configuration
         pydra_config = PydraConfig("pydra", pub, sub)
-        backend_config = BackendConfig("backend", send, recv, bpub, bsub)
-        backend_config.add_subscription(pydra_config, (EXIT, EVENT, REQUEST))
-        pydra_config.add_receiver(backend_config)
+        # backend_config = BackendConfig("backend", send, recv, bpub, bsub)
+        # backend_config.add_subscription(pydra_config, (EXIT, EVENT, REQUEST))
+        # pydra_config.add_receiver(backend_config)
 
         # Initialize worker configuration
         worker_configs = {}
-        for module in self.modules:
-            name = module["worker"].name
+        for worker in self.workers:
+            name = worker.name
             pub, sub = public.next()
             worker_config = WorkerConfig(name, pub, sub)
             # Add worker to configs
             worker_configs[name] = worker_config
 
         # Handle worker subscriptions
-        for module in self.modules:
-            name = module["worker"].name
+        for worker in self.workers:
+            name = worker.name
+            worker_cls = worker.worker_cls
             worker_config = worker_configs[name]
             # Add subscription to pydra
             worker_config.add_subscription(pydra_config, (EXIT, EVENT))
             # Add to pydra subscriptions
             pydra_config.add_subscription(worker_config, (CONNECTION, ERROR))
             # Add subscriptions to other workers
-            for other in module["worker"].subscriptions:
+            for other in worker_cls.subscriptions:
                 other_config = worker_configs[other.name]
                 worker_config.add_subscription(other_config, (EVENT, DATA, STRING, TRIGGER))
+            worker_cls.connections = worker_config.connections
 
         # Configure savers
         saver_configs = {}
         for saver in self.savers:
+            saver_cls = saver.worker_cls
             send, recv = private.next()
             saver_config = SaverConfig(saver.name, send, recv)
-            saver_config.add_subscription(backend_config, (EXIT, EVENT, REQUEST))
-            for worker_name in saver.workers:
+            saver_config.add_subscription(pydra_config, (EXIT, EVENT, REQUEST))
+            for worker_name in saver_cls.subscriptions:
                 saver_config.add_subscription(worker_configs[worker_name], (EVENT, DATA, STRING, TRIGGER))
-            backend_config.add_receiver(saver_config)
+            pydra_config.add_receiver(saver_config)
             saver_configs[saver.name] = saver_config
+            saver_cls.connections = saver_config.connections
 
-        all_configs = [pydra_config, backend_config]
+        # all_configs = [pydra_config, backend_config]
+        all_configs = [pydra_config]
         all_configs.extend(worker_configs.values())
         all_configs.extend(saver_configs.values())
         self.connections = dict([(cfg.name, cfg.connections) for cfg in all_configs])
@@ -266,9 +287,9 @@ class Configuration:
                     msg = msg + "\twidget: " + mod['widget'].__name__ + "\n"
                 if mod.plotter:
                     msg = msg + "\tplotter: " + mod['plotter'].__name__ + "\n"
-                if mod.params:
+                if mod.worker_kwargs:
                     msg = msg + "\tparams: {\n"
-                    for param, val in mod.params.items():
+                    for param, val in mod.worker_kwargs.items():
                         msg = msg + f"\t\t{param}: {val}"
                     msg = msg + "\t}\n"
                 if len(worker.gui_events):

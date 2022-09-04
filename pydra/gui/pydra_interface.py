@@ -58,14 +58,14 @@ class PydraInterface(Stateful, QtCore.QObject):
     @property
     def workers(self) -> list:
         """Property for accessing all workers in Pydra config."""
-        return [module.name for module in self.pydra.modules]
+        return [worker.name for worker in self.pydra.workers]
 
     @property
     def gui_events(self) -> list:
         """Property for accessing all defined gui_events from Pydra workers."""
         gui_events = []
-        for module in self.pydra.modules:
-            gui_events.extend(module.gui_events)
+        for worker in self.pydra.workers:
+            gui_events.extend(worker.worker_cls.gui_events)
         return gui_events
 
     @property
