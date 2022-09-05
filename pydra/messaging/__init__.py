@@ -1,7 +1,6 @@
 from .base import PydraMessage
-from .private import *
-from .public import *
+from .messages import *
 
-__all__ = ("PydraMessage",
-           "DATA", "TIMESTAMPED", "INDEXED", "FRAME", "ARRAY", "EVENT", "STRING", "TRIGGER",
-           "EXIT", "ERROR", "CONNECTION", "REQUEST", "BACKEND")
+
+__all__ = ("PydraMessage", "DATA", "TIMESTAMPED", "INDEXED", "FRAME", "ARRAY", "EVENT", "STRING", "TRIGGER", "EXIT",
+           "ERROR", "CONNECTION")

@@ -11,13 +11,6 @@ def PUB(obj) -> zmq.Socket:
         warnings.warn(f"Message failed to publish: Pydra object {obj} is not a publisher.")
 
 
-def PUSH(obj) -> zmq.Socket:
-    try:
-        return obj.zmq_sender.socket
-    except AttributeError:
-        warnings.warn(f"Message failed to send: Pydra object {obj} is not a sender.")
-
-
 class PydraMessage:
     """Base Message class for serializing and deserializing messages passed between pydra objects.
 
@@ -171,11 +164,3 @@ class PydraMessage:
                 socket.send_serialized((obj, method, result), self.serializer)
             return result
         return zmq_message
-
-
-class PushMessage(PydraMessage):
-
-    flag = b"reply"
-
-    def __init__(self, *dtypes):
-        super().__init__(*dtypes, socktype=PUSH)

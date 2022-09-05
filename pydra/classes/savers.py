@@ -1,5 +1,5 @@
 from .worker import Saver
-from ..utils.cache import DataCache, TempCache
+from ..utils.cache import DataCache
 
 import numpy as np
 import cv2
@@ -15,12 +15,9 @@ class CachedSaver(Saver):
 
     name = "cached_saver"
 
-    def __init__(self, cache=50000, arr_cache=500, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.cachesize = cache
-        self.arr_cachesize = arr_cache
         self.caches = dict([(worker, DataCache()) for worker in self.subscriptions])
-        self.temp = dict([(worker, TempCache(self.cachesize, self.arr_cachesize)) for worker in self.subscriptions])
 
     def recv_indexed(self, t, i, data, **kwargs):
         self.recv_data(t, i, data, **kwargs)
@@ -33,7 +30,7 @@ class CachedSaver(Saver):
 
     def recv_data(self, t, i=None, data=None, arr=None, **kwargs):
         worker = kwargs["source"]
-        self.temp[worker].append(t, i, data, arr)
+        # self.temp[worker].append(t, i, data, arr)
         if self.recording:
             self.save_data(worker, t, i, data, arr)
 
@@ -44,21 +41,6 @@ class CachedSaver(Saver):
         for cache in self.caches.values():
             cache.clear()
         super().stop_recording(**kwargs)
-
-    def flush(self) -> dict:
-        flushed = super().flush()
-        data = {}
-        for worker, cache in self.temp.items():
-            if worker in flushed.keys():
-                raise ValueError("Saver is overwriting data in cache when flushed.")
-            data[worker] = {
-                "data": cache.data,
-                "array": cache.arr,
-                "events": cache.events
-            }
-            cache.clear()
-        flushed.update(data)
-        return flushed
 
 
 class CSVSaver(CachedSaver):
@@ -140,7 +122,7 @@ class VideoSaver(HDF5Saver):
 
     name = "video_saver"
 
-    def __init__(self, frame_rate=100., fourcc="XVID", *args, **kwargs):
+    def __init__(self, frame_rate=100., fourcc="XVID", cachesize=500, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.source = self.name
         self.frame_rate = frame_rate
@@ -148,7 +130,7 @@ class VideoSaver(HDF5Saver):
         self.writer = None
         self.video_cache = np.empty(())
         self.t_cache = []
-        self.t_temp = deque(np.empty(self.arr_cachesize) * np.nan, self.arr_cachesize)
+        self.t_temp = deque(np.empty(cachesize) * np.nan, cachesize)
 
     @property
     def frame_size(self):
@@ -199,15 +181,3 @@ class VideoSaver(HDF5Saver):
         group.create_dataset(dset, data=np.array(self.t_cache))
         self.t_cache = []
         super().stop_recording(**kwargs)
-
-    def flush(self) -> dict:
-        flushed = super().flush()
-        data = {
-            "frame": self.video_cache,
-            "frame_rate": self.real_frame_rate
-        }
-        if self.source in flushed.keys():
-            flushed[self.source].update(data)
-        else:
-            flushed[self.source] = data
-        return flushed

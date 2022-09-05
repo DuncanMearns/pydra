@@ -1,16 +1,10 @@
 from PyQt5 import QtCore
 
 from .state_machine import Stateful
-from ..protocol import Protocol, events, build_protocol
-
-
-def connect_signal(method, signal):
-    """Decorator for Pydra methods that connects them to a Qt signal."""
-    def wrapper(*args, **kwargs):
-        result = method(*args, **kwargs)
-        signal.emit(*result)
-        return result
-    return wrapper
+from .backend import GUIBackend
+from ..protocol import Protocol, events
+from ..messaging import DATA
+from ..utils.config import ZMQConfig
 
 
 class PydraInterface(Stateful, QtCore.QObject):
@@ -24,7 +18,7 @@ class PydraInterface(Stateful, QtCore.QObject):
         The Pydra instance.
     """
 
-    _new_data = QtCore.pyqtSignal(dict, dict)
+    _new_data = QtCore.pyqtSignal()
     update_gui = QtCore.pyqtSignal(dict)
 
     def __init__(self, pydra):
@@ -35,10 +29,20 @@ class PydraInterface(Stateful, QtCore.QObject):
         self._initialize_state_attributes()
         # Protocol
         self.protocol_ = None
+        # Initialize backend for receiving data from workers
+        config = ZMQConfig("backend", "", "")
+        for worker in self.pydra.workers:
+            name = worker.name
+            worker_config = self.pydra.config.connection_manager.configs[name]
+            config.add_subscription(worker_config, (DATA,))
+        GUIBackend.subscriptions = (worker.name for worker in self.pydra.workers)
+        self.backend = GUIBackend(**config.connections)
         # Connect signals
-        self.pydra.receive_data = connect_signal(self.pydra.receive_data, self._new_data)
-        self._new_data.connect(self.data_from_backend)
-        self._received_from = []
+        self._new_data.connect(self.poll_data)
+        self.poll_timer = QtCore.QTimer()
+        self.poll_timer.setInterval(30)
+        self.poll_timer.setSingleShot(True)
+        self.poll_timer.timeout.connect(self.poll_data)
         # Fast gui update
         self.stateMachine.gui_update.connect(self.poll_messages)
         self.stateMachine.gui_update.connect(self.check_protocol_status)
@@ -46,7 +50,7 @@ class PydraInterface(Stateful, QtCore.QObject):
         self.stateMachine.ready_to_start.entered.connect(self.enterReady)
         self.stateMachine.interrupted.entered.connect(self.enterInterrupted)
         # Request data
-        self.request_data()
+        self.poll_data()
 
     def __getattr__(self, item):
         return getattr(self.pydra, item)
@@ -81,23 +85,17 @@ class PydraInterface(Stateful, QtCore.QObject):
         self.stateMachine.set_triggers(self.trigger_threads)
 
     @QtCore.pyqtSlot()
-    def request_data(self):
-        """Requests new data from pydra."""
-        self.pydra.send_request("data")
+    def poll_data(self):
+        self.backend.poll(1)
+        data = self.backend.flush()
+        if data:
+            self.update_gui.emit(data)
+        self.poll_timer.start()
 
     @QtCore.pyqtSlot()
     def poll_messages(self):
         """Polls pydra for new data."""
         self.pydra.poll()
-
-    @QtCore.pyqtSlot(dict, dict)
-    def data_from_backend(self, data, msg_tags):
-        source = msg_tags["source"]
-        self._received_from.append(source)
-        if all([saver in self._received_from for saver in self.savers]):  # all savers have updated
-            self._received_from = []
-            self.request_data()
-        self.update_gui.emit(data)
 
     @QtCore.pyqtSlot(str, str, dict)
     def send_event(self, target, event_name, event_kw):

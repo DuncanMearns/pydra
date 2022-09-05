@@ -12,15 +12,7 @@ from threading import Lock
 import typing
 
 
-def blocking(method):
-    def blocked(pydra_instance, *args, **kwargs):
-        with pydra_instance.zmq_lock:
-            ret = method(pydra_instance, *args, **kwargs)
-        return ret
-    return blocked
-
-
-class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
+class Pydra(PydraPublisher, PydraSubscriber):
     """The singleton main pydra class, implementing network initialization and front/backend connections.
 
     Parameters
@@ -48,12 +40,10 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
     config = Configuration()
 
     @staticmethod
-    def run(config: Configuration = None, *, modules=(), triggers=(),
-            connections: dict = None, public=None, private=None):
+    def run(config: Configuration = None, **kwargs):
         """Return an instantiated Pydra object with the current configuration."""
         if not config:
-            config = Configuration(modules=modules, triggers=triggers,
-                                   _connections=connections, _public_ports=public, _private_ports=private)
+            config = Configuration(**kwargs)
         if not isinstance(config, Configuration):
             raise TypeError("config must be a valid Configuration")
         Pydra.config = config
@@ -92,9 +82,13 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
         # Start triggers
         self.triggers.start()
         # Start savers
+        for saver in self.savers:
+            saver.worker_cls.connections = self.config.connections[saver.name]
         self._saver_processes = self.spawn_processes(*self.savers)
         self.wait_for_connections([saver.name for saver in self.savers])
         # Start workers
+        for worker in self.workers:
+            worker.worker_cls.connections = self.config.connections[worker.name]
         self._worker_processes = self.spawn_processes(*self.workers)
         self.wait_for_connections([worker.name for worker in self.workers])
 
@@ -131,22 +125,10 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
         error_info = f"{source} raised {repr(error)}: {datetime.fromtimestamp(t)}.\n"
         logging.error(error_info + message)
 
-    handle__error = handle_error
-
     @CONNECTION.callback
     def handle_connection(self, ret, **kwargs):
         t = kwargs["timestamp"]
         self._connection_times[kwargs["source"]] = ret, t
-
-    handle__connection = handle_connection
-
-    @BACKEND.DATA.callback
-    def handle__data(self, data, **kwargs):
-        """Receives requested data from savers."""
-        self.receive_data(data, **kwargs)
-
-    def receive_data(self, data, **kwargs):
-        return data, kwargs
 
     @EXIT
     def _exit(self):
@@ -171,10 +153,6 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
         """Destroys the ZeroMQ context."""
         zmq.Context.instance().destroy(200)
 
-    @blocking
     def send_event(self, event_name, **kwargs):
-        super().send_event(event_name, **kwargs)
-
-    @blocking
-    def send_request(self, what: str):
-        super().send_request(what)
+        with self.zmq_lock:
+            super().send_event(event_name, **kwargs)

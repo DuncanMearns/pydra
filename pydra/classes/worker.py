@@ -66,6 +66,15 @@ class Parallelized:
         """Sets the exit_flag when EXIT signal is received, causing process to terminate."""
         self.close()
 
+    def _test_connection(self, **kwargs):
+        """Called by the 'test_connection' event. Informs pydra that 0MQ connections have been established and worker is
+        receiving messages."""
+        self.connected()
+
+    @CONNECTION
+    def connected(self):
+        return True,
+
 
 class Worker(Parallelized, PydraPublisher, PydraSubscriber):
     """Base worker class.
@@ -106,7 +115,7 @@ class Acquisition(Worker):
 recording_state = state_descriptor.new_type("recording_state")
 
 
-class Saver(Parallelized, PydraSender, PydraSubscriber):
+class Saver(Parallelized, PydraPublisher, PydraSubscriber):
     """Base saver class.
 
     Attributes
@@ -133,14 +142,6 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
         """Sends a connected signal."""
         self.connected()
 
-    @BACKEND.CONNECTION
-    def connected(self):
-        return True,
-
-    @BACKEND.CONNECTION
-    def not_connected(self):
-        return False,
-
     def _process(self):
         self.poll()
 
@@ -150,14 +151,6 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
             filename = ".".join((filename, ext))
         f = os.path.join(directory, filename)
         return f
-
-    def flush(self) -> dict:
-        return {}
-
-    @BACKEND.DATA
-    def reply_data(self):
-        flushed = self.flush()
-        return flushed,
 
     def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
         self.recording()

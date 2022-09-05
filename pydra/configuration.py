@@ -1,95 +1,70 @@
-from dataclasses import dataclass, field
 import typing
 from collections import namedtuple
+
+from .utils.config import ZMQConfig, port_manager
 from .modules import PydraModule
-from .classes import Worker, Saver
 from .messaging import *
-from .gui.default_params import default_params
 
 
-class Port:
+class ConnectionManager:
 
-    def __init__(self, val):
-        self.__val = val
-
-    @property
-    def val(self):
-        return self.__val
-
-    @val.setter
-    def val(self, val):
-        raise ValueError("Cannot change the value of a port.")
+    def __init__(self, ports):
+        self.ports = ports
+        # Configs
+        self._master_config = None
+        self._worker_configs = {}
+        # Subscription queue (if trying to add a subscription before config has been initialized)
+        self._subscription_queue = []
 
     @property
-    def write(self):
-        return f"tcp://*:{self.val}"
-
-    @property
-    def read(self):
-        return f"tcp://localhost:{self.val}"
-
-    def __iter__(self):
-        return iter((self.write, self.read))
-
-
-class PortManager:
-
-    def __init__(self, start):
-        self.current = start
-
-    def next(self):
-        port = Port(self.current)
-        self.current += 1
-        return port
-
-
-ports = PortManager(5555)
-_ports = PortManager(6000)
-
-
-@dataclass
-class ZMQConfig:
-    name: str
+    def configs(self):
+        all_configs = {"pydra": self._master_config}
+        all_configs.update(self._worker_configs)
+        return all_configs
 
     @property
     def connections(self):
-        connection_dict = self.__dict__.copy()
-        connection_dict.pop("name")
-        return connection_dict
+        return dict([(name, config.connections) for (name, config) in self.configs.items()])
 
+    @property
+    def master_config(self):
+        if self._master_config:
+            return self._master_config
+        raise AttributeError("Must add pydra master config.")
 
-@dataclass
-class SenderConfig(ZMQConfig):
-    sender: str
-    recv: str
+    def add_master(self, pub_sub: tuple = None):
+        pub, sub = pub_sub or self.ports.next()
+        self._master_config = ZMQConfig("pydra", pub, sub)
 
+    def add_worker(self, name: str, subscriptions: typing.Iterable[str] = (), pub_sub: tuple = None):
+        """Add worker to configs."""
+        # Get pub-sub ports
+        pub, sub = pub_sub or self.ports.next()
+        # Initialize config
+        config = ZMQConfig(name, pub, sub)
+        # Add subscription to pydra
+        config.add_subscription(self.master_config, (EXIT, EVENT))
+        # Subscribe pydra to worker
+        self.master_config.add_subscription(config, (CONNECTION, ERROR))
+        # Add subscriptions to other workers
+        for subscription in subscriptions:
+            try:
+                other_config = self.configs[subscription]
+                config.add_subscription(other_config, (EVENT, DATA, STRING, TRIGGER))
+            except KeyError:
+                # Add to queue
+                self._subscription_queue.append((name, subscription))
+        # Add to worker configs
+        self._worker_configs[name] = config
 
-@dataclass
-class PublisherConfig(ZMQConfig):
-    publisher: str
-    sub: str
-
-
-@dataclass
-class ReceiverConfig(ZMQConfig):
-    receivers: typing.List = field(default_factory=lambda: [])
-
-    def add_receiver(self, sender: SenderConfig):
-        self.receivers.append((sender.name, sender.recv))
-
-
-@dataclass
-class SubscriberConfig:
-    subscriptions: typing.List = field(default_factory=lambda: [])
-
-    def add_subscription(self, publisher: PublisherConfig, messages: tuple):
-        self.subscriptions.append((publisher.name, publisher.sub, messages))
-
-
-PydraConfig = dataclass(type("PydraConfig", (SubscriberConfig, ReceiverConfig, PublisherConfig), {}))
-BackendConfig = dataclass(type("BackendConfig", (SubscriberConfig, ReceiverConfig, PublisherConfig, SenderConfig), {}))
-WorkerConfig = dataclass(type("WorkerConfig", (SubscriberConfig, PublisherConfig), {}))
-SaverConfig = dataclass(type("SaverConfig", (SubscriberConfig, SenderConfig), {}))
+    def verify_connections(self):
+        """Ensures all queued connections are added to configs."""
+        while True:
+            try:
+                subscriber, subscription = self._subscription_queue.pop()
+                self.configs[subscriber].add_subscription(self.configs[subscription], (EVENT, DATA, STRING, TRIGGER))
+            except IndexError:
+                break
 
 
 worker_tuple = namedtuple("worker_tuple", ("name", "worker_cls", "args", "kwargs"))
@@ -102,18 +77,16 @@ class Configuration:
                  triggers=None,
                  saver_params=None,
                  gui_params=None,
-                 _connections=None,
-                 _public_ports=ports,
-                 _private_ports=_ports):
+                 auto_config=True,
+                 ports=port_manager):
         self.modules = modules
         self.triggers = triggers
         self.saver_params = saver_params or {}
         self.gui_params = gui_params
-        if _connections:
-            self.connections = _connections
-        else:
-            # AUTOMATIC CONFIGURATION
-            self.add_connections(_public_ports, _private_ports)
+        # Connection manager
+        self.connection_manager = ConnectionManager(ports)
+        if auto_config:
+            self.auto_configure()
 
     def __getitem__(self, item):
         try:
@@ -170,87 +143,27 @@ class Configuration:
 
     @gui_params.setter
     def gui_params(self, params: typing.Mapping):
+        from pydra.gui.default_params import default_params
         self._gui_params = default_params
         if params:
             self._gui_params.update(params)
 
     @property
     def connections(self) -> dict:
-        return self._connections
+        return self.connection_manager.connections
 
-    @connections.setter
-    def connections(self, _connections: typing.Mapping):
-        self._connections = {}
-        if _connections:
-            self._connections.update(_connections)
-
-    def add_connections(self, public: PortManager = None, private: PortManager = None):
-        """Generates a configuration dictionary (stored in config class attribute).
-
-        Parameters
-        ----------
-            public : configuration.PortManager (optional)
-                Ports to use for frontend zmq connections.
-            private : configuration.PortManager (optional)
-                Ports to use for backend zmq connections.
-        """
-
-        public = public or ports
-        private = private or _ports
-
-        # Get backend ports
-        pub, sub = private.next()
-        # send, recv = private.next()
-        # bpub, bsub = private.next()
-
-        # Initialize backend configuration
-        pydra_config = PydraConfig("pydra", pub, sub)
-        # backend_config = BackendConfig("backend", send, recv, bpub, bsub)
-        # backend_config.add_subscription(pydra_config, (EXIT, EVENT, REQUEST))
-        # pydra_config.add_receiver(backend_config)
-
-        # Initialize worker configuration
-        worker_configs = {}
-        for worker in self.workers:
-            name = worker.name
-            pub, sub = public.next()
-            worker_config = WorkerConfig(name, pub, sub)
-            # Add worker to configs
-            worker_configs[name] = worker_config
-
-        # Handle worker subscriptions
+    def auto_configure(self):
+        """Auto configure connections."""
+        self.connection_manager.add_master()
         for worker in self.workers:
             name = worker.name
             worker_cls = worker.worker_cls
-            worker_config = worker_configs[name]
-            # Add subscription to pydra
-            worker_config.add_subscription(pydra_config, (EXIT, EVENT))
-            # Add to pydra subscriptions
-            pydra_config.add_subscription(worker_config, (CONNECTION, ERROR))
-            # Add subscriptions to other workers
-            for other in worker_cls.subscriptions:
-                other_config = worker_configs[other.name]
-                worker_config.add_subscription(other_config, (EVENT, DATA, STRING, TRIGGER))
-            worker_cls.connections = worker_config.connections
-
-        # Configure savers
-        saver_configs = {}
+            self.connection_manager.add_worker(name, worker_cls.subscriptions)
         for saver in self.savers:
+            name = saver.name
             saver_cls = saver.worker_cls
-            send, recv = private.next()
-            saver_config = SaverConfig(saver.name, send, recv)
-            saver_config.add_subscription(pydra_config, (EXIT, EVENT, REQUEST))
-            for worker_name in saver_cls.subscriptions:
-                saver_config.add_subscription(worker_configs[worker_name], (EVENT, DATA, STRING, TRIGGER))
-            pydra_config.add_receiver(saver_config)
-            saver_configs[saver.name] = saver_config
-            saver_cls.connections = saver_config.connections
-
-        # all_configs = [pydra_config, backend_config]
-        all_configs = [pydra_config]
-        all_configs.extend(worker_configs.values())
-        all_configs.extend(saver_configs.values())
-        self.connections = dict([(cfg.name, cfg.connections) for cfg in all_configs])
+            self.connection_manager.add_worker(name, saver_cls.subscriptions)
+        self.connection_manager.verify_connections()
 
     def __str__(self):
         out = "\n" \
@@ -301,6 +214,6 @@ class Configuration:
                         "======\n\n"
             for saver in self.savers:
                 msg = f"*{saver.name}*\n"
-                msg = msg + f"\tsaves: " + ", ".join([worker for worker in saver.workers])
+                msg = msg + f"\tsaves: " + ", ".join([worker for worker in saver.worker_cls.subscriptions])
                 out = out + msg + "\n"
         return out

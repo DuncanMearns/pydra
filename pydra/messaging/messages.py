@@ -4,6 +4,7 @@ from .serializers import serialize_string, serialize_float
 import numpy as np
 import time
 
+
 StringMessage = type("StringMessage", (PydraMessage,), {"flag": b"string"})
 STRING = StringMessage(str)
 
@@ -43,3 +44,13 @@ TIMESTAMPED = DataMessage(b"t")
 INDEXED = DataMessage(b"i")
 ARRAY = DataMessage(b"a")
 FRAME = DataMessage(b"f")
+
+
+ExitMessage = type("ExitMessage", (PydraMessage,), {"flag": b"exit"})
+EXIT = ExitMessage()
+
+LogErrorMessage = type("LogErrorMessage", (PydraMessage,), {"flag": b"error"})
+ERROR = LogErrorMessage(object, str)
+
+ConnectionMessage = type("ConnectionMessage", (PydraMessage,), {"flag": b"connection"})
+CONNECTION = ConnectionMessage(bool)

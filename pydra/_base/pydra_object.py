@@ -3,7 +3,7 @@ from ..messaging import *
 import traceback
 
 
-__all__ = ("PydraType", "PydraObject", "PydraSender", "PydraReceiver", "PydraPublisher", "PydraSubscriber")
+__all__ = ("PydraType", "PydraObject", "PydraPublisher", "PydraSubscriber")
 
 
 class PydraType(type):
@@ -23,90 +23,11 @@ class PydraObject(metaclass=PydraType):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-    def exit(self, *args, **kwargs):
-        """Called when the EXIT message type is received. May be re-implemented in subclasses."""
-        return
-
-    @ERROR
     def raise_error(self, error: Exception, message: str):
-        return error, message
+        raise error
 
 
-class PydraMessenger(PydraObject):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-
-class PydraListener(PydraObject):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.zmq_poller = ZMQPoller()
-        # Set message handlers
-        self.msg_callbacks = {
-            "exit": self.exit
-        }
-
-    def poll(self, timeout=0):
-        """Checks for poller for new messages from all subscriptions and passes them to appropriate handlers."""
-        for msg, source, timestamp, flags, args in self.zmq_poller.poll(timeout):
-            if msg in self.msg_callbacks:
-                self.msg_callbacks[msg](*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
-                continue
-            try:
-                callback = "_".join(["handle", msg])
-                self.__getattribute__(callback)(*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
-            except AttributeError:
-                raise NotImplementedError(f"{self.name} has no method to handle '{msg}' messages.")
-            except Exception as err:
-                message = traceback.format_exc()
-                self.raise_error(err, message)
-
-
-class PydraSender(PydraMessenger):
-
-    def __init__(self, sender=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if sender:
-            self.zmq_sender = ZMQSender(sender)
-        else:
-            raise ValueError("sender not specified")
-
-    @REQUEST.callback
-    def handle_request(self, qtype, **kwargs):
-        try:
-            callback = "_".join(["reply", qtype])
-            self.__getattribute__(callback)()
-        except AttributeError:
-            self.raise_error(ValueError(), f"Saver -{self.name}- cannot respond to {qtype} queries from Pydra.")
-        finally:
-            return
-
-    @BACKEND.CONNECTION
-    def reply_connection(self):
-        raise NotImplementedError
-
-    def reply_data(self):
-        raise NotImplementedError
-
-    @BACKEND.ERROR
-    def raise_error(self, error: Exception, message: str):
-        return error, message
-
-
-class PydraReceiver(PydraListener):
-
-    def __init__(self, receivers=(), *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for name, port in receivers:
-            self.add_receiver(name, port)
-
-    def add_receiver(self, name, port):
-        self.zmq_poller.add_receiver(name, port)
-
-
-class PydraPublisher(PydraMessenger):
+class PydraPublisher(PydraObject):
 
     def __init__(self, publisher=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -114,6 +35,10 @@ class PydraPublisher(PydraMessenger):
             self.zmq_publisher = ZMQPublisher(publisher)
         else:
             raise ValueError("publisher or port not specified")
+
+    @ERROR
+    def raise_error(self, error: Exception, message: str):
+        return error, message
 
     @STRING
     def send_string(self, s):
@@ -198,35 +123,35 @@ class PydraPublisher(PydraMessenger):
         """
         return t, i, frame
 
-    @REQUEST
-    def send_request(self, what: str):
-        return what,
 
-
-class PydraSubscriber(PydraListener):
+class PydraSubscriber(PydraObject):
 
     def __init__(self, subscriptions=(), *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for (name, port, messages) in subscriptions:
-            self.add_subscription(name, port, messages)
-        # Create dictionary for overwriting event callbacks
+        self.zmq_poller = ZMQPoller()
+        # Set dictionaries for overwriting message and event handlers
+        self.msg_callbacks = {"exit": self.exit}
         self.event_callbacks = {}
+        for (name, port, messages) in subscriptions:
+            self.zmq_poller.add_subscription(name, port, messages)
 
-    def add_subscription(self, name, port, messages):
-        self.zmq_poller.add_subscription(name, port, messages)
+    def poll(self, timeout=0):
+        """Checks for poller for new messages from all subscriptions and passes them to appropriate handlers."""
+        for msg, source, timestamp, flags, args in self.zmq_poller.poll(timeout):
+            if msg in self.msg_callbacks:
+                self.msg_callbacks[msg](*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
+                continue
+            try:
+                callback = "_".join(["handle", msg])
+                self.__getattribute__(callback)(*args, msg=msg, source=source, timestamp=timestamp, flags=flags)
+            except AttributeError:
+                raise NotImplementedError(f"{self.name} has no method to handle '{msg}' messages.")
+            except Exception as err:
+                message = traceback.format_exc()
+                self.raise_error(err, message)
 
-    def _test_connection(self, **kwargs):
-        """Called by the 'test_connection' event. Informs pydra that 0MQ connections have been established and worker is
-        receiving messages."""
-        self.connected()
-
-    @CONNECTION
-    def connected(self):
-        return True,
-
-    @CONNECTION
-    def not_connected(self):
-        return False,
+    def exit(self):
+        return
 
     @STRING.callback
     def handle_string(self, s, **kwargs):

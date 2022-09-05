@@ -34,7 +34,7 @@ class DataCache:
             # Append data
             if data:
                 self.append_data(t, i, data)
-            if arr:
+            if arr is not None:
                 self.append_array(t, i, arr)
             return
         # Append event
