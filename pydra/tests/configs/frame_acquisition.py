@@ -1,15 +1,15 @@
 from pydra import Acquisition, VideoSaver, Configuration, PydraModule
 from pydra.gui import ControlWidget
-from pydra.modules.acquisition import FramePlotter
+from pydra.modules.camera import FramePlotter
 from PyQt5 import QtWidgets
 import numpy as np
 import time
 
 
 class AcquisitionWorker(Acquisition):
-    """This is an acquisition worker. It will simulate a camera."""
+    """This is an camera worker. It will simulate a camera."""
 
-    name = "acquisition"  # remember, every worker must have a unique name
+    name = "camera"  # remember, every worker must have a unique name
     gui_events = ("set_value",)
 
     def __init__(self, value=0, *args, **kwargs):
@@ -44,7 +44,7 @@ class AcquisitionWorker(Acquisition):
 
 
 class AcquisitionWidget(ControlWidget):
-    """This widget will be used to control our acquisition worker."""
+    """This widget will be used to control our camera worker."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)  # call to super()
@@ -69,7 +69,7 @@ class AcquisitionWidget(ControlWidget):
         self.setEnabled(True)  # enable the widget again once recording finishes
 
 
-# Create the acquisition module
+# Create the camera module
 ACQUISITION = PydraModule(AcquisitionWorker, saver=VideoSaver, widget=AcquisitionWidget, plotter=FramePlotter)
 
 

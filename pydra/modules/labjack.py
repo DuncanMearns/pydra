@@ -1,4 +1,9 @@
-import u3
+import warnings
+
+try:
+    import u3
+except NameError:
+    warnings.warn("Cannot connect to Labjack. U3 not installed.")
 
 
 class LabJack:

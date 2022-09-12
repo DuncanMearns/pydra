@@ -84,8 +84,7 @@ class Pydra(PydraReceiver, PydraSender):
         """Spawn process containing other pydra objects."""
         process_dict = {}
         for (name, pydra_cls, args, kwargs) in pydra_tuples:
-            factory = PydraFactory.from_class(pydra_cls)
-            process = spawn_new(factory, args, kwargs)
+            process = spawn_new(pydra_cls, args, kwargs)
             process_dict[name] = process
         return process_dict
 
@@ -93,7 +92,7 @@ class Pydra(PydraReceiver, PydraSender):
         """Wait until connected signals have been received from named pydra objects."""
         t0 = time.time()
         for name in names:
-            print(f"connecting to {name}")
+            print(f"connecting to {name}\n")
         while True:
             connected = [self.check_connected(name) for name in names]
             if all(connected):

@@ -4,7 +4,7 @@ except NameError:
     raise Exception(
         "The xiapi package must be installed to use a Ximea camera!"
     )
-from pydra.modules.acquisition.camera import Camera, setter, CAMERA
+from pydra.modules.camera import CameraModule, Camera, setter
 
 
 class XimeaCamera(Camera):
@@ -99,16 +99,14 @@ class XimeaCamera(Camera):
         return self.camera.get_gain()
 
 
-XIMEA = dict(CAMERA)
-XIMEA["worker"].name = "ximea"
-XIMEA["params"]["camera_type"] = XimeaCamera
+class XimeaModule(CameraModule):
+    camera = XimeaCamera
 
 
 def test_ximea():
-    from pydra import PydraApp, config, VideoSaver
-    VideoSaver.workers = ("ximea",)
-    config["modules"] = [XIMEA]
-    config["savers"] = [VideoSaver]
+    from pydra import PydraApp, Configuration
+    XIMEA = XimeaModule.new("ximea")
+    config = Configuration(modules=[XIMEA])
     PydraApp.run(config)
 
 

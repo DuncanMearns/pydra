@@ -6,13 +6,15 @@ functions and a factory class for spawning and running new processes.
 """
 from __future__ import annotations
 
-from ..base import *
+from .pydra_object import *
+from .messaging import *
 from multiprocessing import Process
 from threading import Thread
-import typing
+import pickle
+from typing import Tuple, Type, Union
 
 
-__all__ = ("PydraFactory", "spawn_new", "Parallelized")
+__all__ = ("spawn_new", "Parallelized")
 
 
 class Parallelized:
@@ -27,7 +29,7 @@ class Parallelized:
     subscriptions = ()
 
     @classmethod
-    def new_subscription(cls, worker: typing.Union[typing.Type[PydraObject], str]):
+    def new_subscription(cls, worker: Union[Type[PydraObject], str]):
         if issubclass(worker, PydraObject):
             worker = worker.name
         subscriptions = list(cls.subscriptions)
@@ -87,25 +89,29 @@ class PydraFactory:
     ----------
     name : str
         Name of the pydra object.
-    worker_class : type[Parallelized]
+    bases : iterables of types
         The class to be instantiated in another process.
     subscriptions : tuple
         Subscriptions class attribute.
     """
 
     @classmethod
-    def from_class(cls, worker_class: typing.Type[Parallelized]) -> PydraFactory:
-        return cls(worker_class.name, worker_class, worker_class.subscriptions)
+    def from_class(cls, worker_class: Type[Parallelized]) -> PydraFactory:
+        return cls(worker_class.name, (worker_class,), worker_class.subscriptions)
 
-    def __init__(self, name: str, worker_class: typing.Type[Parallelized], subscriptions: tuple):
+    @classmethod
+    def from_bases(cls, worker_class: Type[Parallelized]) -> PydraFactory:
+        return cls(worker_class.name, worker_class.__bases__, worker_class.subscriptions)
+
+    def __init__(self, name: str, bases: Tuple[Type], subscriptions: tuple):
         self.name = name
-        self.worker_subclass = worker_class
+        self.bases = bases
         self.subscriptions = subscriptions
 
     def __call__(self, *args, **kwargs):
         """Calling the factory returns an instance of the associated class."""
-        cls_type = PydraType(self.name, (self.worker_subclass,), {"name": self.name,
-                                                                  "subscriptions": self.subscriptions})
+        cls_type = PydraType(self.name, self.bases, {"name": self.name,
+                                                     "subscriptions": self.subscriptions})
         return cls_type(*args, **kwargs)
 
 
@@ -125,12 +131,18 @@ def run_instance(pydra_factory: PydraFactory, args: tuple, kwargs: dict) -> None
     pydra_instance.run()
 
 
-def spawn_new(pydra_factory, args, kwargs, as_thread=False) -> typing.Union[Thread, Process]:
+def _spawn(name, runner, factory, args, kwargs):
+    new = runner(target=run_instance, args=(factory, args, kwargs), name=name)
+    new.start()
+    return new
+
+
+def spawn_new(pydra_cls: Type[Parallelized], args, kwargs, as_thread=False) -> Union[Thread, Process]:
     """Runs a parallelized pydra object in another thread or process.
 
     Parameters
     ----------
-    pydra_factory : PydraFactory
+    pydra_cls : Parallelized type
         A PydraFactory instance for creating the pydra instance.
     args : tuple
         Passed with * to instantiate the worker.
@@ -146,11 +158,15 @@ def spawn_new(pydra_factory, args, kwargs, as_thread=False) -> typing.Union[Thre
     """
     if as_thread:
         runner = Thread
-        name = f"Thread-{pydra_factory.name}"
+        name = f"Thread-{pydra_cls.name}"
     else:
         runner = Process
-        name = f"Process-{pydra_factory.name}"
-    args = (pydra_factory, args, kwargs)
-    new = runner(target=run_instance, args=args, name=name)
-    new.start()
-    return new
+        name = f"Process-{pydra_cls.name}"
+    try:
+        factory = PydraFactory.from_class(pydra_cls)
+        pickle.dumps(factory)  # check pickleable
+    except pickle.PickleError:  # can't spawn object directly: try creating factory from bases
+        print(f"Cannot spawn {pydra_cls.name} directly: attempting from bases.")
+        factory = PydraFactory.from_bases(pydra_cls)
+        pickle.dumps(factory)  # check pickleable
+    return _spawn(name, runner, factory, args, kwargs)

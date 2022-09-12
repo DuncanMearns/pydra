@@ -8,9 +8,9 @@ import time
 
 
 class AcquisitionWorker(Acquisition):
-    """This is an acquisition worker. It will simulate a camera."""
+    """This is an camera worker. It will simulate a camera."""
 
-    name = "acquisition"  # remember, every worker must have a unique name
+    name = "camera"  # remember, every worker must have a unique name
 
     def __init__(self, value, *args, **kwargs):
         super().__init__(*args, **kwargs)  # always call super() constructor
@@ -40,7 +40,7 @@ class AcquisitionWorker(Acquisition):
 
 
 class AcquisitionWidget(ControlWidget):
-    """This widget will be used to control our acquisition worker."""
+    """This widget will be used to control our camera worker."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)  # call to super()
@@ -82,7 +82,7 @@ class TrackingWorker(Worker):
     """This worker will simulate a tracking worker."""
 
     name = "tracking"  # the worker is called "tracking"
-    subscriptions = ("acquisition",)  # it receives messages from "acquisition"
+    subscriptions = ("camera",)  # it receives messages from "camera"
 
     def recv_frame(self, t, i, frame, **kwargs):
         """This method is called whenever the worker receives frame data."""
@@ -91,7 +91,7 @@ class TrackingWorker(Worker):
         self.send_indexed(t, i, data)  # the timestamp and index should be the same as the received frame!!!
 
 
-# Create the acquisition module
+# Create the camera module
 ACQUISITION = {
     "worker": AcquisitionWorker,
     "params": {"value": 0},  # params are passed to the constructor of the worker

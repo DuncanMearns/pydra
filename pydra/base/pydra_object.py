@@ -39,6 +39,10 @@ class PydraObject(metaclass=PydraType):
 
     name = ""
 
+    @classmethod
+    def copy(cls, new_name, subscriptions=()):
+        return PydraType(new_name, (cls,), {"name": new_name, "subscriptions": subscriptions})
+
     def __init__(self, *args, **kwargs):
         super().__init__()
 

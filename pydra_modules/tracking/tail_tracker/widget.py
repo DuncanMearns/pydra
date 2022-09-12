@@ -34,14 +34,14 @@ class TailTrackerWidget(ControlWidget):
         self.dialog.widget.new_image(self.last_image)
 
     def dynamicUpdate(self, data_cache, **kwargs):
-        # Get the acquisition plotter
+        # Get the camera plotter
         try:
             acquisition_cache = kwargs[self.acquisition]
         except KeyError:
             raise ValueError(f"The `acquisition_worker` in the params dictionary of the {self.name} module does not "
                              f"match the name of a worker in the Pydra network.")
         # Update the last image
-        self.last_image = acquisition_cache.array  # get the current frame of the acquisition cache
+        self.last_image = acquisition_cache.array  # get the current frame of the camera cache
 
     @QtCore.pyqtSlot()
     def initialize_worker(self):

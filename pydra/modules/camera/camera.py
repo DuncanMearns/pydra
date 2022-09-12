@@ -1,10 +1,9 @@
 from pydra import Acquisition
 import time
 import numpy as np
-from .widget import CameraWidget, FramePlotter
 
 
-__all__ = ("Camera", "CameraAcquisition", "CAMERA", "setter")
+__all__ = ("Camera", "CameraAcquisition", "setter")
 
 
 class setter:
@@ -44,7 +43,7 @@ class Camera:
     camera : object
         Camera object from API.
     frame_number : int
-        The current frame number of the acquisition.
+        The current frame number of the camera.
     """
 
     def __init__(
@@ -73,7 +72,7 @@ class Camera:
         return
 
     def read(self) -> np.ndarray:
-        """Implements the acquire method for an acquisition object.
+        """Implements the acquire method for an camera object.
 
         Retrieves a frame with the read method, computes the timestamp, publishes the frame data over 0MQ and then
         increments the frame number.
@@ -114,18 +113,18 @@ class CameraAcquisition(Acquisition):
         self.send_timestamped(time.time(), self.camera.params)
 
     def acquire(self):
-        """Implements the acquire method for an acquisition object.
+        """Implements the acquire method for an camera object.
 
         Retrieves a frame with the read method, computes the timestamp, publishes the frame data over 0MQ and then
         increments the frame number.
         """
         # Grab a frame
-        frame = self.camera.connect()
+        frame = self.camera.read()
         # Get current time
         t = time.time()
         if isinstance(frame, np.ndarray) and frame.size:
             # Broadcast frame data through the network
-            self.send_frame(t, self.frame_number, frame)
+            self.send_frame(self.frame_number, t, frame)
             # Increment the frame index
             self.frame_number += 1
 
@@ -142,11 +141,3 @@ class CameraAcquisition(Acquisition):
 
     def reset_frame_number(self, **kwargs):
         self.frame_number = 0
-
-
-CAMERA = {
-    "worker": CameraAcquisition,
-    "params": {},
-    "controller": CameraWidget,
-    "plotter": FramePlotter
-}
