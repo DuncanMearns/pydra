@@ -27,16 +27,6 @@ class StateMachineMeta(type(QtCore.QObject)):
 
     _dynamic_attributes = dict([(param, type(val)) for param, val in default_params.items()])
 
-    # _dynamic_attributes = {"directory": str,
-    #                        "filename": str,
-    #                        "trial_number": int,
-    #                        "n_trials": int,
-    #                        "inter_trial_interval": int,
-    #                        "trial_index": int,
-    #                        "protocol": list,
-    #                        "recording_triggers": tuple,
-    #                        "n_trial_digits": int}
-
     def __new__(cls, name, bases, dct):
         """Dynamically create signals and slots for dynamic attributes."""
         for attr, attr_type in cls._dynamic_attributes.items():

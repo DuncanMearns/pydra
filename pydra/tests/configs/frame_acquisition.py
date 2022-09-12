@@ -32,6 +32,7 @@ class AcquisitionWorker(Acquisition):
     def acquire(self):
         """Method called each pass of the event loop. Generate a frame of random numbers."""
         # Get frame
+        time.sleep(0.01)
         frame = np.random.random((250, 250))
         frame *= 255
         frame = frame.astype("uint8")

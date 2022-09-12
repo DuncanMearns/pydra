@@ -1,11 +1,11 @@
-import typing
+"""
+Module containing basic Saver classes.
+"""
+from .pydra_object import *
+from .parallelized import Parallelized
+from ..utilities import DataCache, state_descriptor, decorator
 
-from .._base import *
-from ..messaging import *
-from ..utils.cache import DataCache, TempCache
-from ..utils.state import state_descriptor
-from ._runner import Parallelized
-
+import functools
 import numpy as np
 import os
 import cv2
@@ -20,101 +20,71 @@ __all__ = ("Saver", "CachedSaver", "CSVSaver", "HDF5Saver", "VideoSaver")
 recording_state = state_descriptor.new_type("recording_state")
 
 
-class SaverConstructor:
-    """Container class for type, args, kwargs, and connections for Saver classes. Allows dynamically modified Saver
-    types to be passed to new processes for instantiation.
-
-    Parameters
-    ----------
-    cls_type : PydraType
-        The class to be constructed. Should be a subclass of Saver.
-    workers : tuple
-        A copy of the workers class attribute
-    args : tuple
-        A copy of the args class attribute.
-    kwargs : dict
-        A copy of the kwargs class attribute.
-    connections : dict
-        A copy of the  _connections private class attribute. Should be properly initialized with connections to backend.
-    """
-
-    def __init__(self, cls_type, workers, args, kwargs, connections):
-        self.cls_type = cls_type
-        self.workers = workers
-        self.args = args
-        self.kwargs = kwargs
-        self.connections = connections
-
-    def __call__(self, *args, **kwargs):
-        """Returns a new Saver class that can be instantiated."""
-        return type(self.cls_type.name, (self.cls_type,), {"workers": self.workers,
-                                                           "args": self.args,
-                                                           "kwargs": self.kwargs,
-                                                           "_connections": self.connections})
+@decorator()
+def saved(method):
+    @functools.wraps(method)
+    def save_wrapper(instance, *args, **kwargs):
+        if instance.recording:
+            method(instance, *args, **kwargs)
+    return save_wrapper
 
 
-class Saver(Parallelized, PydraSender, PydraSubscriber):
+class Saver(Parallelized, PydraReceiver, PydraSender):
     """Base saver class.
 
     Attributes
     ----------
-    workers : tuple
-        Tuple of worker names (str) that saver listens to.
-    args : tuple
-        Passed to *args when saver instantiated.
-    kwargs : dict
-        Passed to **kwargs when saver instantiated.
-    _connections : dict
-        Private attribute containing zmq connections. Must be set before instantiation.
+    name : str
+        A unique string identifying the worker. Must be specified in all subclasses.
+    subscriptions : tuple
+        Names of other workers in the network from which this one can receive pydra messages.
     """
-
-    workers = ()
-    args = ()
-    kwargs = {}
-    _connections = {}
 
     # States
     idle = recording_state(0)
     recording = recording_state(1)
 
-    @classmethod
-    def start(cls, *args, **kwargs):
-        """Overrides Parallelized start method. Spawns an instantiated Saver object in a new thread."""
-        kw = cls.kwargs.copy()
-        kw.update(cls._connections)
-        return super().start_thread(*cls.args, **kw)
-
-    @classmethod
-    def to_constructor(cls):
-        """Returns a constructor object for current saver class, preserving changes to class attributes."""
-        return SaverConstructor(cls, cls.workers, cls.args, cls.kwargs, cls._connections)
-
-    @classmethod
-    def add_worker(cls, worker: typing.Union[type(PydraObject), str]):
-        if issubclass(worker, PydraObject):
-            worker = worker.name
-        workers = list(cls.workers)
-        workers.append(worker)
-        cls.workers = tuple(set(workers))
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.idle()
 
-    def setup(self):
-        """Sends a connected signal."""
-        self.connected()
-
-    @BACKEND.CONNECTION
-    def connected(self):
-        return True,
-
-    @BACKEND.CONNECTION
-    def not_connected(self):
-        return False,
-
     def _process(self):
-        self.poll()
+        self.receive_messages()
+
+    @saved
+    def recv_data(self, *args, **kwargs):
+        self.save_data(kwargs["source"], *args)
+
+    @saved
+    def recv_timestamped(self, t: float, data: dict, **kwargs):
+        self.save_timestamped(kwargs["source"], t, data)
+
+    @saved
+    def recv_indexed(self, i: int, t: float, data: dict, **kwargs):
+        self.save_indexed(kwargs["source"], i, t, data)
+
+    @saved
+    def recv_array(self, i: int, t: float, a: np.ndarray, **kwargs):
+        self.save_array(kwargs["source"], i, t, a)
+
+    @saved
+    def recv_frame(self, i: int, t: float, frame: np.ndarray, **kwargs):
+        self.save_frame(kwargs["source"], i, t, frame)
+
+    def save_data(self, worker: str, *args):
+        raise NotImplementedError
+
+    def save_timestamped(self, worker: str, t: float, data: dict):
+        raise NotImplementedError
+
+    def save_indexed(self, worker: str, i: int, t: float, data: dict):
+        raise NotImplementedError
+
+    def save_array(self, worker: str, i: int, t: float, arr: np.ndarray):
+        raise NotImplementedError
+
+    def save_frame(self, worker: str, i: int, t: float, frame: np.ndarray):
+        raise NotImplementedError
 
     @staticmethod
     def new_file(directory, filename, ext=""):
@@ -122,14 +92,6 @@ class Saver(Parallelized, PydraSender, PydraSubscriber):
             filename = ".".join((filename, ext))
         f = os.path.join(directory, filename)
         return f
-
-    def flush(self) -> dict:
-        return {}
-
-    @BACKEND.DATA
-    def reply_data(self):
-        flushed = self.flush()
-        return flushed,
 
     def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
         self.recording()
@@ -146,46 +108,21 @@ class CachedSaver(Saver):
         super().__init__(*args, **kwargs)
         self.cachesize = cache
         self.arr_cachesize = arr_cache
-        self.caches = dict([(worker, DataCache()) for worker in self.workers])
-        self.temp = dict([(worker, TempCache(self.cachesize, self.arr_cachesize)) for worker in self.workers])
+        self.caches = dict([(worker, DataCache()) for worker in self.subscriptions])
 
-    def recv_indexed(self, t, i, data, **kwargs):
-        self.recv_data(t, i, data, **kwargs)
+    def save_timestamped(self, worker: str, t: float, data: dict):
+        self.caches[worker].append(t, data=data)
 
-    def recv_array(self, t, i, a, **kwargs):
-        self.recv_data(t, i, arr=a, **kwargs)
+    def save_indexed(self, worker: str, i: int, t: float, data: dict):
+        self.caches[worker].append(t, i, data)
 
-    def recv_timestamped(self, t, data, **kwargs):
-        self.recv_data(t, data=data, **kwargs)
-
-    def recv_data(self, t, i=None, data=None, arr=None, **kwargs):
-        worker = kwargs["source"]
-        self.temp[worker].append(t, i, data, arr)
-        if self.recording:
-            self.save_data(worker, t, i, data, arr)
-
-    def save_data(self, worker, t, i, data, arr):
-        self.caches[worker].append(t, i, data, arr)
+    def save_array(self, worker: str, i: int, t: float, arr: np.ndarray):
+        self.caches[worker].append(t, i, arr=arr)
 
     def stop_recording(self, **kwargs):
         for cache in self.caches.values():
             cache.clear()
         super().stop_recording(**kwargs)
-
-    def flush(self) -> dict:
-        flushed = super().flush()
-        data = {}
-        for worker, cache in self.temp.items():
-            if worker in flushed.keys():
-                raise ValueError("Saver is overwriting data in cache when flushed.")
-            data[worker] = {
-                "data": cache.data,
-                "array": cache.arr,
-                "events": cache.events
-            }
-            cache.clear()
-        flushed.update(data)
-        return flushed
 
 
 class CSVSaver(CachedSaver):
@@ -249,7 +186,7 @@ class HDF5Saver(CachedSaver):
         super().start_recording(directory=directory, filename=filename, idx=idx, **kwargs)
         path = self.new_file(directory, filename, "hdf5")
         self.h5_file = h5py.File(path, "w")
-        for worker in self.workers:
+        for worker in self.subscriptions:
             self.h5_file.create_group(worker)
 
     def stop_recording(self, **kwargs):
@@ -293,18 +230,17 @@ class VideoSaver(HDF5Saver):
             return 1. / np.mean(np.diff(a))
         return 0
 
-    def recv_frame(self, t, i, frame, **kwargs):
+    def recv_frame(self, i, t, frame, **kwargs):
         self.source = kwargs["source"]
         self.video_cache = frame
         self.t_temp.append(t)
-        if self.recording:
-            self.save_frame(t, i, frame)
+        super().recv_frame(i, t, frame, **kwargs)
 
     def recv_timestamped(self, t, data, **kwargs):
         self.frame_rate = data.get("frame_rate", self.frame_rate)
         super().recv_timestamped(t, data, **kwargs)
 
-    def save_frame(self, t, i, frame):
+    def save_frame(self, worker: str, i: int, t: float, frame: np.ndarray):
         self.writer.write(frame)
         self.t_cache.append((i, t))
 

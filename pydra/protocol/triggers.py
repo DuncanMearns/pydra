@@ -3,7 +3,7 @@ import threading
 from abc import ABC, abstractmethod
 
 
-__all__ = ["TriggerThread", "Trigger", "ZMQTrigger"]
+__all__ = ["TriggerThread", "Trigger", "ZMQTrigger", "TriggerCollection"]
 
 
 class _TriggerBase(ABC):
@@ -106,3 +106,22 @@ class TriggerThread(threading.Thread):
                     trigger.reset()  # reset trigger
                 if trigger.check():  # check is trigger fired
                     self.event_flag.set()  # set event flag
+
+
+class TriggerCollection:
+
+    def __init__(self, triggers: dict):
+        self.triggers = triggers
+        self.threads = {}
+
+    def start(self):
+        for name, trigger in self.triggers.items():
+            thread = TriggerThread(trigger)
+            thread.start()
+            self.threads[name] = thread
+
+    def close(self):
+        for name, thread in self.threads.items():
+            thread.terminate()
+            thread.join()
+            print(f"Trigger {name} joined.")

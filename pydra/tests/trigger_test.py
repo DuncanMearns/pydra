@@ -3,8 +3,8 @@ from pydra.protocol.triggers import ZMQTrigger
 
 
 def test_zmq_trigger():
-    from pydra.configuration import ports
-    pub, sub = ports.next()
+    from pydra.configuration import port_manager
+    pub, sub = port_manager.next()
     print("PUB:", pub, "SUB:", sub)
     trigger = ZMQTrigger(sub)
     pydra = Pydra.run(triggers={"zmq": trigger})
@@ -15,8 +15,8 @@ def test_zmq_trigger():
 def test_gui():
     from pydra.tests.configs.frame_acquisition import config
     from pydra.protocol import ZMQTrigger
-    from pydra.configuration import ports
-    pub, sub = ports.next()
+    from pydra.configuration import port_manager
+    pub, sub = port_manager.next()
     print("PUB:", pub, "SUB:", sub)
     config["triggers"] = {"zmq": ZMQTrigger(sub)}
     PydraApp.run(config)

@@ -1,5 +1,5 @@
 import numpy as np
-from ..utils.cache import TempCache
+from ..utilities import TempCache
 
 
 class GUICache(TempCache):

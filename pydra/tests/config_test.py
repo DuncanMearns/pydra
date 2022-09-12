@@ -1,4 +1,4 @@
-from pydra import Pydra, PydraApp, Configuration
+from pydra import Pydra
 import time
 
 
@@ -8,10 +8,5 @@ def test_pydra():
     pydra.exit()
 
 
-def test_gui():
-    PydraApp.run(Configuration())
-
-
 if __name__ == "__main__":
     test_pydra()
-    # test_gui()

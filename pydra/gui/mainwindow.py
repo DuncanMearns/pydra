@@ -120,13 +120,6 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         self.setMenuBar(QtWidgets.QMenuBar())
         self.windowMenu = self.menuWidget().addMenu("Window")
         # ===============
-        # # Get gui params from config
-        # params = self.pydra.config["gui_params"]
-        # # Add event names to params
-        # params["event_names"] = self.event_names
-        # params["targets"] = self.workers
-        # # Add triggers to params
-        # params["triggers"] = self.pydra.triggers.threads
         # Experiment dock
         self.experiment_dock = QtWidgets.QDockWidget()
         self.experiment_widget = ExperimentWidget()
@@ -146,7 +139,7 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         self.plotters = {}
         for module in self.pydra.modules:
             name = module.name
-            params = module.params
+            params = module.worker_kwargs
             if module.widget:
                 # Create control widget
                 widget = module.widget(name=name, params=params)

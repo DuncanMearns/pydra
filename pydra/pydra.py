@@ -1,172 +1,64 @@
-from ._base import *
-from .messaging import *
-from .configuration import Configuration
-from .classes import PydraBackend, Worker
-from .protocol import TriggerThread
-from .utils.state import state_descriptor
+from .base import *
+from .configuration import Configuration, pydra_tuple
+from .protocol.triggers import Trigger, TriggerCollection
 
 import zmq
 import logging
 from datetime import datetime
 import time
 from threading import Lock
+from typing import Iterable, Mapping
 
 
-setup_state = state_descriptor.new_type("setup_state")
-
-
-class SetupStateMachine:
-    """Class for setting up Pydra. Handles different setup states and ensures each process/thread is connected."""
-
-    not_connected = setup_state(0)
-    connecting = setup_state(1)
-    finished = setup_state(2)
-
-    def __init__(self, pydra):
-        self.pydra = pydra
-        self.t0 = 0
-        self.module_idx = 0
-        self.module_name = ""
-        self.not_connected()
-
-    def update(self):
-        if self.not_connected:
-            self.start_backend()
-        if self.connecting:
-            self.wait()
-
-    def start_backend(self):
-        print("Connecting to backend...")
-        self.t0 = time.time()
-        self.pydra.start_backend()
-        self.module_name = "backend"
-        self.connecting()
-
-    def wait(self):
-        connected, t = self.get_connected()
-        if connected:
-            print(f"{self.module_name} connected in {t - self.t0:.2f} seconds.\n")
-            self.start_worker()
-            return
-        self.pydra.send_event("_test_connection")
-        time.sleep(0.01)
-
-    def start_worker(self):
-        exists, name = self.pydra.load_module(self.module_idx)
-        if exists:
-            self.t0 = time.time()
-            self.module_name = name
-            self.module_idx += 1
-            print(f"Connecting to {self.module_name}...")
-            return
-        self.finished()
-        print("All modules connected.\n")
-
-    def get_connected(self):
-        return self.pydra._connection_times.get(self.module_name, (False, 0))
-
-
-class TriggerCollection:
-
-    def __init__(self, triggers: dict):
-        self.triggers = triggers
-        self.threads = {}
-
-    def start(self):
-        for name, trigger in self.triggers.items():
-            thread = TriggerThread(trigger)
-            thread.start()
-            self.threads[name] = thread
-
-    def close(self):
-        for name, thread in self.threads.items():
-            thread.terminate()
-            thread.join()
-            print(f"Trigger {name} joined.")
-
-    def __getitem__(self, item):
-        return self.threads[item]
-
-
-def blocking(method):
-    def blocked(pydra_instance, *args, **kwargs):
-        with pydra_instance.event_lock:
-            ret = method(pydra_instance, *args, **kwargs)
-        return ret
-    return blocked
-
-
-class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
-    """The singleton main pydra class, implementing network initialization and front/backend connections.
+class Pydra(PydraReceiver, PydraSender):
+    """The main Pydra class.
 
     Parameters
     ----------
-    connections : dict
-        Connections dictionary. Overrides default config in config class attribute.
-    modules : list
-        List of modules. Overrides default config in config class attribute.
-    savers : list
-        List of savers. Overrides default config in config class attribute.
-
-    Attributes
-    ----------------
-    config : dict
-        Class attribute. The default setup configuration. Can be overridden through __init__.
-    connections : dict
-        Copy of connections parameter, or from config.
-    modules : list
-        Copy of modules parameter, or from config.
-    savers : list
-        Copy of savers parameter, or from config with connections initialized.
-    _backend : PydraBackend
-        The PydraBackend instance.
-    _workers : list
-        List of instantiated worker processes/threads.
-    _state_machine : SetupStateMachine
-        Instance of SetupStateMachine. Updates during setup method call, ensuring network initializes properly.
+    workers : iterable of pydra_tuples
+        Iterable of tuples: (name, class, args, kwargs).
+    savers : iterable of pydra_tuples
+        Iterable of tuples: (name, class, args, kwargs).
+    triggers : mapping
+        Mapping of trigger_name, trigger_object pairs.
     """
 
     name = "pydra"
     config = Configuration()
 
     @staticmethod
-    def run(config: Configuration = None, *,
-            modules=(), savers=(), triggers=(), connections: dict = None, public=None, private=None):
+    def run(config: Configuration = None, **kwargs):
         """Return an instantiated Pydra object with the current configuration."""
         if not config:
-            config = Configuration(modules=modules, triggers=triggers,
-                                   _connections=connections, _public_ports=public, _private_ports=private)
+            config = Configuration(**kwargs)
         if not isinstance(config, Configuration):
             raise TypeError("config must be a valid Configuration")
         Pydra.config = config
-        pydra = Pydra()
+        connections = config.connections["pydra"]
+        workers = config.workers
+        savers = config.savers
+        triggers = config.triggers
+        pydra = Pydra(workers, savers, triggers, **connections)
         pydra.setup()
         return pydra
 
-    def __init__(self, connections: dict = None, modules: list = (), savers: list = (), triggers: list = ()):
-        self.connections = connections or self.config["connections"]["pydra"]
-        self.modules = modules or self.config["modules"]
+    def __init__(self,
+                 workers: Iterable[pydra_tuple] = (),
+                 savers: Iterable[pydra_tuple] = (),
+                 triggers: Mapping[str, Trigger] = None,
+                 **connections):
+        super().__init__(**connections)
+        self.workers = workers
         self.savers = savers
-        self.triggers = triggers or self.config["triggers"]
-        super().__init__(**self.connections)
-        self._backend = None
-        self._workers = []
+        self.triggers = triggers or {}
+        self._saver_processes = {}
+        self._worker_processes = {}
         self._connection_times = {}
-        self._state_machine = SetupStateMachine(self)
-        self.event_lock = Lock()
-        self.triggers.start()
+        self.zmq_lock = Lock()
 
     @property
-    def savers(self):
-        return self._savers
-
-    @savers.setter
-    def savers(self, args):
-        self._savers = list(args)
-        if not args:
-            self._savers = list(self.config["savers"])
-            for saver in self._savers:
-                saver._connections = self.config["connections"][saver.name]
+    def modules(self):
+        return self.config.modules
 
     @property
     def triggers(self):
@@ -177,94 +69,85 @@ class Pydra(PydraReceiver, PydraPublisher, PydraSubscriber):
         self._triggers = TriggerCollection(d)
 
     def setup(self):
-        while not self._state_machine.finished:
-            self.poll(1)
-            self._state_machine.update()
+        """Initialize the pydra network."""
+        # Start triggers
+        self.triggers.start()
+        # Start savers
+        self._saver_processes = self.spawn_processes(*self.savers)
+        self.wait_for_connections([saver.name for saver in self.savers])
+        # Start workers
+        self._worker_processes = self.spawn_processes(*self.workers)
+        self.wait_for_connections([worker.name for worker in self.workers])
 
-    def start_backend(self, connections: dict = None):
-        # Start saver and wait for it to respond
-        connections = connections or self.config["connections"]["backend"]
-        savers = [saver.to_constructor() for saver in self.savers]
-        self._backend = PydraBackend.start(tuple(savers), **connections)
+    @staticmethod
+    def spawn_processes(*pydra_tuples: pydra_tuple):
+        """Spawn process containing other pydra objects."""
+        process_dict = {}
+        for (name, pydra_cls, args, kwargs) in pydra_tuples:
+            factory = PydraFactory.from_class(pydra_cls)
+            process = spawn_new(factory, args, kwargs)
+            process_dict[name] = process
+        return process_dict
 
-    def load_module(self, idx):
-        try:
-            module = self.modules[idx]
-        except IndexError:
-            return False, None
-        worker = module.worker
-        params = module.params
-        threaded = module.threaded
-        self.start_worker(worker, params, as_thread=threaded)
-        return True, worker.name
+    def wait_for_connections(self, names):
+        """Wait until connected signals have been received from named pydra objects."""
+        t0 = time.time()
+        for name in names:
+            print(f"connecting to {name}")
+        while True:
+            connected = [self.check_connected(name) for name in names]
+            if all(connected):
+                break
+            self.send_event("_test_connection")
+            self.receive_messages(50)
+        for name in names:
+            t = self._connection_times[name]
+            print(f"{name} connected in {t - t0:.2f} seconds.\n")
 
-    def start_worker(self, worker: Worker, params: dict = None, connections: dict = None, as_thread=False):
-        # Create dict for instantiating worker in new process/thread
-        params = params or {}
-        connections = connections or self.config["connections"][worker.name]
-        kw = params.copy()
-        kw.update(connections)
-        # Start process
-        if as_thread:
-            process = worker.start_thread(**kw)
-        else:
-            process = worker.start(**kw)
-        # Add to workers
-        self._workers.append(process)
+    def check_connected(self, name):
+        """Check if named pydra object is connected to the network."""
+        return name in self._connection_times
 
-    @ERROR.callback
+    @EXIT.SEND
+    def _exit(self):
+        """Broadcasts an exit signal."""
+        return ()
+
+    @CONNECTION.CALLBACK
+    def handle_connection(self, **kwargs):
+        """Connection handler"""
+        source = kwargs["source"]
+        t = kwargs["timestamp"]
+        if source not in self._connection_times:
+            self._connection_times[source] = t
+
+    @ERROR.CALLBACK
     def handle_error(self, error, message, **kwargs):
+        """Error handler"""
         source = kwargs["source"]
         t = kwargs["timestamp"]
         error_info = f"{source} raised {repr(error)}: {datetime.fromtimestamp(t)}.\n"
         logging.error(error_info + message)
-
-    handle__error = handle_error
-
-    @CONNECTION.callback
-    def handle_connection(self, ret, **kwargs):
-        t = kwargs["timestamp"]
-        self._connection_times[kwargs["source"]] = ret, t
-
-    handle__connection = handle_connection
-
-    @BACKEND.FORWARD.callback
-    def handle__forward(self, data, origin, **kwargs):
-        self.receive_data(data, **origin)
-
-    @BACKEND.DATA.callback
-    def receive_data(self, data, **kwargs):
-        return data, kwargs
-
-    @EXIT
-    def _exit(self):
-        """Broadcasts an exit signal."""
-        return ()
 
     def exit(self):
         """Ends and joins worker process for proper exiting."""
         print("Exiting...")
         self._exit()
         print("Cleaning up connections...")
-        for process in self._workers:
+        for name, process in self._worker_processes.items():
             process.join()
-            print(f"Worker {process.worker_type.name} joined")
-        try:
-            self._backend.join()
-            print("Backend joined.")
-        except AttributeError:
-            raise ValueError("Backend does not exist?")
+            print(f"Worker {name} joined.")
+        for name, process in self._saver_processes.items():
+            process.join()
+            print(f"Worker {name} joined.")
         self.triggers.close()
+
+    def send_event(self, event_name, **kwargs):
+        """Broadcasts an event to the network (thread-safe)."""
+        with self.zmq_lock:
+            super().send_event(event_name, **kwargs)
 
     @staticmethod
     def destroy():
         """Destroys the ZeroMQ context."""
         zmq.Context.instance().destroy(200)
-
-    @blocking
-    def send_event(self, event_name, **kwargs):
-        super().send_event(event_name, **kwargs)
-
-    @blocking
-    def send_request(self, what: str):
-        super().send_request(what)

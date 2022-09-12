@@ -1,3 +1,6 @@
+"""
+Module containing basic serializing/deserializing functions for different data types.
+"""
 import sys
 import struct
 import json
@@ -58,9 +61,20 @@ def deserialize_array(a_bytes: bytes):
     return pickle.loads(a_bytes)
 
 
-def serialize_objet(o: object):
+def serialize_object(o: object):
     return pickle.dumps(o)
 
 
 def deserialize_object(o_bytes: bytes):
     return pickle.loads(o_bytes)
+
+
+serializer_lookup = {
+    str: (serialize_string, deserialize_string),
+    float: (serialize_float, deserialize_float),
+    int: (serialize_int, deserialize_int),
+    np.ndarray: (serialize_array, deserialize_array),
+    dict: (serialize_dict, deserialize_dict),
+    object: (serialize_object, deserialize_object),
+    bool: (serialize_bool, deserialize_bool)
+}

@@ -1,9 +1,9 @@
-from ..utils.state import state_descriptor
+from ..utilities import state_descriptor
 
 import warnings
 import threading
 import time
-import typing
+from typing import Iterable
 
 
 exit_code = state_descriptor.new_type("exit_code")
@@ -159,6 +159,7 @@ class ProtocolThread(threading.Thread):
                 continue
             if self.current_event.failed:  # event failed, abort protocol
                 self.abort()
+            time.sleep(0.01)
 
 
 class Protocol:
@@ -214,6 +215,15 @@ class Protocol:
             return False
 
     @staticmethod
-    def build(*args):
-        """Implemented in package __init__."""
-        pass
+    def build(pydra, protocol_events):
+        return build_protocol(pydra, protocol_events)
+
+
+def build_protocol(pydra, protocol_events: Iterable) -> Protocol:
+    protocol = Protocol()
+    for event in protocol_events:
+        event.add(pydra, protocol)
+    return protocol
+
+
+Protocol.build = staticmethod(build_protocol)

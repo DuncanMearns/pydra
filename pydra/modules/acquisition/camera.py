@@ -120,7 +120,7 @@ class CameraAcquisition(Acquisition):
         increments the frame number.
         """
         # Grab a frame
-        frame = self.camera.read()
+        frame = self.camera.connect()
         # Get current time
         t = time.time()
         if isinstance(frame, np.ndarray) and frame.size:
