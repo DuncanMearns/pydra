@@ -1,11 +1,14 @@
-name: pydra_env
+name: pydra
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
+  - python>=3.8
+  - pip
   - numpy
   - pandas
   - pyzmq
   - pyqtgraph
-  - pyqt
   - matplotlib
+  - h5py
+  - pip:
+      - opencv-python

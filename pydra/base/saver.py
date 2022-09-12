@@ -247,7 +247,7 @@ class VideoSaver(HDF5Saver):
     def start_recording(self, directory=None, filename=None, idx=0, **kwargs):
         super().start_recording(directory, filename, idx, **kwargs)
         path = self.new_file(directory, filename, "avi")
-        print("video saver starts recording", path, self.frame_rate, self.real_frame_rate)
+        print(f"{self.name} starts recording", path, self.frame_rate, self.real_frame_rate)
         fourcc = cv2.VideoWriter_fourcc(*self.fourcc)
         self.writer = cv2.VideoWriter(path, fourcc, self.frame_rate, self.frame_size, self.is_color)
 

@@ -105,7 +105,7 @@ class PydraApp(QtWidgets.QApplication):
             return
         try:
             config = mod.config
-            assert isinstance(config, dict)
+            assert isinstance(config, Configuration)
             return config
         except AttributeError:
             print(f"{pypath} does not contain config.")
