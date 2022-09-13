@@ -190,11 +190,12 @@ class HDF5Saver(CachedSaver):
             self.h5_file.create_group(worker)
 
     def stop_recording(self, **kwargs):
-        for worker, cache in self.caches.items():
-            group = self.h5_file[worker]
-            for name, data in cache.data.items():
-                group.create_dataset(name, data=data)
-        self.h5_file.close()
+        if self.recording:
+            for worker, cache in self.caches.items():
+                group = self.h5_file[worker]
+                for name, data in cache.data.items():
+                    group.create_dataset(name, data=data)
+            self.h5_file.close()
         for cache in self.caches.values():
             cache.clear()
         super().stop_recording(**kwargs)
@@ -252,14 +253,15 @@ class VideoSaver(HDF5Saver):
         self.writer = cv2.VideoWriter(path, fourcc, self.frame_rate, self.frame_size, self.is_color)
 
     def stop_recording(self, **kwargs):
-        self.writer.release()
-        try:
-            group = self.h5_file[self.source]
-            dset = "video_metadata"
-        except KeyError:
-            group = self.h5_file
-            dset = self.source
-        group.create_dataset(dset, data=np.array(self.t_cache))
+        if self.recording:
+            self.writer.release()
+            try:
+                group = self.h5_file[self.source]
+                dset = "video_metadata"
+            except KeyError:
+                group = self.h5_file
+                dset = self.source
+            group.create_dataset(dset, data=np.array(self.t_cache))
         self.t_cache = []
         super().stop_recording(**kwargs)
 

@@ -76,8 +76,12 @@ class Pydra(PydraReceiver, PydraSender):
         self._saver_processes = self.spawn_processes(*self.savers)
         self.wait_for_connections([saver.name for saver in self.savers])
         # Start workers
-        self._worker_processes = self.spawn_processes(*self.workers)
-        self.wait_for_connections([worker.name for worker in self.workers])
+        for worker in self.workers:
+            _process_dict = self.spawn_processes(worker)
+            self._worker_processes.update(_process_dict)
+            self.wait_for_connections(_process_dict.keys())
+        # self._worker_processes = self.spawn_processes(*self.workers)
+        # self.wait_for_connections([worker.name for worker in self.workers])
 
     @staticmethod
     def spawn_processes(*pydra_tuples: pydra_tuple):
