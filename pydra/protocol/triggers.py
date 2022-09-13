@@ -114,6 +114,12 @@ class TriggerCollection:
         self.triggers = triggers
         self.threads = {}
 
+    def __getitem__(self, item):
+        try:
+            return self.threads[item]
+        except KeyError:
+            raise ValueError(f"Trigger {item} does not exist!")
+
     def start(self):
         for name, trigger in self.triggers.items():
             thread = TriggerThread(trigger)
