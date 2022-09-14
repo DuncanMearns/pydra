@@ -115,6 +115,17 @@ class PydraFactory:
         return cls_type(*args, **kwargs)
 
 
+def generate_factory(pydra_cls: Type[Parallelized]):
+    for factory_method in [PydraFactory.from_class, PydraFactory.from_bases]:
+        try:
+            factory = factory_method(pydra_cls)
+            pickle.dumps(factory)  # check pickleable
+            return factory
+        except pickle.PickleError:
+            continue
+    raise ValueError(f"Cannot pickle {pydra_cls}.")
+
+
 def run_instance(pydra_factory: PydraFactory, args: tuple, kwargs: dict) -> None:
     """Function for running parallelized pydra instances.
 
@@ -129,12 +140,6 @@ def run_instance(pydra_factory: PydraFactory, args: tuple, kwargs: dict) -> None
     """
     pydra_instance = pydra_factory(*args, **kwargs)
     pydra_instance.run()
-
-
-def _spawn(name, runner, factory, args, kwargs):
-    new = runner(target=run_instance, args=(factory, args, kwargs), name=name)
-    new.start()
-    return new
 
 
 def spawn_new(pydra_cls: Type[Parallelized], args, kwargs, as_thread=False) -> Union[Thread, Process]:
@@ -156,17 +161,13 @@ def spawn_new(pydra_cls: Type[Parallelized], args, kwargs, as_thread=False) -> U
     Thread or Process
         The new process or thread running the worker.
     """
+    factory = generate_factory(pydra_cls)
     if as_thread:
         runner = Thread
         name = f"Thread-{pydra_cls.name}"
     else:
         runner = Process
         name = f"Process-{pydra_cls.name}"
-    try:
-        factory = PydraFactory.from_class(pydra_cls)
-        pickle.dumps(factory)  # check pickleable
-    except pickle.PickleError:  # can't spawn object directly: try creating factory from bases
-        print(f"Cannot spawn {pydra_cls.name} directly: attempting from bases.")
-        factory = PydraFactory.from_bases(pydra_cls)
-        pickle.dumps(factory)  # check pickleable
-    return _spawn(name, runner, factory, args, kwargs)
+    new = runner(target=run_instance, args=(factory, args, kwargs), name=name)
+    new.start()
+    return new
