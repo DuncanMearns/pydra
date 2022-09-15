@@ -6,6 +6,17 @@ from .default_params import default_params
 __all__ = ("Stateful",)
 
 
+_state_attrs = {
+    "recording_triggers": (None, None),
+    "inter_trial_ms": 0,
+    "trial_index": 0,
+    "event_names": [],
+    "targets": [],
+    "triggers": {},
+    "protocol": []
+}
+
+
 def shared_state_setter(attr, _type):
     """Returns a setter for a dynamic attribute."""
     def attr_setter(instance, value):
@@ -25,7 +36,8 @@ class StateMachineMeta(type(QtCore.QObject)):
     """Qt metaclass for StateMachine. Contains _dynamic_attributes that can be set using the set_name slot, and emit
     a name_changed signal whenever changed. These attributes can be accessed by any class inheriting from Stateful."""
 
-    _dynamic_attributes = dict([(param, type(val)) for param, val in default_params.items()])
+    _dynamic_attributes = dict([(param, type(val)) for param, val in default_params.items()] +
+                               [(param, type(val)) for param, val in _state_attrs.items()])
 
     def __new__(cls, name, bases, dct):
         """Dynamically create signals and slots for dynamic attributes."""
@@ -173,6 +185,7 @@ class StateMachine(QtCore.QObject, metaclass=StateMachineMeta):
 
     def start(self):
         """Starts the StateMachine. Should only be called once."""
+        self.set_params(_state_attrs)
         self._stateMachine.setInitialState(self.idle)
         self._stateMachine.start()
         self.update_timer.start()
@@ -183,7 +196,7 @@ class StateMachine(QtCore.QObject, metaclass=StateMachineMeta):
             return True
         return False
 
-    def set_defaults(self, gui_params: dict):
+    def set_params(self, gui_params: dict):
         # Ensure all dynamic attributes are initialized
         for attr, val in gui_params.items():
             getattr(self, "set_" + attr)(val)

@@ -57,7 +57,11 @@ class PauseEvent(ProtocolEvent):
 class TriggerEvent(PauseEvent):
     """Trigger event. Checks whether trigger has been received via check method until timeout time has elapsed."""
 
-    def __init__(self, trigger_flag: threading.Event, reset_flag, one_shot: bool = False, timeout: float = -1):
+    def __init__(self,
+                 trigger_flag: threading.Event,
+                 reset_flag: threading.Event,
+                 one_shot: bool = False,
+                 timeout: float = -1):
         super().__init__(timeout)
         self.trigger_flag = trigger_flag
         self.reset_flag = reset_flag
@@ -224,6 +228,3 @@ def build_protocol(pydra, protocol_events: Iterable) -> Protocol:
     for event in protocol_events:
         event.add(pydra, protocol)
     return protocol
-
-
-Protocol.build = staticmethod(build_protocol)

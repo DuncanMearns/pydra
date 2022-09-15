@@ -125,7 +125,7 @@ class PydraInterface(Stateful, QtCore.QObject):
 
     def _initialize_state_attributes(self):
         # Ensure all state attributes are initialized with the params provided
-        self.stateMachine.set_defaults(self.config["gui_params"])
+        self.stateMachine.set_params(self.config["gui_params"])
         self.stateMachine.set_event_names(self.gui_events)
         self.stateMachine.set_targets(self.workers)
         self.stateMachine.set_triggers(self.trigger_threads)

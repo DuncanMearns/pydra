@@ -18,7 +18,7 @@ def test_gui():
     from pydra.configuration import port_manager
     pub, sub = port_manager.next()
     print("PUB:", pub, "SUB:", sub)
-    config["triggers"] = {"zmq": ZMQTrigger(sub)}
+    config.triggers = {"zmq": ZMQTrigger(sub)}
     PydraApp.run(config)
 
 
