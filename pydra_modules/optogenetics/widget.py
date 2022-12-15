@@ -80,9 +80,9 @@ class OptogeneticsWidget(ControlWidget):
             self.send_event("stimulation_on")
         self.laser_state = int(not self.laser_state)
 
-    def dynamicUpdate(self, data_cache, **kwargs) -> None:
+    def dynamicUpdate(self):
         try:
-            t, last_update = data_cache.events[-1]
+            t, last_update = self.cache.events[-1]
             status = last_update["laser"]
             self.laser_state = status
             if status:
