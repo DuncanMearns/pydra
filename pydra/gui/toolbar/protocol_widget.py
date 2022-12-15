@@ -24,11 +24,11 @@ class ProtocolWidget(QtWidgets.QGroupBox, StateEnabled):
         self.layout().addWidget(self.editor_button)
         # N repetitions
         self.n_repetitions = 1
-        self.repetitions_widget = SpinboxWidget("Repetitions", minVal=1)
+        self.repetitions_widget = SpinboxWidget("Repetitions", minVal=1, maxVal=5000)
         self.layout().addWidget(self.repetitions_widget)
         # Interval
         self.interval = 0
-        self.interval_widget = SpinboxWidget("Interval", suffix="s")
+        self.interval_widget = SpinboxWidget("Interval", suffix="s", maxVal=99999)
         self.layout().addWidget(self.interval_widget)
         # Protocol progress
         self.progress_label = QtWidgets.QLabel("")
