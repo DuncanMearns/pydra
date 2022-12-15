@@ -84,7 +84,10 @@ class Pydra(PydraReceiver, PydraSender):
         """Spawn process containing other pydra objects."""
         process_dict = {}
         for (name, pydra_cls, args, kwargs) in pydra_tuples:
-            process = spawn_new(pydra_cls, args, kwargs)
+            as_thread = False
+            if "speaker" in name.lower():
+                as_thread = True
+            process = spawn_new(pydra_cls, args, kwargs, as_thread=as_thread)
             process_dict[name] = process
         return process_dict
 
