@@ -1,9 +1,6 @@
 from .worker import OptogeneticsWorker
 from .widget import OptogeneticsWidget
+from pydra import PydraModule, CSVSaver
 
 
-OPTOGENETICS = {
-    "worker": OptogeneticsWorker,
-    "params": {},
-    "controller": OptogeneticsWidget,
-}
+OPTOGENETICS = PydraModule(worker=OptogeneticsWorker, saver=CSVSaver, widget=OptogeneticsWidget)
