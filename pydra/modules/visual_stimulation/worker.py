@@ -1,20 +1,22 @@
-from pydra.core import Acquisition
+from pydra import Acquisition
 from .stimulus import ProtocolRunner, Stimulus, Wait
 from psychopy import visual
+import time
 
 
 class VisualStimulationWorker(Acquisition):
 
     name = "visual_stimulation"
     window_params = {}
+    gui_events = ("run", "interrupt")
 
     def __init__(self, stimulus_file=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.stimulus_file = stimulus_file
         self.protocol_runner = None
-        self.events["load"] = self.load_protocol
-        self.events["run"] = self.run_protocol
-        self.events["interrupt"] = self.interrupt_protocol
+        self.event_callbacks["load"] = self.load_protocol
+        self.event_callbacks["run"] = self.run_protocol
+        self.event_callbacks["interrupt"] = self.interrupt_protocol
         self.window = None  # specified at setup
 
     def setup(self):
@@ -26,7 +28,12 @@ class VisualStimulationWorker(Acquisition):
             self.protocol_runner = ProtocolRunner(self.window)
 
     def acquire(self):
-        self.protocol_runner()
+        is_running = self.protocol_runner()
+        if is_running:
+            if self.protocol_runner.current_stimulus:
+                logging_info = self.protocol_runner.logging_info()
+                t = time.time()
+                self.send_timestamped(t, logging_info)
 
     def cleanup(self):
         self.window.close()
@@ -38,7 +45,6 @@ class VisualStimulationWorker(Acquisition):
         self.protocol_runner = ProtocolRunner.from_protocol(self.window, self.stimulus_file)
 
     def run_protocol(self, **kwargs):
-        print(self.protocol_runner.logging_info())
         self.protocol_runner.start()
 
     def interrupt_protocol(self, **kwargs):
