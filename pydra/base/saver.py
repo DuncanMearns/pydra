@@ -154,7 +154,6 @@ class CSVSaver(CachedSaver):
                 i += 1
         dfs = []
         if all_data:
-            print("all_data:", all_data)
             for param, data in all_data.items():
                 idxs, vals = zip(*data)
                 df = pd.DataFrame(data=vals, index=idxs, columns=[param])

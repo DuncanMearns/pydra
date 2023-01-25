@@ -60,8 +60,6 @@ class ProtocolRunner:
             self.window.flip()
             if ret:
                 self.next()
-            return True
-        return False
 
     def next(self):
         """Sets the next stimulus in the stimulus list as the current stimulus."""
@@ -110,9 +108,9 @@ class ProtocolRunner:
     def logging_info(self):
         info = {}
         for stimulus in self.stimulus_list:
-            logged = stimulus.log()
-            if logged:
-                info.update(logged)
+            for key, val in stimulus.__dict__.items():
+                if not key.startswith("_"):
+                    info[key] = val
         return info
 
 
