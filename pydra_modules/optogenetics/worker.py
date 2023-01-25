@@ -1,16 +1,18 @@
-from pydra import Worker
-from pydra.modules.labjack import LabJack
+from pydra.core import Worker
+from pydra.utils.labjack import LabJack
 import time
 
 
 class OptogeneticsWorker(LabJack, Worker):
 
     name = "optogenetics"
-    gui_events = ("stimulation_on", "stimulation_off")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.event_callbacks["disconnect"] = self.stimulation_off
+        self.events["connect"] = self.connect
+        self.events["disconnect"] = self.stimulation_off
+        self.events["stimulation_on"] = self.stimulation_on
+        self.events["stimulation_off"] = self.stimulation_off
         self.laser_state = 0
 
     def stimulation_off(self, **kwargs):
@@ -22,7 +24,7 @@ class OptogeneticsWorker(LabJack, Worker):
 
     def stimulation_on(self, **kwargs):
         self.laser_state = 1
-        self.send_signal('DAC0', 1.5)
+        self.send_signal('DAC0', 3)
         print("LASER ON")
         t = time.time()
         self.send_timestamped(t, {"laser": 1})
