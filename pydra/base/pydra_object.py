@@ -246,7 +246,11 @@ class PydraReceiver(PydraObject):
             except AttributeError:
                 return
         event_kw.update(**kwargs)
-        f(**event_kw)
+
+        if event_name == 'run' and self.name != 'visual_stimulation' and self.name != 'visual_stimulation_saver':
+            print(f'were {event_name}ning {self.name}, which runs the dummy')
+        else:
+            f(**event_kw)
 
     @DATA.CALLBACK
     def handle_data(self, *args, **kwargs):

@@ -151,10 +151,12 @@ class CSVSaver(CachedSaver):
                         all_data[param_name].append((i, val))
                     else:
                         all_data[param_name] = [(i, val)]
+                if data == {}:
+                    for param_name in all_params[1:]:
+                        all_data[param_name].append((i, np.nan))
                 i += 1
         dfs = []
         if all_data:
-            print("all_data:", all_data)
             for param, data in all_data.items():
                 idxs, vals = zip(*data)
                 df = pd.DataFrame(data=vals, index=idxs, columns=[param])
