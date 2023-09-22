@@ -1,28 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f7e01f44-8c3f-4f1b-9392-318bcb867ac5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/visual_stimuli/JJ_stim_pydra.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/visual_stimuli/OKR_stimulus.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/lbauer.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/lbauer.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Theia.py" beforeDir="false" afterPath="$PROJECT_DIR$/Theia.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pydra/base/pydra_object.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/base/pydra_object.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pydra/base/saver.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/base/saver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pydra/modules/camera/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/modules/camera/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pydra/modules/visual_stimulation/stimulus.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/modules/visual_stimulation/stimulus.py" afterDir="false" />
-    </list>
+    <list default="true" id="f7e01f44-8c3f-4f1b-9392-318bcb867ac5" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Python Script" />
-      </list>
-    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -35,8 +18,8 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/visual_stimuli" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="settings.github" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
@@ -47,54 +30,7 @@
       </console-settings>
     </option>
   </component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\lbauer\Documents\GitHub\pydra\visual_stimuli" />
-    </key>
-  </component>
-  <component name="RunManager" selected="Python.OKR_stimulus">
-    <configuration name="JJ_stim_pydra" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="pydra" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/visual_stimuli" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/visual_stimuli/JJ_stim_pydra.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="OKR_stimulus" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="pydra" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/visual_stimuli" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/visual_stimuli/OKR_stimulus.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager">
     <configuration name="Theia" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="pydra" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -116,55 +52,9 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="pseudo_saccade_stimulus (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="pydra" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/visual_stimuli" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/visual_stimuli/pseudo_saccade_stimulus.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="test_noise" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="pydra" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/visual_stimuli" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/visual_stimuli/test_noise.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.OKR_stimulus" />
-        <item itemvalue="Python.pseudo_saccade_stimulus (1)" />
         <item itemvalue="Python.Theia" />
-        <item itemvalue="Python.JJ_stim_pydra" />
-        <item itemvalue="Python.test_noise" />
       </list>
     </recent_temporary>
   </component>
@@ -194,45 +84,33 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state width="1899" height="308" key="GridCell.Tab.0.bottom" timestamp="1688658587671">
+    <state x="414" y="236" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1676545006380">
       <screen x="0" y="0" width="1920" height="1160" />
     </state>
-    <state width="1899" height="308" key="GridCell.Tab.0.bottom/0.0.1920.1160/1920.0.1280.760@0.0.1920.1160" timestamp="1688658587671" />
-    <state width="1899" height="308" key="GridCell.Tab.0.center" timestamp="1688658587671">
+    <state x="414" y="236" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1160@0.0.1920.1160" timestamp="1676545006380" />
+    <state x="740" y="335" key="FileChooserDialogImpl" timestamp="1676544980929">
       <screen x="0" y="0" width="1920" height="1160" />
     </state>
-    <state width="1899" height="308" key="GridCell.Tab.0.center/0.0.1920.1160/1920.0.1280.760@0.0.1920.1160" timestamp="1688658587671" />
-    <state width="1899" height="308" key="GridCell.Tab.0.left" timestamp="1688658587671">
+    <state x="740" y="335" key="FileChooserDialogImpl/0.0.1920.1160@0.0.1920.1160" timestamp="1676544980929" />
+    <state width="1899" height="321" key="GridCell.Tab.0.bottom" timestamp="1676550371044">
       <screen x="0" y="0" width="1920" height="1160" />
     </state>
-    <state width="1899" height="308" key="GridCell.Tab.0.left/0.0.1920.1160/1920.0.1280.760@0.0.1920.1160" timestamp="1688658587671" />
-    <state width="1899" height="308" key="GridCell.Tab.0.right" timestamp="1688658587671">
+    <state width="1899" height="321" key="GridCell.Tab.0.bottom/0.0.1920.1160@0.0.1920.1160" timestamp="1676550371044" />
+    <state width="1899" height="321" key="GridCell.Tab.0.center" timestamp="1676550371044">
       <screen x="0" y="0" width="1920" height="1160" />
     </state>
-    <state width="1899" height="308" key="GridCell.Tab.0.right/0.0.1920.1160/1920.0.1280.760@0.0.1920.1160" timestamp="1688658587671" />
-    <state x="891" y="223" key="com.intellij.ide.util.TipDialog" timestamp="1695367553958">
+    <state width="1899" height="321" key="GridCell.Tab.0.center/0.0.1920.1160@0.0.1920.1160" timestamp="1676550371044" />
+    <state width="1899" height="321" key="GridCell.Tab.0.left" timestamp="1676550371044">
       <screen x="0" y="0" width="1920" height="1160" />
     </state>
-    <state x="891" y="223" key="com.intellij.ide.util.TipDialog/0.0.1920.1160/1920.0.1280.760@0.0.1920.1160" timestamp="1695367553958" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/pydra/modules/visual_stimulation/stimulus.py</url>
-          <line>195</line>
-          <option name="timeStamp" value="43" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-    <watches-manager>
-      <configuration name="PythonConfigurationType">
-        <watch expression="self" />
-        <watch expression="df.dtypes.T.T.T.T" />
-        <watch expression="pydra_instance.source" />
-        <watch expression="df.dtypes.T.T.T.T" />
-        <watch expression="pydra_instance.source" />
-      </configuration>
-    </watches-manager>
+    <state width="1899" height="321" key="GridCell.Tab.0.left/0.0.1920.1160@0.0.1920.1160" timestamp="1676550371044" />
+    <state width="1899" height="321" key="GridCell.Tab.0.right" timestamp="1676550371044">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1899" height="321" key="GridCell.Tab.0.right/0.0.1920.1160@0.0.1920.1160" timestamp="1676550371044" />
+    <state x="461" y="223" key="SettingsEditor" timestamp="1676549547355">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state x="461" y="223" key="SettingsEditor/0.0.1920.1160@0.0.1920.1160" timestamp="1676549547355" />
   </component>
 </project>

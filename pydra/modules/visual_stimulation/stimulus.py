@@ -209,7 +209,6 @@ class Wait(Stimulus):
         super().__init__(*args, **kwargs)
         self.t = t
         self.t0 = -1
-        self._logged = False
 
     def on_start(self, *args, **kwargs):
         self.t0 = time.time()
@@ -217,8 +216,3 @@ class Wait(Stimulus):
     def update(self, *args, **kwargs):
         if time.time() - self.t0 >= self.t:
             self.finished = True
-
-    def log(self) -> dict:
-        if not self._logged:
-            self._logged = True
-            return {"stimulus": "wait"}
