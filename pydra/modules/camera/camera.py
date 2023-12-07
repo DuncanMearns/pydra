@@ -72,7 +72,7 @@ class Camera:
         return
 
     def read(self) -> np.ndarray:
-        """Implements the acquire method for an camera object.
+        """Implements the acquire method for a camera object.
 
         Retrieves a frame with the read method, computes the timestamp, publishes the frame data over 0MQ and then
         increments the frame number.
