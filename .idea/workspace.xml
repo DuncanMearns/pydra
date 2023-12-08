@@ -4,16 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f7e01f44-8c3f-4f1b-9392-318bcb867ac5" name="Default Changelist" comment="Random files">
-      <change afterPath="$PROJECT_DIR$/module_tests/flir.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pydra_modules/cameras/flir_camera.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pyspin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/pydra.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/pydra.iml" afterDir="false" />
+    <list default="true" id="f7e01f44-8c3f-4f1b-9392-318bcb867ac5" name="Default Changelist" comment="Added support for flir camera">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/environment.yml" beforeDir="false" afterPath="$PROJECT_DIR$/environment.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pydra/gui/mainwindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/gui/mainwindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pydra/gui/public.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/gui/public.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pydra/gui/pydra_interface.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/gui/pydra_interface.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pydra/modules/camera/camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/modules/camera/camera.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pydra/modules/camera/widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/modules/camera/widget.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +57,15 @@
       </console-settings>
     </option>
   </component>
-  <component name="RunManager" selected="Python.dummy">
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\dm3169\PycharmProjects\pydra\module_tests" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\dm3169\PycharmProjects\pydra\module_tests" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.flir">
     <configuration name="Acquisition" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="pydra" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -168,8 +173,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.dummy" />
         <item itemvalue="Python.flir" />
+        <item itemvalue="Python.dummy" />
         <item itemvalue="Python.flir_camera" />
         <item itemvalue="Python.pyspin (1)" />
         <item itemvalue="Python.Acquisition" />
@@ -200,6 +205,14 @@
       <option name="presentableId" value="Default" />
       <updated>1676544898814</updated>
     </task>
+    <task id="LOCAL-00001" summary="Added support for flir camera">
+      <created>1701988747002</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1701988747002</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -227,6 +240,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Random files" />
-    <option name="LAST_COMMIT_MESSAGE" value="Random files" />
+    <MESSAGE value="Added support for flir camera" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added support for flir camera" />
   </component>
 </project>

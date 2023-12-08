@@ -147,6 +147,9 @@ class CameraWidget(ControlWidget):
     def enterIdle(self):
         self.setEnabled(True)
 
+    def on_start(self):
+        self.send_event("check_params")
+
     def dynamicUpdate(self):
         try:
             new_events = self.cache.events

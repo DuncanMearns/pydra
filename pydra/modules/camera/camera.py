@@ -113,7 +113,7 @@ class CameraAcquisition(Acquisition):
         self.send_timestamped(time.time(), self.camera.params)
 
     def acquire(self):
-        """Implements the acquire method for an camera object.
+        """Implements the acquire method for a camera object.
 
         Retrieves a frame with the read method, computes the timestamp, publishes the frame data over 0MQ and then
         increments the frame number.
@@ -132,12 +132,18 @@ class CameraAcquisition(Acquisition):
         self.camera.shutdown()
 
     def set_params(self, params, **kwargs):
-        t = time.time()
         if ("target" in kwargs) and (kwargs["target"] != self.name):
-            pass
-        else:
-            data = self.camera.__getattribute__("set_params")(*(), **params)  # call camera event
-            self.send_timestamped(t, data)
+            return
+        t = time.time()
+        data = self.camera.__getattribute__("set_params")(*(), **params)  # call camera event
+        self.send_timestamped(t, data)
+
+    def check_params(self, **kwargs):
+        if ("target" in kwargs) and (kwargs["target"] != self.name):
+            return
+        t = time.time()
+        data = self.camera.params
+        self.send_timestamped(t, data)
 
     def reset_frame_number(self, **kwargs):
         self.frame_number = 0

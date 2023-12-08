@@ -11,7 +11,6 @@ pg.setConfigOption("imageAxisOrder", "row-major")
 __all__ = ("ControlWidget", "Plotter")
 
 
-
 class ControlWidget(DynamicUpdate, Stateful, QtWidgets.QWidget):
     """Base class for user-defined control widgets for interfacing with Pydra workers. Has access to experiment state
     and associated attributes, and may be dynamically updated with data from the Pydra network via the dynamicUpdate
@@ -33,6 +32,10 @@ class ControlWidget(DynamicUpdate, Stateful, QtWidgets.QWidget):
         super().__init__()
         self.name = name
         self.params = params or {}
+
+    def on_start(self):
+        """Called once when GUI is initialized. Override in subclasses."""
+        return
 
     def send_event(self, event_name, **kwargs):
         """Emits a signal that sends an event to the Pydra network.

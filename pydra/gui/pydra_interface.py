@@ -65,7 +65,7 @@ class PydraInterface(Stateful, QtCore.QObject):
         The Pydra instance.
     """
 
-    _new_data = QtCore.pyqtSignal()
+    # _new_data = QtCore.pyqtSignal()  # DON'T THINK THIS IS USED ANYWHERE??
     update_gui = QtCore.pyqtSignal(dict)
 
     def __init__(self, pydra):
@@ -84,7 +84,7 @@ class PydraInterface(Stateful, QtCore.QObject):
             cfg.add_subscription(worker_cfg, (DATA,))
         self.backend = Backend(**cfg.connections)
         # Connect signals
-        self._new_data.connect(self.poll_data)
+        # self._new_data.connect(self.poll_data)
         self.poll_timer = QtCore.QTimer()
         self.poll_timer.setInterval(30)
         self.poll_timer.setSingleShot(True)

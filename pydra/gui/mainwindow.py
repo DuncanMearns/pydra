@@ -154,6 +154,10 @@ class MainWindow(Stateful, QtWidgets.QMainWindow):
         # Propagate signals from control dock
         for name, dock_widget in self._control_docks.items():
             dock_widget.widgetEvent.connect(self.pydra.send_event)
+        # =====================
+        # Widget initialization
+        for name, widget in self.controllers.items():
+            widget.on_start()
         # =======================
         # Start the state machine
         self.stateMachine.start()
