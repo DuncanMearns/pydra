@@ -12,6 +12,7 @@ from multiprocessing import Process
 from threading import Thread
 import pickle
 from typing import Tuple, Type, Union
+from collections import namedtuple
 
 
 __all__ = ("spawn_new", "Parallelized")
@@ -27,6 +28,7 @@ class Parallelized:
 
     name = ""
     subscriptions = ()
+    pydra_error = namedtuple("PydraError", ("error", "message", "critical"))
 
     @classmethod
     def new_subscription(cls, worker: Union[Type[PydraObject], str]):
@@ -39,6 +41,8 @@ class Parallelized:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.exit_flag = 0
+        self.is_connected = False
+        self.errors = []
 
     def close(self):
         """Sets the exit_flag, causing process to terminate."""
@@ -60,8 +64,10 @@ class Parallelized:
         """Calls setup, and then enters an endless loop that calls the _process method for as long as the exit_flag is
         not set."""
         self.setup()
+        self._handle_errors()
         while not self.exit_flag:
             self._process()
+            self._handle_errors()
         self.cleanup()
 
     def exit(self, *args, **kwargs):
@@ -77,9 +83,19 @@ class Parallelized:
     def connected(self):
         return ()
 
+    def _handle_errors(self):
+        while len(self.errors):
+            error, message, critical = self.errors.pop(-1)
+            self.raise_error(error, message, critical)
+            # if critical:
+            #     self.close()  # breaks the event loop
+
+    def catch_error(self, error: Exception, message: str = "", critical: bool = False):
+        self.errors.append(self.pydra_error(error, message, critical))
+
     @ERROR.SEND
-    def raise_error(self, error: Exception, message: str):
-        return error, message
+    def raise_error(self, error: Exception, message: str, critical: bool = False):
+        return error, message, critical
 
 
 class PydraFactory:

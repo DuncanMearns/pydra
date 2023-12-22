@@ -1,5 +1,6 @@
 try:
     from simple_pyspin import Camera as PySpinCam
+    from simple_pyspin import CameraError
     from PySpin import SpinnakerException
 except NameError:
     raise Exception(
@@ -9,6 +10,8 @@ from pydra.modules.camera import CameraModule, Camera, setter
 
 
 class FlirCamera(Camera):
+
+    camera_exception = CameraError
 
     def __init__(self, *args, camera_id=0, **kwargs):
         super().__init__(*args, **kwargs)
@@ -36,8 +39,12 @@ class FlirCamera(Camera):
         return frame
 
     def shutdown(self):
-        self.camera.stop()  # Stop recording
-        self.camera.close()  # You should explicitly clean up
+        if self.camera:
+            self.camera.stop()  # Stop recording
+            self.camera.close()  # You should explicitly clean up
+
+    # def frame_rate(self, fps: float):
+    #     self.camera.AcquisitionFrameRate = fps
 
     @setter
     def frame_rate(self, fps: float):

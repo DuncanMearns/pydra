@@ -13,3 +13,6 @@ config = Configuration(modules=[FLIR])
 
 if __name__ == "__main__":
     PydraApp.run(config)
+    # pydra = Pydra.run(config)
+    # while pydra.is_running():
+    #     pydra.receive_messages(50)

@@ -178,7 +178,7 @@ class PydraCallback:
 
 # Private backend messages
 EXIT = PydraMessage("exit", ())
-ERROR = PydraMessage("error", (object, str))
+ERROR = PydraMessage("error", (object, str, bool))
 CONNECTION = PydraMessage("connection", ())
 
 # User messages

@@ -25,6 +25,7 @@ class PydraApp(QtWidgets.QApplication):
 
     def __init__(self, argv, config: Configuration = None):
         super().__init__(argv)
+
         self.aboutToQuit.connect(self.closeAllWindows, QtCore.Qt.QueuedConnection)  # ensure always quits
         self.hasConfig.connect(self.main, QtCore.Qt.QueuedConnection)  # run main when config is specified
         if config:
@@ -47,6 +48,9 @@ class PydraApp(QtWidgets.QApplication):
         self.start_window.setEnabled(False)
         self.start_window.showMessage(f"Starting pydra with config from {self.config_file}")
         pydra = Pydra.run(config=self.config)
+        if not pydra.is_running():
+            self.start_window.quit_signal.emit()
+            return
         # Check config
         if not len(pydra.workers):
             warnings.warn("No workers are specified in the config.")

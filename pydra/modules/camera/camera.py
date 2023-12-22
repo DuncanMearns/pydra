@@ -1,6 +1,7 @@
 from pydra import Acquisition
 import time
 import numpy as np
+from dataclasses import dataclass
 
 
 __all__ = ("Camera", "CameraAcquisition", "setter")
@@ -25,6 +26,18 @@ class setter:
         return getattr(instance, self.private_name)
 
 
+@dataclass
+class CameraParameters:
+    # Controllable parameters
+    frame_rate: float = None    # fps
+    frame_width: int = None     # pixels
+    frame_height: int = None    # pixels
+    frame_x_offset: int = None  # pixels
+    frame_y_offset: int = None  # pixels
+    exposure: int = None        # microseconds
+    gain: float = None          # gain value
+
+
 class Camera:
     """Base class for cameras.
 
@@ -46,6 +59,8 @@ class Camera:
         The current frame number of the camera.
     """
 
+    camera_exception = Exception
+
     def __init__(
             self,
             frame_size: tuple = None,
@@ -55,6 +70,10 @@ class Camera:
             gain: float = None,
             *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # w, h = frame_size
+        # x, y = offsets
+        # self.params = CameraParameters(frame_rate, w, h, x, y, exposure, gain)
+        # self.max_params = CameraParameters()
         self.params = dict(
             frame_size=frame_size,
             frame_rate = frame_rate,
@@ -86,13 +105,26 @@ class Camera:
 
     def set_params(self, **params):
         new_params = {}
-        for param, val in params.items():
-            setattr(self, param, val)
-            newval = getattr(self, param)
-            new_params[param] = newval
-            print(param, "set to", newval)
+        with self as cam:
+            for param, val in params.items():
+                setattr(cam, param, val)
+                newval = getattr(cam, param)
+                new_params[param] = newval
         self.params.update(new_params)
         return new_params
+
+    # def _set_params(self, **params):
+    #     new_params = {}
+    #     for param, val in params.items():
+    #         setattr(self, param, val)
+    #         newval = getattr(self, param)
+    #         new_params[param] = newval
+    #         print(param, "set to", newval)
+    #     self.params.update(new_params)
+    #     return new_params
+
+    def is_connected(self):
+        return self.camera
 
 
 class CameraAcquisition(Acquisition):
@@ -109,8 +141,10 @@ class CameraAcquisition(Acquisition):
 
     def setup(self):
         self.camera = self.camera_type(*self.camera_args, **self.camera_params)  # instantiate camera object
-        self.camera.setup()
-        self.send_timestamped(time.time(), self.camera.params)
+        try:
+            self.camera.setup()
+        except Exception as e:
+            self.catch_error(e, "Failed to connect to camera", critical=True)
 
     def acquire(self):
         """Implements the acquire method for a camera object.
@@ -118,8 +152,11 @@ class CameraAcquisition(Acquisition):
         Retrieves a frame with the read method, computes the timestamp, publishes the frame data over 0MQ and then
         increments the frame number.
         """
-        # Grab a frame
+        if not self.camera.is_connected():
+            self.catch_error(self.camera.camera_exception(), "Failed to connect to camera", critical=True)
+            return
         frame = self.camera.read()
+        # Grab a frame
         # Get current time
         t = time.time()
         if isinstance(frame, np.ndarray) and frame.size:

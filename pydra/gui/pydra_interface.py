@@ -19,8 +19,8 @@ class Backend(PydraReceiver):
         self.caches = dict([(worker, TempCache(self.cachesize, self.arr_cachesize)) for worker in self.subscriptions])
         self.frames = {}
 
-    def raise_error(self, error: Exception, message: str):
-        raise(error)
+    def raise_error(self, error: Exception, message: str, critical: bool = False):
+        raise error
 
     def recv_indexed(self, t, i, data, **kwargs):
         self.recv_data(t, i, data, **kwargs)

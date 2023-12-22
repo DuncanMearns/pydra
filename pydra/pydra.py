@@ -2,6 +2,7 @@ from .base import *
 from .configuration import Configuration, pydra_tuple
 from .protocol.triggers import Trigger, TriggerCollection
 
+import sys
 import zmq
 import logging
 from datetime import datetime
@@ -25,6 +26,9 @@ class Pydra(PydraReceiver, PydraSender):
 
     name = "pydra"
     config = Configuration()
+
+    RUNNING = 1
+    ENDED = 0
 
     @staticmethod
     def run(config: Configuration = None, **kwargs):
@@ -54,6 +58,7 @@ class Pydra(PydraReceiver, PydraSender):
         self._saver_processes = {}
         self._worker_processes = {}
         self._connection_times = {}
+        self._running_flag = self.RUNNING
         self.zmq_lock = Lock()
 
     @property
@@ -103,6 +108,8 @@ class Pydra(PydraReceiver, PydraSender):
                 break
             self.send_event("_test_connection")
             self.receive_messages(50)
+        if not self.is_running():
+            return
         for name in names:
             t = self._connection_times[name]
             print(f"{name} connected in {t - t0:.2f} seconds.\n")
@@ -110,6 +117,10 @@ class Pydra(PydraReceiver, PydraSender):
     def check_connected(self, name):
         """Check if named pydra object is connected to the network."""
         return name in self._connection_times
+
+    def process_connected(self, source, t):
+        if source not in self._connection_times:
+            self._connection_times[source] = t
 
     @EXIT.SEND
     def _exit(self):
@@ -121,16 +132,19 @@ class Pydra(PydraReceiver, PydraSender):
         """Connection handler"""
         source = kwargs["source"]
         t = kwargs["timestamp"]
-        if source not in self._connection_times:
-            self._connection_times[source] = t
+        self.process_connected(source, t)
 
     @ERROR.CALLBACK
-    def handle_error(self, error, message, **kwargs):
+    def handle_error(self, error, message, critical, **kwargs):
         """Error handler"""
         source = kwargs["source"]
         t = kwargs["timestamp"]
         error_info = f"{source} raised {repr(error)}: {datetime.fromtimestamp(t)}.\n"
         logging.error(error_info + message)
+        if critical:
+            self.exit()
+            sys.exit(-1)
+        self.process_connected(source, t)
 
     def exit(self):
         """Ends and joins worker process for proper exiting."""
@@ -144,6 +158,10 @@ class Pydra(PydraReceiver, PydraSender):
             process.join()
             print(f"Worker {name} joined.")
         self.triggers.close()
+        messages = self.poll()  # flush cache
+        print(len(messages), "unprocessed messages.")
+        self.receive_messages()
+        self._running_flag = self.ENDED
 
     def send_event(self, event_name, **kwargs):
         """Broadcasts an event to the network (thread-safe)."""
@@ -154,3 +172,7 @@ class Pydra(PydraReceiver, PydraSender):
     def destroy():
         """Destroys the ZeroMQ context."""
         zmq.Context.instance().destroy(200)
+
+    def is_running(self):
+        """Perform a check if the exit signal has been sent."""
+        return self._running_flag == self.RUNNING

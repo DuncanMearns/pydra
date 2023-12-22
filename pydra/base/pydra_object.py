@@ -49,7 +49,7 @@ class PydraObject(metaclass=PydraType):
     def exit(self):
         return
 
-    def raise_error(self, error: Exception, message: str):
+    def raise_error(self, error: Exception, message: str, critical: bool = False):
         raise error
 
 

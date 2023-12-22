@@ -4,13 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f7e01f44-8c3f-4f1b-9392-318bcb867ac5" name="Default Changelist" comment="Added support for flir camera">
+    <list default="true" id="f7e01f44-8c3f-4f1b-9392-318bcb867ac5" name="Default Changelist" comment="Camera control gui updates on start">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pydra/gui/mainwindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/gui/mainwindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pydra/gui/public.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/gui/public.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/module_tests/flir.py" beforeDir="false" afterPath="$PROJECT_DIR$/module_tests/flir.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pydra/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pydra/base/messaging/messaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/base/messaging/messaging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pydra/base/parallelized.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/base/parallelized.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pydra/base/pydra_object.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/base/pydra_object.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pydra/gui/pydra_interface.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/gui/pydra_interface.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pydra/modules/camera/camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/modules/camera/camera.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pydra/modules/camera/widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/modules/camera/widget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pydra/pydra.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra/pydra.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pydra_modules/cameras/flir_camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/pydra_modules/cameras/flir_camera.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,14 +44,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "C:/Users/dm3169/PycharmProjects/pydra/module_tests",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/dm3169/PycharmProjects/pydra/module_tests&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="pydra" is-module-sdk="true" working-directory="$PROJECT_DIR$">
@@ -65,7 +69,7 @@
       <recent name="C:\Users\dm3169\PycharmProjects\pydra\module_tests" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.flir">
+  <component name="RunManager" selected="Python.flir_camera">
     <configuration name="Acquisition" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="pydra" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -173,9 +177,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.flir_camera" />
         <item itemvalue="Python.flir" />
         <item itemvalue="Python.dummy" />
-        <item itemvalue="Python.flir_camera" />
         <item itemvalue="Python.pyspin (1)" />
         <item itemvalue="Python.Acquisition" />
       </list>
@@ -212,7 +216,14 @@
       <option name="project" value="LOCAL" />
       <updated>1701988747002</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Camera control gui updates on start">
+      <created>1701993771708</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1701993771708</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -241,6 +252,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Random files" />
     <MESSAGE value="Added support for flir camera" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added support for flir camera" />
+    <MESSAGE value="Camera control gui updates on start" />
+    <option name="LAST_COMMIT_MESSAGE" value="Camera control gui updates on start" />
   </component>
 </project>
